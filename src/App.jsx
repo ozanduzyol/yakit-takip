@@ -32,7 +32,7 @@ const emptyForm = () => ({ date: new Date().toISOString().split("T")[0], km: "",
 export default function FuelTracker() {
   const [entries, setEntries] = useState([]);
   const [form, setForm] = useState(emptyForm());
-  const [shellPrice, setShellPrice] = useState({ benzin: "", motorin: "", lpg: "" });
+  const [shellPrice, setShellPrice] = useState({ benzin: "", motorin: "" });
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showForm, setShowForm] = useState(false);
   const [receiptImage, setReceiptImage] = useState(null);
@@ -379,8 +379,36 @@ export default function FuelTracker() {
                         }} style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#2a2a3a" }} />}
                   </div>
                   <div><label style={lbl}>Güncel Km</label><NumericInput placeholder="45.230" value={form.km} onChange={v => setForm(p => ({ ...p, km: v }))} style={{ ...inp, borderColor: form.km ? "#ff8c00" : "#2a2a3a" }} /></div>
-                  <div><label style={lbl}>Alınan Litre</label><NumericInput placeholder="35,5" value={form.liters} onChange={v => setForm(p => ({ ...p, liters: v }))} style={{ ...inp, borderColor: form.liters ? "#ff8c00" : "#2a2a3a" }} /></div>
-                  <div><label style={lbl}>Ödenen Toplam ₺</label><NumericInput placeholder="1.250,00" value={form.totalPrice} onChange={v => setForm(p => ({ ...p, totalPrice: v }))} style={{ ...inp, borderColor: form.totalPrice ? "#ff8c00" : "#2a2a3a" }} /></div>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                      <label style={lbl}>Ödenen Toplam ₺</label>
+                      {shellPrice.benzin && (
+                        <span style={{ fontSize: "10px", color: "#ff8c00", fontWeight: "600" }}>
+                          Shell 95: {formatNumber(parseTR(shellPrice.benzin))} ₺/L
+                        </span>
+                      )}
+                    </div>
+                    <NumericInput placeholder="1.250,00" value={form.totalPrice} onChange={v => setForm(p => ({ ...p, totalPrice: v }))} style={{ ...inp, borderColor: form.totalPrice ? "#ff8c00" : "#2a2a3a" }} />
+                    {form.totalPrice && shellPrice.benzin && (() => {
+                      const litre = parseTR(form.totalPrice) / parseTR(shellPrice.benzin);
+                      return litre > 0 ? (
+                        <div style={{ marginTop: "6px", fontSize: "12px", color: "#ff8c00", fontWeight: "600" }}>
+                          ≈ {formatNumber(litre)} litre
+                          <button onClick={() => setForm(p => ({ ...p, liters: toTR(litre) }))}
+                            style={{ marginLeft: "10px", background: "transparent", border: "1px solid #ff8c00", color: "#ff8c00", padding: "2px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>
+                            Kullan
+                          </button>
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                      <label style={lbl}>Alınan Litre</label>
+                      {form.liters && <span style={{ fontSize: "10px", color: "#555" }}>{formatNumber(parseTR(form.liters))} L</span>}
+                    </div>
+                    <NumericInput placeholder="35,5" value={form.liters} onChange={v => setForm(p => ({ ...p, liters: v }))} style={{ ...inp, borderColor: form.liters ? "#ff8c00" : "#2a2a3a" }} />
+                  </div>
                 </div>
 
                 <button onClick={handleAdd} disabled={saving || !form.date || !form.km || !form.liters || !form.totalPrice} style={{
@@ -646,7 +674,7 @@ export default function FuelTracker() {
               {epdkData ? (
                 <div>
                   <div style={{ fontSize: "10px", color: "#444", marginBottom: "10px" }}>Tarih: {epdkData.tarih} · {epdkData.kaynak || "EPDK"}</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                     {epdkData.benzin95 && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div>
@@ -661,13 +689,7 @@ export default function FuelTracker() {
                         <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{epdkData.motorin.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
                       </div>
                     )}
-                    {epdkData.lpg && (
-                      <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
-                        <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🔵 LPG</div>
-                        <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.lpg.fiyat)} ₺</div>
-                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{epdkData.lpg.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
-                      </div>
-                    )}
+
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", marginTop: "10px" }}>
                     {epdkData.benzin95 && (
@@ -684,18 +706,11 @@ export default function FuelTracker() {
                         onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Motorin fiyatını forma aktar</button>
                     )}
-                    {epdkData.lpg && (
-                      <button onClick={() => setShellPrice(p => ({ ...p, lpg: toTR(epdkData.lpg.fiyat) }))}
-                        style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
-                        onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
-                        onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
-                      >↓ LPG fiyatını forma aktar</button>
-                    )}
+
                     {(epdkData.benzin95 || epdkData.motorin || epdkData.lpg) && (
                       <button onClick={() => setShellPrice({
                         benzin: epdkData.benzin95 ? toTR(epdkData.benzin95.fiyat) : "",
                         motorin: epdkData.motorin ? toTR(epdkData.motorin.fiyat) : "",
-                        lpg: epdkData.lpg ? toTR(epdkData.lpg.fiyat) : "",
                       })}
                         style={{ background: "#ff8c00", border: "none", color: "#000", padding: "8px 14px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", gridColumn: "1 / -1" }}
                       >↓ Tümünü forma aktar</button>
@@ -717,8 +732,8 @@ export default function FuelTracker() {
                 </a>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", marginBottom: "16px", minWidth: 0 }}>
-              {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }, { key: "lpg", label: "LPG", emoji: "🔵" }].map(f => (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "16px", minWidth: 0 }}>
+              {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }].map(f => (
                 <div key={f.key} style={{ background: "#0f0f1a", padding: "12px 10px", borderRadius: "10px", minWidth: 0, overflow: "hidden", textAlign: "center" }}>
                   <div style={{ fontSize: "11px", fontWeight: "600", color: "#555", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>

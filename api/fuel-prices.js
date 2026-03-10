@@ -84,13 +84,13 @@ export default async function handler(req, res) {
     try {
       const html = await scrape(url);
       const { benzin, motorin, lpg } = parseHtml(html);
-      if (benzin || motorin || lpg) {
+      if (benzin || motorin) {
         return res.status(200).json({
           success: true,
           data: {
             benzin95: benzin ? { fiyat: benzin, firma: label } : null,
             motorin: motorin ? { fiyat: motorin, firma: label } : null,
-            lpg: lpg ? { fiyat: lpg, firma: label } : null,
+    
             tarih, il, ilce,
             kaynak: label,
           },

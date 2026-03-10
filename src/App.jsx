@@ -646,24 +646,24 @@ export default function FuelTracker() {
                       </div>
                     )}
                   </div>
-                  <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", marginTop: "10px" }}>
                     {epdkData.benzin95 && (
                       <button onClick={() => setShellPrice(p => ({ ...p, benzin: String(epdkData.benzin95.fiyat).replace(".", ",") }))}
-                        style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 14px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", flex: "1", minWidth: "120px" }}
+                        style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
                         onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Benzin fiyatını forma aktar</button>
                     )}
                     {epdkData.motorin && (
                       <button onClick={() => setShellPrice(p => ({ ...p, motorin: String(epdkData.motorin.fiyat).replace(".", ",") }))}
-                        style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 14px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", flex: "1", minWidth: "120px" }}
+                        style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
                         onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Motorin fiyatını forma aktar</button>
                     )}
                     {epdkData.lpg && (
                       <button onClick={() => setShellPrice(p => ({ ...p, lpg: String(epdkData.lpg.fiyat).replace(".", ",") }))}
-                        style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 14px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", flex: "1", minWidth: "120px" }}
+                        style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
                         onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
                       >↓ LPG fiyatını forma aktar</button>
@@ -674,7 +674,7 @@ export default function FuelTracker() {
                         motorin: epdkData.motorin ? String(epdkData.motorin.fiyat).replace(".", ",") : "",
                         lpg: epdkData.lpg ? String(epdkData.lpg.fiyat).replace(".", ",") : "",
                       })}
-                        style={{ background: "#ff8c00", border: "none", color: "#000", padding: "8px 14px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", width: "100%" }}
+                        style={{ background: "#ff8c00", border: "none", color: "#000", padding: "8px 14px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", gridColumn: "1 / -1" }}
                       >↓ Tümünü forma aktar</button>
                     )}
                   </div>
@@ -694,13 +694,13 @@ export default function FuelTracker() {
                 </a>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", marginBottom: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", marginBottom: "16px", minWidth: 0 }}>
               {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }, { key: "lpg", label: "LPG", emoji: "🔵" }].map(f => (
-                <div key={f.key} style={{ background: "#0f0f1a", padding: "18px", borderRadius: "10px" }}>
+                <div key={f.key} style={{ background: "#0f0f1a", padding: "12px 10px", borderRadius: "10px", minWidth: 0, overflow: "hidden" }}>
                   <div style={{ fontSize: "11px", fontWeight: "600", color: "#555", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <NumericInput placeholder="0,00" value={shellPrice[f.key]} onChange={v => setShellPrice(p => ({ ...p, [f.key]: v }))}
-                      style={{ background: "#0a0a0f", border: "1px solid #2a2a3a", color: "#e8e4d9", padding: "10px 12px", fontSize: "18px", fontWeight: "800", width: "100%", fontFamily: MONO, outline: "none", boxSizing: "border-box", borderRadius: "6px" }} />
+                      style={{ background: "#0a0a0f", border: "1px solid #2a2a3a", color: "#e8e4d9", padding: "8px 6px", fontSize: "14px", fontWeight: "800", width: "100%", fontFamily: MONO, outline: "none", boxSizing: "border-box", borderRadius: "6px", minWidth: 0 }} />
                     <span style={{ color: "#555", fontWeight: "600" }}>₺</span>
                   </div>
                   {shellPrice[f.key] && <div style={{ marginTop: "8px", fontSize: "12px", color: "#ff8c00", fontWeight: "600" }}>✓ {formatNumber(parseTR(shellPrice[f.key]))} ₺/L</div>}

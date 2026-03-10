@@ -59,6 +59,15 @@ export default function FuelTracker() {
     link.rel = "stylesheet";
     document.head.appendChild(link);
     fetchEntries();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => fetchEpdk(true),
+        () => fetchEpdk(false),
+        { timeout: 6000 }
+      );
+    } else {
+      fetchEpdk(false);
+    }
   }, []);
 
   const getIlFromCoords = async (lat, lon) => {

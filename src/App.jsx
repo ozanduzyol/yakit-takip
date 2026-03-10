@@ -286,14 +286,14 @@ export default function FuelTracker() {
           </h1>
         </div>
 
-        <div style={{ display: "flex", gap: "4px", marginBottom: "24px", borderBottom: "1px solid #1e1e2a", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: "0px", marginBottom: "24px", borderBottom: "1px solid #1e1e2a", justifyContent: "center", width: "100%" }}>
           {["dashboard", "records", "monthly", "graphs", "shell"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
               background: "none", border: "none", color: activeTab === tab ? "#ff8c00" : "#555",
-              fontSize: "12px", letterSpacing: "1px", fontWeight: "600", textTransform: "uppercase",
-              padding: "10px 14px", cursor: "pointer",
+              fontSize: "11px", letterSpacing: "0.5px", fontWeight: "600", textTransform: "uppercase",
+              padding: "10px 0", cursor: "pointer", flex: 1,
               borderBottom: activeTab === tab ? "2px solid #ff8c00" : "2px solid transparent",
-              fontFamily: FONT,
+              fontFamily: FONT, whiteSpace: "nowrap",
             }}>
               {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : tab === "monthly" ? "Aylık" : tab === "graphs" ? "Grafik" : "Fiyatlar"}
             </button>

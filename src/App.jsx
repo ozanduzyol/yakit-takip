@@ -141,8 +141,8 @@ export default function FuelTracker() {
     setEditForm({
       date: e.date,
       km: formatNumber(e.km, 0),
-      liters: toTR(e.liters),
-      totalPrice: toTR(e.totalPrice),
+      liters: formatNumber(e.liters),
+      totalPrice: formatNumber(e.totalPrice),
     });
   };
 

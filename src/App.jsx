@@ -599,22 +599,24 @@ export default function FuelTracker() {
           <div>
             {/* EPDK otomatik fiyat kartı */}
             <div style={{ background: "#0f0f1a", border: "1px solid #1e1e2a", borderRadius: "10px", padding: "16px", marginBottom: "16px", borderLeft: "3px solid #ff8c00" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-                <div>
+              <div style={{ marginBottom: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
                   <div style={{ fontSize: "11px", fontWeight: "700", color: "#ff8c00", textTransform: "uppercase", letterSpacing: "1px" }}>📡 EPDK Güncel Fiyatlar</div>
-                  <div style={{ fontSize: "11px", color: "#555", marginTop: "2px" }}>📍 {userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <button onClick={() => fetchEpdk(true)} disabled={epdkLoading} style={{
+                      background: "transparent", border: "1px solid #2a2a3a", color: "#666",
+                      padding: "5px 12px", fontSize: "11px", fontWeight: "600",
+                      cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
+                    }}>📍 Konum</button>
+                    <button onClick={() => fetchEpdk(false)} disabled={epdkLoading} style={{
+                      background: "transparent", border: "1px solid #2a2a3a", color: "#666",
+                      padding: "5px 12px", fontSize: "11px", fontWeight: "600",
+                      cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
+                    }}>{epdkLoading ? "..." : "↻ Güncelle"}</button>
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: "6px" }}>
-                  <button onClick={() => fetchEpdk(true)} disabled={epdkLoading} style={{
-                    background: "transparent", border: "1px solid #2a2a3a", color: "#666",
-                    padding: "5px 10px", fontSize: "11px", fontWeight: "600",
-                    cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
-                  }}>📍 Konum</button>
-                  <button onClick={() => fetchEpdk(false)} disabled={epdkLoading} style={{
-                    background: "transparent", border: "1px solid #2a2a3a", color: "#666",
-                    padding: "5px 10px", fontSize: "11px", fontWeight: "600",
-                    cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
-                  }}>{epdkLoading ? "..." : "↻"}</button>
+                <div style={{ textAlign: "center", fontSize: "12px", color: "#555" }}>
+                  📍 {userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
                 </div>
               </div>
               {epdkError && <div style={{ fontSize: "12px", color: "#ff4444", marginBottom: "8px" }}>⚠ {epdkError}</div>}
@@ -626,21 +628,21 @@ export default function FuelTracker() {
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.benzin95.fiyat)} ₺</div>
-                        <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.benzin95.firma}</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.benzin95.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
                       </div>
                     )}
                     {epdkData.motorin && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>⚫ Motorin</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.motorin.fiyat)} ₺</div>
-                        <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.motorin.firma}</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.motorin.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
                       </div>
                     )}
                     {epdkData.lpg && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🔵 LPG</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.lpg.fiyat)} ₺</div>
-                        <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.lpg.firma}</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.lpg.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
                       </div>
                     )}
                   </div>
@@ -692,7 +694,7 @@ export default function FuelTracker() {
                 </a>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: "8px", marginBottom: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", marginBottom: "16px" }}>
               {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }, { key: "lpg", label: "LPG", emoji: "🔵" }].map(f => (
                 <div key={f.key} style={{ background: "#0f0f1a", padding: "18px", borderRadius: "10px" }}>
                   <div style={{ fontSize: "11px", fontWeight: "600", color: "#555", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>

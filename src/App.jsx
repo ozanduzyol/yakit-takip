@@ -726,14 +726,7 @@ export default function FuelTracker() {
               )}
             </div>
 
-            <div style={{ background: "#0f0f1a", border: "1px solid #1e1e2a", borderRadius: "10px", padding: "18px", marginBottom: "16px", borderLeft: "3px solid #ffcc00" }}>
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#ffcc00", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Shell Fiyatları (Manuel)</div>
-              <div style={{ fontSize: "13px", color: "#555", lineHeight: 1.8 }}>
-                <a href="https://www.shell.com.tr/suruculer/shell-yakitlari/akaryakit-pompa-satis-fiyatlari.html" target="_blank" rel="noopener noreferrer" style={{ color: "#ffcc00", textDecoration: "none", fontWeight: "600" }}>
-                  → Shell akaryakıt fiyatları sayfasını aç ↗
-                </a>
-              </div>
-            </div>
+
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "16px", minWidth: 0 }}>
               {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }].map(f => (
                 <div key={f.key} style={{ background: "#0f0f1a", padding: "12px 10px", borderRadius: "10px", minWidth: 0, overflow: "hidden", textAlign: "center" }}>

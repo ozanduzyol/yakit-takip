@@ -104,7 +104,12 @@ export default function FuelTracker() {
   };
 
   const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
-  const toTR = (num) => num?.toString().replace(".", ",") || "";
+  const toTR = (num) => {
+    if (!num && num !== 0) return "";
+    const [int, dec] = num.toFixed(2).split(".");
+    const intFormatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return intFormatted + "," + dec;
+  };
 
   const handleAdd = async () => {
     if (!form.date || !form.km || !form.liters || !form.totalPrice) return;
@@ -140,9 +145,9 @@ export default function FuelTracker() {
     setEditingId(e.id);
     setEditForm({
       date: e.date,
-      km: formatNumber(e.km, 0),
-      liters: formatNumber(e.liters),
-      totalPrice: formatNumber(e.totalPrice),
+      km: String(Math.round(e.km)).replace(/\B(?=(\d{3})+(?!\d))/g, "."),
+      liters: toTR(e.liters),
+      totalPrice: toTR(e.totalPrice),
     });
   };
 

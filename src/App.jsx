@@ -206,6 +206,9 @@ export default function FuelTracker() {
           box-sizing: border-box !important;
           display: block !important;
         }
+        input, select, textarea {
+          font-size: 16px !important;
+        }
         * { box-sizing: border-box; }
       `}</style>
       <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(255,140,0,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
@@ -218,7 +221,7 @@ export default function FuelTracker() {
           </h1>
         </div>
 
-        <div style={{ display: "flex", gap: "4px", marginBottom: "24px", borderBottom: "1px solid #1e1e2a" }}>
+        <div style={{ display: "flex", gap: "4px", marginBottom: "24px", borderBottom: "1px solid #1e1e2a", justifyContent: "center" }}>
           {["dashboard", "records", "monthly", "shell"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
               background: "none", border: "none", color: activeTab === tab ? "#ff8c00" : "#555",
@@ -457,8 +460,11 @@ export default function FuelTracker() {
                   const a = document.createElement("a");
                   a.href = url;
                   a.download = filename;
-                  a.click();
-                  URL.revokeObjectURL(url);
+                  a.style.display = "none";
+                  document.body.appendChild(a);
+                  const evt = new MouseEvent("click", { bubbles: false, cancelable: false, view: window });
+                  a.dispatchEvent(evt);
+                  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
                 };
                 const btnStyle = {
                   background: "transparent", color: "#555",

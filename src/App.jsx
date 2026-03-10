@@ -657,21 +657,21 @@ export default function FuelTracker() {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", marginTop: "10px" }}>
                     {epdkData.benzin95 && (
-                      <button onClick={() => setShellPrice(p => ({ ...p, benzin: String(epdkData.benzin95.fiyat).replace(".", ",") }))}
+                      <button onClick={() => setShellPrice(p => ({ ...p, benzin: toTR(epdkData.benzin95.fiyat) }))}
                         style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
                         onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Benzin fiyatını forma aktar</button>
                     )}
                     {epdkData.motorin && (
-                      <button onClick={() => setShellPrice(p => ({ ...p, motorin: String(epdkData.motorin.fiyat).replace(".", ",") }))}
+                      <button onClick={() => setShellPrice(p => ({ ...p, motorin: toTR(epdkData.motorin.fiyat) }))}
                         style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
                         onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Motorin fiyatını forma aktar</button>
                     )}
                     {epdkData.lpg && (
-                      <button onClick={() => setShellPrice(p => ({ ...p, lpg: String(epdkData.lpg.fiyat).replace(".", ",") }))}
+                      <button onClick={() => setShellPrice(p => ({ ...p, lpg: toTR(epdkData.lpg.fiyat) }))}
                         style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
                         onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
@@ -679,9 +679,9 @@ export default function FuelTracker() {
                     )}
                     {(epdkData.benzin95 || epdkData.motorin || epdkData.lpg) && (
                       <button onClick={() => setShellPrice({
-                        benzin: epdkData.benzin95 ? String(epdkData.benzin95.fiyat).replace(".", ",") : "",
-                        motorin: epdkData.motorin ? String(epdkData.motorin.fiyat).replace(".", ",") : "",
-                        lpg: epdkData.lpg ? String(epdkData.lpg.fiyat).replace(".", ",") : "",
+                        benzin: epdkData.benzin95 ? toTR(epdkData.benzin95.fiyat) : "",
+                        motorin: epdkData.motorin ? toTR(epdkData.motorin.fiyat) : "",
+                        lpg: epdkData.lpg ? toTR(epdkData.lpg.fiyat) : "",
                       })}
                         style={{ background: "#ff8c00", border: "none", color: "#000", padding: "8px 14px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", gridColumn: "1 / -1" }}
                       >↓ Tümünü forma aktar</button>

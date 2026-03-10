@@ -47,6 +47,7 @@ export default function FuelTracker() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [editSaving, setEditSaving] = useState(false);
+  const [filterMonth, setFilterMonth] = useState("all");
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -333,12 +334,41 @@ export default function FuelTracker() {
         )}
 
         {/* RECORDS */}
-        {!loading && activeTab === "records" && (
+        {!loading && activeTab === "records" && (() => {
+          const months = [...new Set(enriched.map(e => e.date.slice(0, 7)))].sort().reverse();
+          const filteredEnriched = filterMonth === "all" ? enriched : enriched.filter(e => e.date.startsWith(filterMonth));
+          const monthName = (key) => {
+            const [y, m] = key.split("-");
+            const names = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+            return `${names[parseInt(m)-1]} ${y}`;
+          };
+          return (
           <div>
-            {enriched.length === 0
-              ? <div style={{ color: "#555", textAlign: "center", padding: "48px", fontSize: "14px" }}>Henüz kayıt yok.</div>
+            {/* Month filter */}
+            {months.length > 1 && (
+              <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
+                <button onClick={() => setFilterMonth("all")} style={{
+                  background: filterMonth === "all" ? "#ff8c00" : "transparent",
+                  color: filterMonth === "all" ? "#000" : "#555",
+                  border: "1px solid " + (filterMonth === "all" ? "#ff8c00" : "#2a2a3a"),
+                  padding: "5px 12px", fontSize: "11px", fontWeight: "600",
+                  cursor: "pointer", fontFamily: FONT, borderRadius: "20px",
+                }}>Tümü</button>
+                {months.map(m => (
+                  <button key={m} onClick={() => setFilterMonth(m)} style={{
+                    background: filterMonth === m ? "#ff8c00" : "transparent",
+                    color: filterMonth === m ? "#000" : "#555",
+                    border: "1px solid " + (filterMonth === m ? "#ff8c00" : "#2a2a3a"),
+                    padding: "5px 12px", fontSize: "11px", fontWeight: "600",
+                    cursor: "pointer", fontFamily: FONT, borderRadius: "20px",
+                  }}>{monthName(m)}</button>
+                ))}
+              </div>
+            )}
+            {filteredEnriched.length === 0
+              ? <div style={{ color: "#555", textAlign: "center", padding: "48px", fontSize: "14px" }}>Bu ayda kayıt yok.</div>
               : <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {enriched.map((e, i) => (
+                  {filteredEnriched.map((e, i) => (
                     <div key={e.id} style={{ background: "#0f0f1a", borderRadius: "10px", borderLeft: i === 0 ? "3px solid #2a2a3a" : "3px solid #ff8c00", overflow: "hidden" }}>
 
                       {editingId === e.id ? (
@@ -414,8 +444,49 @@ export default function FuelTracker() {
                   ))}
                 </div>
             }
+
+            {filteredEnriched.length > 0 && (() => {
+                const downloadCSV = (data, filename) => {
+                  const header = "Tarih,KM,Litre,Tutar (TL),Tuketim (L/100km)";
+                  const rows = data.map(e =>
+                    `${e.date},${e.km},${e.liters},${e.totalPrice},${e.consumption ? e.consumption.toFixed(2) : ""}`
+                  );
+                  const csv = [header, ...rows].join("\n");
+                  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = filename;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                };
+                const btnStyle = {
+                  background: "transparent", color: "#555",
+                  border: "1px solid #2a2a3a", padding: "11px 20px", fontSize: "12px",
+                  fontWeight: "600", cursor: "pointer", fontFamily: FONT,
+                  display: "flex", alignItems: "center", gap: "8px",
+                  borderRadius: "8px", flex: 1, justifyContent: "center",
+                };
+                return (
+                  <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+                    <button onClick={() => downloadCSV(filteredEnriched, `fuel-tracker-${filterMonth === "all" ? "tum" : filterMonth}-${new Date().toISOString().slice(0,10)}.csv`)}
+                      style={btnStyle}
+                      onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
+                      onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
+                    >↓ {filterMonth === "all" ? "CSV indir" : "Seçili ayı indir"}</button>
+                    {filterMonth !== "all" && (
+                      <button onClick={() => downloadCSV(enriched, `fuel-tracker-tum-${new Date().toISOString().slice(0,10)}.csv`)}
+                        style={btnStyle}
+                        onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
+                        onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
+                      >↓ Tüm kayıtları indir</button>
+                    )}
+                  </div>
+                );
+              })()}
           </div>
-        )}
+          );
+        })()}
 
 
         {/* MONTHLY */}

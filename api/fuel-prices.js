@@ -37,15 +37,15 @@ function parseHtml(html) {
 
   return {
     benzin: parse([
-      /benzin\s+fiyat[ıi]\s+([\d,\.]+)\s+lira/i,
+      /benzin fiyat[ıi]\s+([\d,]+)\s+lira/i,
       /benzin[^<]{0,120}?([\d]{2,3}[,\.]\d{2})/i,
     ]),
     motorin: parse([
-      /motorin\s+fiyat[ıi]\s+([\d,\.]+)\s+lira/i,
+      /motorin fiyat[ıi]\s+([\d,]+)\s+lira/i,
       /motorin[^<]{0,120}?([\d]{2,3}[,\.]\d{2})/i,
     ]),
     lpg: parse([
-      /lpg\s+fiyat[ıi]\s+([\d,\.]+)\s+lira/i,
+      /lpg fiyat[ıi]\s+([\d,]+)\s+lira/i,
       /(?:lpg|otogaz)[^<]{0,120}?([\d]{1,3}[,\.]\d{2})/i,
     ]),
   };

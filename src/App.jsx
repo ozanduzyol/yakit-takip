@@ -70,12 +70,14 @@ export default function FuelTracker() {
     }
   }, []);
 
-  const getIlFromCoords = async (lat, lon) => {
+  const getLocationInfo = async (lat, lon) => {
     const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=tr`, {
       headers: { "User-Agent": "FuelTrackerApp/1.0" }
     });
     const json = await r.json();
-    return json.address?.province || json.address?.state || json.address?.city || "bursa";
+    const il = json.address?.province || json.address?.state || json.address?.city || "bursa";
+    const ilce = json.address?.county || json.address?.suburb || json.address?.district || "";
+    return { il, ilce };
   };
 
   const fetchEpdk = async (useLocation = false) => {
@@ -83,6 +85,7 @@ export default function FuelTracker() {
     setEpdkError(null);
     try {
       let il = userIl;
+      let ilce = "nilufer";
       if (useLocation) {
         const coords = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(
@@ -91,10 +94,12 @@ export default function FuelTracker() {
             { timeout: 8000 }
           );
         });
-        il = await getIlFromCoords(coords.lat, coords.lon);
+        const info = await getLocationInfo(coords.lat, coords.lon);
+        il = info.il;
+        ilce = info.ilce;
         setUserIl(il);
       }
-      const res = await fetch(`/api/fuel-prices?il=${encodeURIComponent(il)}`);
+      const res = await fetch(`/api/fuel-prices?il=${encodeURIComponent(il)}&ilce=${encodeURIComponent(ilce)}`);
       const json = await res.json();
       if (json.success) {
         setEpdkData(json.data);
@@ -640,7 +645,7 @@ export default function FuelTracker() {
               {epdkError && <div style={{ fontSize: "12px", color: "#ff4444", marginBottom: "8px" }}>⚠ {epdkError}</div>}
               {epdkData ? (
                 <div>
-                  <div style={{ fontSize: "10px", color: "#444", marginBottom: "10px" }}>Tarih: {epdkData.tarih} · Kaynak: EPDK</div>
+                  <div style={{ fontSize: "10px", color: "#444", marginBottom: "10px" }}>Tarih: {epdkData.tarih} · {epdkData.kaynak || "EPDK"}</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
                     {epdkData.benzin95 && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>

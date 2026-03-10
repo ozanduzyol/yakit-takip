@@ -174,8 +174,8 @@ export default function FuelTracker() {
 
   const inp = {
     background: "#13131f", border: "1px solid #2a2a3a", color: "#e8e4d9",
-    padding: "10px 12px", width: "100%", fontSize: "14px", fontFamily: FONT,
-    outline: "none", boxSizing: "border-box", borderRadius: "6px",
+    padding: "10px 12px", width: "100%", maxWidth: "100%", fontSize: "14px", fontFamily: FONT,
+    outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "block",
   };
 
   const editInp = {
@@ -200,15 +200,15 @@ export default function FuelTracker() {
         </div>
 
         <div style={{ display: "flex", gap: "4px", marginBottom: "24px", borderBottom: "1px solid #1e1e2a" }}>
-          {["dashboard", "records", "shell"].map(tab => (
+          {["dashboard", "records", "monthly", "shell"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
               background: "none", border: "none", color: activeTab === tab ? "#ff8c00" : "#555",
               fontSize: "12px", letterSpacing: "1px", fontWeight: "600", textTransform: "uppercase",
-              padding: "10px 18px", cursor: "pointer",
+              padding: "10px 14px", cursor: "pointer",
               borderBottom: activeTab === tab ? "2px solid #ff8c00" : "2px solid transparent",
               fontFamily: FONT,
             }}>
-              {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : "Shell"}
+              {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : tab === "monthly" ? "Aylık" : "Shell"}
             </button>
           ))}
         </div>
@@ -277,7 +277,7 @@ export default function FuelTracker() {
                   {scanError && <div style={{ color: "#ff4444", fontSize: "12px", marginTop: "6px" }}>⚠ {scanError}</div>}
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: "12px", marginBottom: "16px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
                       <span style={lbl}>Tarih</span>
@@ -286,7 +286,7 @@ export default function FuelTracker() {
                       </button>
                     </div>
                     {dateMode === "picker"
-                      ? <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#2a2a3a", colorScheme: "dark" }} />
+                      ? <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#2a2a3a", colorScheme: "dark", maxWidth: "100%", display: "block" }} />
                       : <input type="text" placeholder="GG.AA.YYYY" value={form.date} onChange={e => {
                           const raw = e.target.value;
                           setForm(p => {
@@ -326,23 +326,23 @@ export default function FuelTracker() {
                       {editingId === e.id ? (
                         /* ── EDIT MODE ── */
                         <div style={{ padding: "14px" }}>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: "10px", marginBottom: "12px" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
                             <div>
                               <div style={{ ...lbl, marginBottom: "4px" }}>Tarih</div>
                               <input type="date" value={editForm.date} onChange={ev => setEditForm(p => ({ ...p, date: ev.target.value }))}
-                                style={{ ...editInp, colorScheme: "dark" }} />
+                                style={{ ...editInp, colorScheme: "dark", width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "block" }} />
                             </div>
                             <div>
                               <div style={{ ...lbl, marginBottom: "4px" }}>Km</div>
-                              <NumericInput value={editForm.km} onChange={v => setEditForm(p => ({ ...p, km: v }))} placeholder="45.230" style={editInp} />
+                              <NumericInput value={editForm.km} onChange={v => setEditForm(p => ({ ...p, km: v }))} placeholder="45.230" style={{ ...editInp, width: "100%", maxWidth: "100%", boxSizing: "border-box" }} />
                             </div>
                             <div>
                               <div style={{ ...lbl, marginBottom: "4px" }}>Litre</div>
-                              <NumericInput value={editForm.liters} onChange={v => setEditForm(p => ({ ...p, liters: v }))} placeholder="35,5" style={editInp} />
+                              <NumericInput value={editForm.liters} onChange={v => setEditForm(p => ({ ...p, liters: v }))} placeholder="35,5" style={{ ...editInp, width: "100%", maxWidth: "100%", boxSizing: "border-box" }} />
                             </div>
                             <div>
                               <div style={{ ...lbl, marginBottom: "4px" }}>Tutar ₺</div>
-                              <NumericInput value={editForm.totalPrice} onChange={v => setEditForm(p => ({ ...p, totalPrice: v }))} placeholder="1.250,00" style={editInp} />
+                              <NumericInput value={editForm.totalPrice} onChange={v => setEditForm(p => ({ ...p, totalPrice: v }))} placeholder="1.250,00" style={{ ...editInp, width: "100%", maxWidth: "100%", boxSizing: "border-box" }} />
                             </div>
                           </div>
                           <div style={{ display: "flex", gap: "8px" }}>
@@ -360,39 +360,33 @@ export default function FuelTracker() {
                         /* ── VIEW MODE ── */
                         <>
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
-                            <span style={{ fontSize: "13px", fontWeight: "700", color: i === 0 ? "#555" : "#e8e4d9", fontFamily: MONO, minWidth: 0, flexShrink: 0 }}>{e.date}</span>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+                            <span style={{ fontSize: "13px", fontWeight: "700", color: i === 0 ? "#555" : "#e8e4d9", fontFamily: MONO }}>{e.date}</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                               {e.receipt && (
                                 <a href={e.receipt} target="_blank" rel="noopener noreferrer">
                                   <img src={e.receipt} alt="fiş" style={{ width: "26px", height: "34px", objectFit: "cover", border: "1px solid #ff8c00", borderRadius: "3px", display: "block" }} />
                                 </a>
                               )}
-                              <button onClick={() => startEdit(e)} style={{
-                                background: "none", border: "1px solid #2a2a3a", color: "#666", cursor: "pointer",
-                                padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px",
-                              }}
+                              <button onClick={() => startEdit(e)} style={{ background: "none", border: "1px solid #2a2a3a", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }}
                                 onMouseEnter={ev => { ev.target.style.borderColor = "#ff8c00"; ev.target.style.color = "#ff8c00"; }}
                                 onMouseLeave={ev => { ev.target.style.borderColor = "#2a2a3a"; ev.target.style.color = "#666"; }}
                               >✎</button>
-                              <button onClick={() => handleDelete(e.id, e.receipt)} style={{
-                                background: "none", border: "1px solid #2a2a3a", color: "#444", cursor: "pointer",
-                                padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px",
-                              }}
+                              <button onClick={() => handleDelete(e.id, e.receipt)} style={{ background: "none", border: "1px solid #2a2a3a", color: "#444", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }}
                                 onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }}
                                 onMouseLeave={ev => { ev.target.style.borderColor = "#2a2a3a"; ev.target.style.color = "#444"; }}
                               >✕</button>
                             </div>
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid #1a1a2a" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
                               { label: "Km", val: formatNumber(e.km, 0) },
                               { label: "Litre", val: `${formatNumber(e.liters)} L` },
                               { label: "Ödeme", val: `${formatNumber(e.totalPrice)} ₺` },
                               { label: "Tüketim", val: e.consumption ? `${formatNumber(e.consumption)} L/100` : "—", highlight: !!e.consumption },
                             ].map((col, ci) => (
-                              <div key={col.label} style={{ padding: "10px 12px", borderRight: ci < 3 ? "1px solid #1a1a2a" : "none" }}>
+                              <div key={col.label} style={{ padding: "10px 14px", borderRight: ci % 2 === 0 ? "1px solid #1a1a2a" : "none", borderTop: ci >= 2 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "9px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
-                                <div style={{ fontSize: "12px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{col.val}</div>
+                                <div style={{ fontSize: "13px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO }}>{col.val}</div>
                               </div>
                             ))}
                           </div>
@@ -404,6 +398,64 @@ export default function FuelTracker() {
             }
           </div>
         )}
+
+
+        {/* MONTHLY */}
+        {!loading && activeTab === "monthly" && (() => {
+          // Group entries by YYYY-MM
+          const byMonth = {};
+          enriched.forEach(e => {
+            const key = e.date.slice(0, 7);
+            if (!byMonth[key]) byMonth[key] = { liters: 0, spent: 0, km: 0, count: 0, entries: [] };
+            byMonth[key].liters += e.liters;
+            byMonth[key].spent += e.totalPrice;
+            byMonth[key].count += 1;
+            byMonth[key].entries.push(e);
+          });
+          const months = Object.keys(byMonth).sort().reverse();
+          const monthName = (key) => {
+            const [y, m] = key.split("-");
+            const names = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+            return `${names[parseInt(m)-1]} ${y}`;
+          };
+          return (
+            <div>
+              {months.length === 0
+                ? <div style={{ color: "#555", textAlign: "center", padding: "48px", fontSize: "14px" }}>Henüz kayıt yok.</div>
+                : <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {months.map(key => {
+                      const m = byMonth[key];
+                      // km for month: last km - first km in that month
+                      const sortedE = m.entries.sort((a,b) => a.date.localeCompare(b.date));
+                      const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length-1].km - sortedE[0].km : null;
+                      const cons = monthKm > 0 ? (m.liters / monthKm) * 100 : null;
+                      return (
+                        <div key={key} style={{ background: "#0f0f1a", borderRadius: "10px", borderLeft: "3px solid #ff8c00", overflow: "hidden" }}>
+                          <div style={{ padding: "12px 14px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: "15px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{monthName(key)}</span>
+                            <span style={{ fontSize: "11px", color: "#555", fontWeight: "500" }}>{m.count} dolum</span>
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", borderTop: "1px solid #1a1a2a" }}>
+                            {[
+                              { label: "Toplam Yakıt", val: `${formatNumber(m.liters)} L` },
+                              { label: "Toplam Harcama", val: `${formatNumber(m.spent)} ₺` },
+                              { label: "Ort. L/100km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },
+                              { label: "Ort. ₺/Litre", val: m.liters > 0 ? `${formatNumber(m.spent / m.liters)} ₺` : "—" },
+                            ].map((col, ci) => (
+                              <div key={col.label} style={{ padding: "10px 14px", borderRight: ci % 2 === 0 ? "1px solid #1a1a2a" : "none", borderTop: ci >= 2 ? "1px solid #1a1a2a" : "none" }}>
+                                <div style={{ fontSize: "9px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
+                                <div style={{ fontSize: "14px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO }}>{col.val}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+              }
+            </div>
+          );
+        })()}
 
         {/* SHELL */}
         {!loading && activeTab === "shell" && (

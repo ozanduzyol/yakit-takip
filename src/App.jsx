@@ -180,8 +180,9 @@ export default function FuelTracker() {
 
   const editInp = {
     background: "#0a0a0f", border: "1px solid #ff8c00", color: "#e8e4d9",
-    padding: "6px 10px", width: "100%", fontSize: "13px", fontFamily: MONO,
+    padding: "6px 10px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "13px", fontFamily: MONO,
     outline: "none", boxSizing: "border-box", borderRadius: "5px", fontWeight: "700",
+    WebkitAppearance: "none", appearance: "none", display: "block",
   };
 
   const lbl = { fontSize: "10px", letterSpacing: "1px", color: "#555", display: "block", marginBottom: "6px", fontWeight: "600", textTransform: "uppercase", fontFamily: FONT };
@@ -189,6 +190,18 @@ export default function FuelTracker() {
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0f", color: "#e8e4d9", fontFamily: FONT, overflowX: "hidden" }}>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+      <style>{`
+        input[type="date"] {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          box-sizing: border-box !important;
+          display: block !important;
+        }
+        * { box-sizing: border-box; }
+      `}</style>
       <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(255,140,0,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
       <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto", padding: "24px 16px" }}>
 
@@ -330,7 +343,7 @@ export default function FuelTracker() {
                             <div>
                               <div style={{ ...lbl, marginBottom: "4px" }}>Tarih</div>
                               <input type="date" value={editForm.date} onChange={ev => setEditForm(p => ({ ...p, date: ev.target.value }))}
-                                style={{ ...editInp, colorScheme: "dark", width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "block" }} />
+                                style={{ ...editInp, colorScheme: "dark", width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "block", WebkitAppearance: "none", appearance: "none", minWidth: 0 }} />
                             </div>
                             <div>
                               <div style={{ ...lbl, marginBottom: "4px" }}>Km</div>

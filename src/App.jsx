@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import logo from './assets/logo.svg';
 
 const SUPABASE_URL = "https://delljhepbcevggfokcwy.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlbGxqaGVwYmNldmdnZm9rY3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5ODAzNDgsImV4cCI6MjA4ODU1NjM0OH0.HIgJdaZ0pk7uRNBYMuW4kkBlTlZoXcxQP74f8J_s6SU";
@@ -153,10 +154,7 @@ export default function FuelTracker() {
       <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "24px 20px" }}>
 
         <div style={{ marginBottom: "32px" }}>
-          <div style={{ fontSize: "11px", letterSpacing: "4px", color: "#ff8c00", marginBottom: "4px" }}>⬡ YAKIT TAKİP</div>
-          <h1 style={{ fontSize: "clamp(28px,6vw,48px)", fontWeight: "900", margin: 0, letterSpacing: "-2px", lineHeight: 1 }}>
-            FUEL<br /><span style={{ color: "#ff8c00" }}>TRACKER</span>
-          </h1>
+        <img src={logo} width="64" height="64" style={{ marginBottom: "8px", display: "block" }} />
         </div>
 
         <div style={{ display: "flex", gap: "2px", marginBottom: "28px", borderBottom: "1px solid #1e1e2a" }}>

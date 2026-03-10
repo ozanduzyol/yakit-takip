@@ -1,10 +1,37 @@
 import { useState, useEffect } from "react";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import logo from './assets/logo.svg';
 
 const SUPABASE_URL = "https://delljhepbcevggfokcwy.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlbGxqaGVwYmNldmdnZm9rY3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5ODAzNDgsImV4cCI6MjA4ODU1NjM0OH0.HIgJdaZ0pk7uRNBYMuW4kkBlTlZoXcxQP74f8J_s6SU";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Format number: binlik . ondalık ,
+function formatNumber(val, decimals = 2) {
+  if (val === null || val === undefined || val === "") return "";
+  const num = parseFloat(val);
+  if (isNaN(num)) return "";
+  return num.toLocaleString("tr-TR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+// Numeric input with Turkish formatting (inputmode numeric, allows comma)
+function NumericInput({ value, onChange, placeholder, style }) {
+  const handleChange = (e) => {
+    // Allow only digits and comma
+    const raw = e.target.value.replace(/[^0-9,]/g, "");
+    onChange(raw);
+  };
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      pattern="[0-9,]*"
+      placeholder={placeholder}
+      value={value}
+      onChange={handleChange}
+      style={style}
+    />
+  );
+}
 
 export default function FuelTracker() {
   const [entries, setEntries] = useState([]);
@@ -18,6 +45,7 @@ export default function FuelTracker() {
   const [scanError, setScanError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dateMode, setDateMode] = useState("picker"); // "picker" | "manual"
 
   useEffect(() => { fetchEntries(); }, []);
 
@@ -46,7 +74,6 @@ export default function FuelTracker() {
     setScanError(null);
     setScanning(true);
     setReceiptFile(file);
-
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const base64 = ev.target.result.split(",")[1];
@@ -73,8 +100,8 @@ export default function FuelTracker() {
         setForm(p => ({
           ...p,
           date: parsed.date || p.date,
-          liters: parsed.liters?.toString() || p.liters,
-          totalPrice: parsed.totalPrice?.toString() || p.totalPrice,
+          liters: parsed.liters?.toString().replace(".", ",") || p.liters,
+          totalPrice: parsed.totalPrice?.toString().replace(".", ",") || p.totalPrice,
         }));
       } catch {
         setScanError("Fiş okunamadı. Lütfen bilgileri manuel girin.");
@@ -85,10 +112,12 @@ export default function FuelTracker() {
     reader.readAsDataURL(file);
   };
 
+  // Parse Turkish formatted number (comma as decimal)
+  const parseTR = (str) => parseFloat((str || "").replace(",", "."));
+
   const handleAdd = async () => {
     if (!form.date || !form.km || !form.liters || !form.totalPrice) return;
     setSaving(true);
-
     let receiptUrl = null;
     if (receiptFile) {
       const fileName = `${Date.now()}_${receiptFile.name}`;
@@ -100,15 +129,13 @@ export default function FuelTracker() {
         receiptUrl = urlData.publicUrl;
       }
     }
-
     const { error } = await supabase.from("fuel_entries").insert({
       date: form.date,
-      km: parseFloat(form.km),
-      liters: parseFloat(form.liters),
-      total_price: parseFloat(form.totalPrice),
+      km: parseTR(form.km),
+      liters: parseTR(form.liters),
+      total_price: parseTR(form.totalPrice),
       receipt_url: receiptUrl,
     });
-
     if (!error) {
       await fetchEntries();
       setForm({ date: "", km: "", liters: "", totalPrice: "" });
@@ -143,20 +170,33 @@ export default function FuelTracker() {
   });
 
   const inp = {
-    background: "#0a0a0f", border: "1px solid #2a2a3a", color: "#e8e4d9",
-    padding: "10px 12px", width: "100%", fontSize: "14px",
-    fontFamily: "'Courier New', monospace", outline: "none", boxSizing: "border-box",
+    background: "#13131f",
+    border: "1px solid #2a2a3a",
+    color: "#e8e4d9",
+    padding: "10px 12px",
+    width: "100%",
+    fontSize: "14px",
+    fontFamily: "'Courier New', monospace",
+    outline: "none",
+    boxSizing: "border-box",
   };
+
+  const formBg = "#0d0d18";
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0f", color: "#e8e4d9", fontFamily: "'Courier New', monospace" }}>
       <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(255,140,0,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
       <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "24px 20px" }}>
 
+        {/* Header — no logo image, just text */}
         <div style={{ marginBottom: "32px" }}>
-        <img src={logo} width="64" height="64" style={{ marginBottom: "8px", display: "block" }} />
+          <div style={{ fontSize: "11px", letterSpacing: "4px", color: "#ff8c00", marginBottom: "4px" }}>⛽ YAKIT TAKİP</div>
+          <h1 style={{ fontSize: "clamp(28px,6vw,48px)", fontWeight: "900", margin: 0, letterSpacing: "-2px", lineHeight: 1 }}>
+            FUEL<br /><span style={{ color: "#ff8c00" }}>TRACKER</span>
+          </h1>
         </div>
 
+        {/* Tabs */}
         <div style={{ display: "flex", gap: "2px", marginBottom: "28px", borderBottom: "1px solid #1e1e2a" }}>
           {["dashboard", "records", "shell"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
@@ -171,11 +211,10 @@ export default function FuelTracker() {
         </div>
 
         {loading && (
-          <div style={{ textAlign: "center", padding: "48px", color: "#555", letterSpacing: "3px", fontSize: "11px" }}>
-            ⏳ YÜKLENİYOR...
-          </div>
+          <div style={{ textAlign: "center", padding: "48px", color: "#555", letterSpacing: "3px", fontSize: "11px" }}>⏳ YÜKLENİYOR...</div>
         )}
 
+        {/* DASHBOARD */}
         {!loading && activeTab === "dashboard" && (
           <div>
             {entries.length < 2 && (
@@ -188,9 +227,9 @@ export default function FuelTracker() {
               <>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: "2px", marginBottom: "2px" }}>
                   {[
-                    { label: "100 KM TÜKETİM", value: `${avg100km.toFixed(2)} L`, unit: "/ 100 km" },
-                    { label: "KM MALİYETİ", value: `${avgPerKm.toFixed(2)} ₺`, unit: "/ km" },
-                    { label: "LİTRE FİYATI", value: `${avgLiterPrice.toFixed(2)} ₺`, unit: "/ L ort." },
+                    { label: "100 KM TÜKETİM", value: `${formatNumber(avg100km)} L`, unit: "/ 100 km" },
+                    { label: "KM MALİYETİ", value: `${formatNumber(avgPerKm)} ₺`, unit: "/ km" },
+                    { label: "LİTRE FİYATI", value: `${formatNumber(avgLiterPrice)} ₺`, unit: "/ L ort." },
                   ].map(s => (
                     <div key={s.label} style={{ background: "#0f0f1a", padding: "24px 20px", borderLeft: "3px solid #ff8c00" }}>
                       <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#666", marginBottom: "8px" }}>{s.label}</div>
@@ -201,9 +240,9 @@ export default function FuelTracker() {
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: "2px", marginBottom: "24px" }}>
                   {[
-                    { label: "TOPLAM KM", value: `${totalKm.toFixed(0)} km` },
-                    { label: "TOPLAM YAKIT", value: `${totalLiters.toFixed(2)} L` },
-                    { label: "TOPLAM HARCAMA", value: `${totalSpent.toFixed(2)} ₺` },
+                    { label: "TOPLAM KM", value: `${formatNumber(totalKm, 0)} km` },
+                    { label: "TOPLAM YAKIT", value: `${formatNumber(totalLiters)} L` },
+                    { label: "TOPLAM HARCAMA", value: `${formatNumber(totalSpent)} ₺` },
                   ].map(s => (
                     <div key={s.label} style={{ background: "#0f0f1a", padding: "18px 20px" }}>
                       <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#444", marginBottom: "6px" }}>{s.label}</div>
@@ -224,7 +263,9 @@ export default function FuelTracker() {
             </button>
 
             {showForm && (
-              <div style={{ background: "#0f0f1a", padding: "24px", border: "1px solid #1e1e2a" }}>
+              <div style={{ background: formBg, padding: "24px", border: "1px solid #1e1e2a" }}>
+
+                {/* Receipt Upload */}
                 <div style={{ marginBottom: "20px" }}>
                   <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#ff8c00", marginBottom: "10px" }}>📷 FİŞ TARAT (OPSİYONEL)</div>
                   <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#0a0a0f", border: "1px dashed #ff8c00", padding: "16px 20px" }}>
@@ -243,20 +284,64 @@ export default function FuelTracker() {
                   {scanError && <div style={{ color: "#ff4444", fontSize: "11px", marginTop: "8px" }}>⚠ {scanError}</div>}
                 </div>
 
+                {/* Form fields */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: "12px", marginBottom: "16px" }}>
-                  {[
-                    { key: "date", label: "TARİH", type: "date" },
-                    { key: "km", label: "GÜNCEL KM", type: "number", placeholder: "ör. 45230" },
-                    { key: "liters", label: "ALINAN LİTRE", type: "number", placeholder: "ör. 35.5" },
-                    { key: "totalPrice", label: "ÖDENEN TOPLAM ₺", type: "number", placeholder: "ör. 1250.00" },
-                  ].map(f => (
-                    <div key={f.key}>
-                      <label style={{ fontSize: "9px", letterSpacing: "3px", color: "#555", display: "block", marginBottom: "6px" }}>{f.label}</label>
-                      <input type={f.type} placeholder={f.placeholder} value={form[f.key]}
-                        onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-                        style={{ ...inp, borderColor: form[f.key] ? "#ff8c00" : "#2a2a3a" }} />
+                  
+                  {/* Date field with toggle */}
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                      <label style={{ fontSize: "9px", letterSpacing: "3px", color: "#555" }}>TARİH</label>
+                      <button onClick={() => setDateMode(dateMode === "picker" ? "manual" : "picker")} style={{
+                        background: "none", border: "none", color: "#ff8c00", fontSize: "9px",
+                        letterSpacing: "1px", cursor: "pointer", fontFamily: "'Courier New', monospace", padding: 0,
+                      }}>
+                        {dateMode === "picker" ? "MANUEL GİR" : "TAKVİM"}
+                      </button>
                     </div>
-                  ))}
+                    {dateMode === "picker" ? (
+                      <input type="date" value={form.date}
+                        onChange={e => setForm(p => ({ ...p, date: e.target.value }))}
+                        style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#2a2a3a", colorScheme: "dark" }} />
+                    ) : (
+                      <input type="text" placeholder="GG.AA.YYYY" value={form.date}
+                        onChange={e => {
+                          // Convert DD.MM.YYYY to YYYY-MM-DD
+                          const raw = e.target.value;
+                          setForm(p => {
+                            const parts = raw.split(".");
+                            const iso = parts.length === 3 && parts[2].length === 4
+                              ? `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`
+                              : raw;
+                            return { ...p, date: iso };
+                          });
+                        }}
+                        style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#2a2a3a" }} />
+                    )}
+                  </div>
+
+                  {/* KM */}
+                  <div>
+                    <label style={{ fontSize: "9px", letterSpacing: "3px", color: "#555", display: "block", marginBottom: "6px" }}>GÜNCEL KM</label>
+                    <NumericInput placeholder="ör. 45.230" value={form.km}
+                      onChange={v => setForm(p => ({ ...p, km: v }))}
+                      style={{ ...inp, borderColor: form.km ? "#ff8c00" : "#2a2a3a" }} />
+                  </div>
+
+                  {/* Liters */}
+                  <div>
+                    <label style={{ fontSize: "9px", letterSpacing: "3px", color: "#555", display: "block", marginBottom: "6px" }}>ALINAN LİTRE</label>
+                    <NumericInput placeholder="ör. 35,5" value={form.liters}
+                      onChange={v => setForm(p => ({ ...p, liters: v }))}
+                      style={{ ...inp, borderColor: form.liters ? "#ff8c00" : "#2a2a3a" }} />
+                  </div>
+
+                  {/* Total price */}
+                  <div>
+                    <label style={{ fontSize: "9px", letterSpacing: "3px", color: "#555", display: "block", marginBottom: "6px" }}>ÖDENEN TOPLAM ₺</label>
+                    <NumericInput placeholder="ör. 1.250,00" value={form.totalPrice}
+                      onChange={v => setForm(p => ({ ...p, totalPrice: v }))}
+                      style={{ ...inp, borderColor: form.totalPrice ? "#ff8c00" : "#2a2a3a" }} />
+                  </div>
                 </div>
 
                 <button onClick={handleAdd} disabled={saving || !form.date || !form.km || !form.liters || !form.totalPrice} style={{
@@ -272,6 +357,7 @@ export default function FuelTracker() {
           </div>
         )}
 
+        {/* RECORDS */}
         {!loading && activeTab === "records" && (
           <div>
             {enriched.length === 0 ? (
@@ -281,14 +367,14 @@ export default function FuelTracker() {
                 {enriched.map((e, i) => (
                   <div key={e.id} style={{
                     background: "#0f0f1a", padding: "16px 20px",
-                    display: "grid", gridTemplateColumns: "100px 80px 80px 100px 110px auto auto",
+                    display: "grid", gridTemplateColumns: "100px 90px 80px 110px 120px auto auto",
                     gap: "12px", alignItems: "center", borderLeft: i === 0 ? "3px solid #2a2a3a" : "3px solid #ff8c00",
                   }}>
                     {[
                       { label: "TARİH", val: e.date },
-                      { label: "KM", val: e.km.toLocaleString() },
-                      { label: "LİTRE", val: `${e.liters} L` },
-                      { label: "ÖDEME", val: `${e.totalPrice.toFixed(2)} ₺` },
+                      { label: "KM", val: formatNumber(e.km, 0) },
+                      { label: "LİTRE", val: `${formatNumber(e.liters)} L` },
+                      { label: "ÖDEME", val: `${formatNumber(e.totalPrice)} ₺` },
                     ].map(col => (
                       <div key={col.label}>
                         <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "3px" }}>{col.label}</div>
@@ -298,7 +384,7 @@ export default function FuelTracker() {
                     <div>
                       <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "3px" }}>TÜKETİM</div>
                       <div style={{ fontSize: "13px", color: e.consumption ? "#ff8c00" : "#333", fontWeight: e.consumption ? "700" : "400" }}>
-                        {e.consumption ? `${e.consumption.toFixed(2)} L/100` : "—"}
+                        {e.consumption ? `${formatNumber(e.consumption)} L/100` : "—"}
                       </div>
                     </div>
                     <div style={{ width: "36px" }}>
@@ -326,13 +412,17 @@ export default function FuelTracker() {
           </div>
         )}
 
+        {/* SHELL */}
         {!loading && activeTab === "shell" && (
           <div>
             <div style={{ background: "#0f0f1a", border: "1px solid #1e1e2a", padding: "20px", marginBottom: "20px", borderLeft: "3px solid #ffcc00" }}>
               <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#ffcc00", marginBottom: "8px" }}>ℹ SHELL FİYATLARI</div>
               <div style={{ fontSize: "12px", color: "#555", lineHeight: 1.8 }}>
                 Otomatik erişim mümkün değil. Güncel fiyatları manuel girin.<br />
-                <a href="https://www.shell.com.tr/suruculer/yakit-fiyatlari.html" target="_blank" rel="noopener noreferrer" style={{ color: "#ffcc00", textDecoration: "none" }}>→ shell.com.tr fiyat sayfasını aç ↗</a>
+                <a href="https://www.shell.com.tr/suruculer/shell-yakitlari/akaryakit-pompa-satis-fiyatlari.html"
+                  target="_blank" rel="noopener noreferrer" style={{ color: "#ffcc00", textDecoration: "none" }}>
+                  → Shell akaryakıt fiyatları sayfasını aç ↗
+                </a>
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: "2px", marginBottom: "20px" }}>
@@ -340,12 +430,16 @@ export default function FuelTracker() {
                 <div key={f.key} style={{ background: "#0f0f1a", padding: "20px" }}>
                   <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#555", marginBottom: "10px" }}>{f.emoji} {f.label}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <input type="number" placeholder="0.00" value={shellPrice[f.key]}
-                      onChange={e => setShellPrice(p => ({ ...p, [f.key]: e.target.value }))}
+                    <NumericInput placeholder="0,00" value={shellPrice[f.key]}
+                      onChange={v => setShellPrice(p => ({ ...p, [f.key]: v }))}
                       style={{ background: "#0a0a0f", border: "1px solid #2a2a3a", color: "#e8e4d9", padding: "10px 12px", fontSize: "18px", fontWeight: "900", width: "100%", fontFamily: "'Courier New', monospace", outline: "none", boxSizing: "border-box" }} />
                     <span style={{ color: "#555" }}>₺</span>
                   </div>
-                  {shellPrice[f.key] && <div style={{ marginTop: "8px", fontSize: "11px", color: "#ff8c00" }}>✓ {parseFloat(shellPrice[f.key]).toFixed(2)} ₺/L</div>}
+                  {shellPrice[f.key] && (
+                    <div style={{ marginTop: "8px", fontSize: "11px", color: "#ff8c00" }}>
+                      ✓ {formatNumber(parseTR(shellPrice[f.key]))} ₺/L
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -353,12 +447,12 @@ export default function FuelTracker() {
               <div style={{ background: "#0f0f1a", padding: "20px", borderLeft: "3px solid #ff8c00" }}>
                 <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#555", marginBottom: "12px" }}>KARŞILAŞTIRMA</div>
                 <div style={{ fontSize: "13px", lineHeight: 2 }}>
-                  <span style={{ color: "#555" }}>Ortalama ödediğin:</span> <span style={{ color: "#ff8c00", fontWeight: "700" }}>{avgLiterPrice.toFixed(2)} ₺/L</span><br />
-                  <span style={{ color: "#555" }}>Shell 95 fiyatı:</span> <span style={{ color: "#ffcc00", fontWeight: "700" }}>{parseFloat(shellPrice.benzin).toFixed(2)} ₺/L</span><br />
+                  <span style={{ color: "#555" }}>Ortalama ödediğin:</span> <span style={{ color: "#ff8c00", fontWeight: "700" }}>{formatNumber(avgLiterPrice)} ₺/L</span><br />
+                  <span style={{ color: "#555" }}>Shell 95 fiyatı:</span> <span style={{ color: "#ffcc00", fontWeight: "700" }}>{formatNumber(parseTR(shellPrice.benzin))} ₺/L</span><br />
                   <span style={{ color: "#555" }}>Fark:</span>{" "}
-                  <span style={{ color: avgLiterPrice < parseFloat(shellPrice.benzin) ? "#44ff88" : "#ff4444", fontWeight: "700" }}>
-                    {(avgLiterPrice - parseFloat(shellPrice.benzin)).toFixed(2)} ₺/L
-                    {avgLiterPrice < parseFloat(shellPrice.benzin) ? " (daha ucuza aldın ✓)" : " (Shell'den pahalıya aldın)"}
+                  <span style={{ color: avgLiterPrice < parseTR(shellPrice.benzin) ? "#44ff88" : "#ff4444", fontWeight: "700" }}>
+                    {formatNumber(avgLiterPrice - parseTR(shellPrice.benzin))} ₺/L
+                    {avgLiterPrice < parseTR(shellPrice.benzin) ? " (daha ucuza aldın ✓)" : " (Shell'den pahalıya aldın)"}
                   </span>
                 </div>
               </div>

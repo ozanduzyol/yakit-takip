@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = "https://delljhepbcevggfokcwy.supabase.co";
@@ -609,7 +610,47 @@ export default function FuelTracker() {
             <div>
               {months.length === 0
                 ? <div style={{ color: "#555", textAlign: "center", padding: "48px", fontSize: "14px" }}>Henüz kayıt yok.</div>
-                : <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                : <>{months.length >= 2 && (() => {
+                    const chartData = [...months].reverse().map(key => {
+                      const m = byMonth[key];
+                      const [y, mo] = key.split("-");
+                      const names = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+                      const label = `${names[parseInt(mo)-1]} ${y.slice(2)}`;
+                      const sortedE = m.entries.sort((a,b) => a.date.localeCompare(b.date));
+                      const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length-1].km - sortedE[0].km : null;
+                      const cons = monthKm > 0 ? parseFloat((m.liters / monthKm * 100).toFixed(2)) : null;
+                      return { label, liters: parseFloat(m.liters.toFixed(2)), spent: parseFloat(m.spent.toFixed(2)), cons };
+                    });
+                    const charts = [
+                      { key: "spent", label: "Aylık Harcama (₺)", color: "#ff8c00", unit: "₺" },
+                      { key: "liters", label: "Aylık Yakıt (L)", color: "#44aaff", unit: "L" },
+                      { key: "cons", label: "Ort. L/100 km", color: "#44ff88", unit: "L" },
+                    ];
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
+                        {charts.map(c => (
+                          <div key={c.key} style={{ background: "#0f0f1a", borderRadius: "10px", padding: "14px", borderLeft: `3px solid ${c.color}` }}>
+                            <div style={{ fontSize: "10px", fontWeight: "700", color: c.color, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>{c.label}</div>
+                            <ResponsiveContainer width="100%" height={120}>
+                              <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2a" />
+                                <XAxis dataKey="label" tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} />
+                                <YAxis tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} />
+                                <Tooltip
+                                  contentStyle={{ background: "#0a0a0f", border: "1px solid #2a2a3a", borderRadius: "6px", fontSize: "12px" }}
+                                  labelStyle={{ color: "#888" }}
+                                  itemStyle={{ color: c.color }}
+                                  formatter={v => v != null ? [`${v} ${c.unit}`, c.label] : ["—", c.label]}
+                                />
+                                <Line type="monotone" dataKey={c.key} stroke={c.color} strokeWidth={2} dot={{ fill: c.color, r: 3 }} activeDot={{ r: 5 }} connectNulls={false} />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                     {months.map(key => {
                       const m = byMonth[key];
                       // km for month: last km - first km in that month
@@ -639,6 +680,7 @@ export default function FuelTracker() {
                       );
                     })}
                   </div>
+                </>
               }
             </div>
           );

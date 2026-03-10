@@ -48,6 +48,9 @@ export default function FuelTracker() {
   const [editForm, setEditForm] = useState({});
   const [editSaving, setEditSaving] = useState(false);
   const [filterMonth, setFilterMonth] = useState("all");
+  const [epdkData, setEpdkData] = useState(null);
+  const [epdkLoading, setEpdkLoading] = useState(false);
+  const [epdkError, setEpdkError] = useState(null);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -56,6 +59,24 @@ export default function FuelTracker() {
     document.head.appendChild(link);
     fetchEntries();
   }, []);
+
+  const fetchEpdk = async () => {
+    setEpdkLoading(true);
+    setEpdkError(null);
+    try {
+      const res = await fetch("/api/fuel-prices");
+      const json = await res.json();
+      if (json.success) {
+        setEpdkData(json.data);
+      } else {
+        setEpdkError(json.error || "Veri alınamadı");
+      }
+    } catch (e) {
+      setEpdkError("Bağlantı hatası");
+    } finally {
+      setEpdkLoading(false);
+    }
+  };
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -555,10 +576,54 @@ export default function FuelTracker() {
         {/* SHELL */}
         {!loading && activeTab === "shell" && (
           <div>
+            {/* EPDK otomatik fiyat kartı */}
+            <div style={{ background: "#0f0f1a", border: "1px solid #1e1e2a", borderRadius: "10px", padding: "16px", marginBottom: "16px", borderLeft: "3px solid #ff8c00" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: "#ff8c00", textTransform: "uppercase", letterSpacing: "1px" }}>📡 EPDK Güncel Fiyatlar</div>
+                <button onClick={fetchEpdk} disabled={epdkLoading} style={{
+                  background: "transparent", border: "1px solid #2a2a3a", color: "#666",
+                  padding: "5px 12px", fontSize: "11px", fontWeight: "600",
+                  cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
+                }}>{epdkLoading ? "Yükleniyor..." : "↻ Güncelle"}</button>
+              </div>
+              {epdkError && <div style={{ fontSize: "12px", color: "#ff4444", marginBottom: "8px" }}>⚠ {epdkError}</div>}
+              {epdkData ? (
+                <div>
+                  <div style={{ fontSize: "10px", color: "#444", marginBottom: "10px" }}>Tarih: {epdkData.tarih} · Kaynak: EPDK</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                    {epdkData.benzin95 && (
+                      <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
+                        <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div>
+                        <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.benzin95.fiyat)} ₺</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.benzin95.firma}</div>
+                      </div>
+                    )}
+                    {epdkData.motorin && (
+                      <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
+                        <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🔵 Motorin</div>
+                        <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.motorin.fiyat)} ₺</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.motorin.firma}</div>
+                      </div>
+                    )}
+                  </div>
+                  {epdkData.benzin95 && (
+                    <button onClick={() => setShellPrice(p => ({ ...p, benzin: String(epdkData.benzin95.fiyat).replace(".", ",") }))}
+                      style={{ marginTop: "10px", background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 14px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", width: "100%" }}
+                      onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
+                      onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
+                    >↓ Benzin fiyatını forma aktar</button>
+                  )}
+                </div>
+              ) : (
+                <div style={{ fontSize: "13px", color: "#555", textAlign: "center", padding: "12px 0" }}>
+                  EPDK'dan güncel fiyatı çekmek için "↻ Güncelle" butonuna bas.
+                </div>
+              )}
+            </div>
+
             <div style={{ background: "#0f0f1a", border: "1px solid #1e1e2a", borderRadius: "10px", padding: "18px", marginBottom: "16px", borderLeft: "3px solid #ffcc00" }}>
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#ffcc00", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Shell Fiyatları</div>
+              <div style={{ fontSize: "11px", fontWeight: "700", color: "#ffcc00", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Shell Fiyatları (Manuel)</div>
               <div style={{ fontSize: "13px", color: "#555", lineHeight: 1.8 }}>
-                Otomatik erişim mümkün değil. Güncel fiyatları manuel girin.<br />
                 <a href="https://www.shell.com.tr/suruculer/shell-yakitlari/akaryakit-pompa-satis-fiyatlari.html" target="_blank" rel="noopener noreferrer" style={{ color: "#ffcc00", textDecoration: "none", fontWeight: "600" }}>
                   → Shell akaryakıt fiyatları sayfasını aç ↗
                 </a>

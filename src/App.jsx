@@ -252,6 +252,10 @@ export default function FuelTracker() {
           font-size: 16px !important;
         }
         * { box-sizing: border-box; }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
       `}</style>
       <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(255,140,0,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
       <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto", padding: "24px 16px" }}>
@@ -607,16 +611,21 @@ export default function FuelTracker() {
                       background: "transparent", border: "1px solid #2a2a3a", color: "#666",
                       padding: "5px 12px", fontSize: "11px", fontWeight: "600",
                       cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
+                      opacity: epdkLoading ? 0.4 : 1,
                     }}>📍 Konum</button>
                     <button onClick={() => fetchEpdk(false)} disabled={epdkLoading} style={{
                       background: "transparent", border: "1px solid #2a2a3a", color: "#666",
                       padding: "5px 12px", fontSize: "11px", fontWeight: "600",
                       cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
-                    }}>{epdkLoading ? "..." : "↻ Güncelle"}</button>
+                      opacity: epdkLoading ? 0.4 : 1,
+                    }}>↻ Güncelle</button>
                   </div>
                 </div>
                 <div style={{ textAlign: "center", fontSize: "12px", color: "#555" }}>
-                  📍 {userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                  {epdkLoading
+                    ? <span style={{ color: "#ff8c00", animation: "pulse 1s infinite" }}>⏳ Fiyatlar alınıyor...</span>
+                    : <>📍 {userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</>
+                  }
                 </div>
               </div>
               {epdkError && <div style={{ fontSize: "12px", color: "#ff4444", marginBottom: "8px" }}>⚠ {epdkError}</div>}

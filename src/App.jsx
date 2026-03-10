@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = "https://delljhepbcevggfokcwy.supabase.co";
@@ -286,7 +287,7 @@ export default function FuelTracker() {
         </div>
 
         <div style={{ display: "flex", gap: "4px", marginBottom: "24px", borderBottom: "1px solid #1e1e2a", justifyContent: "center" }}>
-          {["dashboard", "records", "monthly", "shell"].map(tab => (
+          {["dashboard", "records", "monthly", "graphs", "shell"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
               background: "none", border: "none", color: activeTab === tab ? "#ff8c00" : "#555",
               fontSize: "12px", letterSpacing: "1px", fontWeight: "600", textTransform: "uppercase",
@@ -294,7 +295,7 @@ export default function FuelTracker() {
               borderBottom: activeTab === tab ? "2px solid #ff8c00" : "2px solid transparent",
               fontFamily: FONT,
             }}>
-              {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : tab === "monthly" ? "Aylık" : "Fiyatlar"}
+              {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : tab === "monthly" ? "Aylık" : tab === "graphs" ? "Grafik" : "Fiyatlar"}
             </button>
           ))}
         </div>
@@ -439,7 +440,6 @@ export default function FuelTracker() {
           };
           return (
           <div>
-            {/* Month filter */}
             {months.length > 1 && (
               <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
                 <button onClick={() => setFilterMonth("all")} style={{
@@ -465,9 +465,7 @@ export default function FuelTracker() {
               : <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {filteredEnriched.map((e, i) => (
                     <div key={e.id} style={{ background: "#0f0f1a", borderRadius: "10px", borderLeft: i === 0 ? "3px solid #2a2a3a" : "3px solid #ff8c00", overflow: "hidden" }}>
-
                       {editingId === e.id ? (
-                        /* ── EDIT MODE ── */
                         <div style={{ padding: "14px" }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
                             <div>
@@ -500,7 +498,6 @@ export default function FuelTracker() {
                           </div>
                         </div>
                       ) : (
-                        /* ── VIEW MODE ── */
                         <>
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
                             <span style={{ fontSize: "13px", fontWeight: "700", color: i === 0 ? "#555" : "#e8e4d9", fontFamily: MONO }}>{e.date}</span>
@@ -586,10 +583,8 @@ export default function FuelTracker() {
           );
         })()}
 
-
         {/* MONTHLY */}
         {!loading && activeTab === "monthly" && (() => {
-          // Group entries by YYYY-MM
           const byMonth = {};
           enriched.forEach(e => {
             const key = e.date.slice(0, 7);
@@ -612,7 +607,6 @@ export default function FuelTracker() {
                 : <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                     {months.map(key => {
                       const m = byMonth[key];
-                      // km for month: last km - first km in that month
                       const sortedE = m.entries.sort((a,b) => a.date.localeCompare(b.date));
                       const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length-1].km - sortedE[0].km : null;
                       const cons = monthKm > 0 ? (m.liters / monthKm) * 100 : null;
@@ -644,10 +638,65 @@ export default function FuelTracker() {
           );
         })()}
 
+        {/* GRAPHS — YENİ SEKME */}
+        {!loading && activeTab === "graphs" && (() => {
+          const byMonth = {};
+          enriched.forEach(e => {
+            const key = e.date.slice(0, 7);
+            if (!byMonth[key]) byMonth[key] = { liters: 0, spent: 0, entries: [] };
+            byMonth[key].liters += e.liters;
+            byMonth[key].spent += e.totalPrice;
+            byMonth[key].entries.push(e);
+          });
+          const monthKeys = Object.keys(byMonth).sort();
+          const names = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+          const chartData = monthKeys.map(key => {
+            const m = byMonth[key];
+            const [y, mo] = key.split("-");
+            const label = `${names[parseInt(mo)-1]} ${y.slice(2)}`;
+            const sortedE = [...m.entries].sort((a,b) => a.date.localeCompare(b.date));
+            const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length-1].km - sortedE[0].km : null;
+            const cons = monthKm > 0 ? parseFloat((m.liters / monthKm * 100).toFixed(2)) : null;
+            return { label, liters: parseFloat(m.liters.toFixed(2)), spent: parseFloat(m.spent.toFixed(2)), cons };
+          });
+          const charts = [
+            { key: "spent", label: "Aylık Harcama (₺)", color: "#ff8c00", unit: "₺" },
+            { key: "liters", label: "Aylık Yakıt (L)", color: "#44aaff", unit: "L" },
+            { key: "cons", label: "Ort. L/100 km", color: "#44ff88", unit: "L" },
+          ];
+          return (
+            <div>
+              {chartData.length < 2
+                ? <div style={{ color: "#555", textAlign: "center", padding: "48px", fontSize: "14px" }}>Grafik için en az 2 aylık kayıt gereklidir.</div>
+                : <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {charts.map(c => (
+                      <div key={c.key} style={{ background: "#0f0f1a", borderRadius: "10px", padding: "14px", borderLeft: `3px solid ${c.color}` }}>
+                        <div style={{ fontSize: "10px", fontWeight: "700", color: c.color, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>{c.label}</div>
+                        <ResponsiveContainer width="100%" height={140}>
+                          <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2a" />
+                            <XAxis dataKey="label" tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} />
+                            <YAxis tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} />
+                            <Tooltip
+                              contentStyle={{ background: "#0a0a0f", border: "1px solid #2a2a3a", borderRadius: "6px", fontSize: "12px" }}
+                              labelStyle={{ color: "#888" }}
+                              itemStyle={{ color: c.color }}
+                              formatter={v => v != null ? [`${v} ${c.unit}`, c.label] : ["—", c.label]}
+                            />
+                            <Line type="monotone" dataKey={c.key} stroke={c.color} strokeWidth={2} dot={{ fill: c.color, r: 3 }} activeDot={{ r: 5 }} connectNulls={false} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ))}
+                  </div>
+              }
+            </div>
+          );
+        })()}
+
         {/* SHELL */}
         {!loading && activeTab === "shell" && (
           <div>
-            {/* EPDK otomatik fiyat kartı */}
             <div style={{ background: "#0f0f1a", border: "1px solid #1e1e2a", borderRadius: "10px", padding: "16px", marginBottom: "16px", borderLeft: "3px solid #ff8c00" }}>
               <div style={{ marginBottom: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
@@ -675,17 +724,16 @@ export default function FuelTracker() {
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.benzin95.fiyat)} ₺</div>
-                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{epdkData.benzin95.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{epdkData.benzin95.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
                       </div>
                     )}
                     {epdkData.motorin && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>⚫ Motorin</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.motorin.fiyat)} ₺</div>
-                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{epdkData.motorin.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{epdkData.motorin.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
                       </div>
                     )}
-
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginTop: "10px" }}>
                     {epdkData.benzin95 && (
@@ -702,8 +750,7 @@ export default function FuelTracker() {
                         onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Motorin fiyatını forma aktar</button>
                     )}
-
-                    {(epdkData.benzin95 || epdkData.motorin || epdkData.lpg) && (
+                    {(epdkData.benzin95 || epdkData.motorin) && (
                       <button onClick={() => setShellPrice({
                         benzin: epdkData.benzin95 ? toTR(epdkData.benzin95.fiyat) : "",
                         motorin: epdkData.motorin ? toTR(epdkData.motorin.fiyat) : "",
@@ -719,7 +766,6 @@ export default function FuelTracker() {
                 </div>
               )}
             </div>
-
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "16px", minWidth: 0 }}>
               {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }].map(f => (

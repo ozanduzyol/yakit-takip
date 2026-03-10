@@ -27,6 +27,13 @@ function NumericInput({ value, onChange, placeholder, style }) {
   return <input type="text" inputMode="decimal" pattern="[0-9.,]*" placeholder={placeholder} value={value} onChange={handleChange} style={style} />;
 }
 
+const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
+const toTR = (num) => {
+  if (!num && num !== 0) return "";
+  const [int, dec] = num.toFixed(2).split(".");
+  const intFormatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return intFormatted + "," + dec;
+};
 const emptyForm = () => ({ date: new Date().toISOString().split("T")[0], km: "", liters: "", totalPrice: "" });
 
 export default function FuelTracker() {
@@ -103,6 +110,8 @@ export default function FuelTracker() {
       const json = await res.json();
       if (json.success) {
         setEpdkData(json.data);
+        if (json.data.benzin95) setShellPrice(p => ({ ...p, benzin: toTR(json.data.benzin95.fiyat) }));
+        if (json.data.motorin) setShellPrice(p => ({ ...p, motorin: toTR(json.data.motorin.fiyat) }));
       } else {
         setEpdkError(json.error || "Veri alınamadı");
       }
@@ -160,13 +169,6 @@ export default function FuelTracker() {
     reader.readAsDataURL(file);
   };
 
-  const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
-  const toTR = (num) => {
-    if (!num && num !== 0) return "";
-    const [int, dec] = num.toFixed(2).split(".");
-    const intFormatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    return intFormatted + "," + dec;
-  };
 
   const handleAdd = async () => {
     if (!form.date || !form.km || !form.liters || !form.totalPrice) return;
@@ -691,7 +693,7 @@ export default function FuelTracker() {
                     )}
 
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", marginTop: "10px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginTop: "10px" }}>
                     {epdkData.benzin95 && (
                       <button onClick={() => setShellPrice(p => ({ ...p, benzin: toTR(epdkData.benzin95.fiyat) }))}
                         style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}

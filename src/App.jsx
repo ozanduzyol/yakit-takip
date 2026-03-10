@@ -622,16 +622,16 @@ export default function FuelTracker() {
                             <span style={{ fontSize: "15px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{monthName(key)}</span>
                             <span style={{ fontSize: "11px", color: "#555", fontWeight: "500" }}>{m.count} dolum</span>
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", borderTop: "1px solid #1a1a2a" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
                               { label: "Toplam Yakıt", val: `${formatNumber(m.liters)} L` },
                               { label: "Toplam Harcama", val: `${formatNumber(m.spent)} ₺` },
                               { label: "Ort. L/100 km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },
                               { label: "Ort. ₺/Litre", val: m.liters > 0 ? `${formatNumber(m.spent / m.liters)} ₺` : "—" },
                             ].map((col, ci) => (
-                              <div key={col.label} style={{ padding: "10px 14px", borderRight: ci % 2 === 0 ? "1px solid #1a1a2a" : "none", borderTop: ci >= 2 ? "1px solid #1a1a2a" : "none" }}>
-                                <div style={{ fontSize: "9px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
-                                <div style={{ fontSize: "14px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO }}>{col.val}</div>
+                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 3 ? "1px solid #1a1a2a" : "none" }}>
+                                <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
+                                <div style={{ fontSize: "11px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{col.val}</div>
                               </div>
                             ))}
                           </div>
@@ -662,7 +662,7 @@ export default function FuelTracker() {
                 <div style={{ textAlign: "center", fontSize: "12px", color: "#555" }}>
                   {epdkLoading
                     ? <span style={{ color: "#ff8c00", animation: "pulse 1s infinite" }}>⏳ Fiyatlar alınıyor...</span>
-                    : <>📍 {userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")} / {userIlce.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</>
+                    : <>📍 {epdkData ? epdkData.kaynak.replace(" · Shell", "").replace(" · shell", "") : userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</>
                   }
                 </div>
               </div>

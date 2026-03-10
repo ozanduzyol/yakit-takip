@@ -523,7 +523,7 @@ export default function FuelTracker() {
                               { label: "Km", val: formatNumber(e.km, 0) },
                               { label: "Litre", val: `${formatNumber(e.liters)} L` },
                               { label: "Ödeme", val: `${formatNumber(e.totalPrice)} ₺` },
-                              { label: "Tüketim", val: e.consumption ? `${formatNumber(e.consumption)} L/100km` : "—", highlight: !!e.consumption },
+                              { label: "Tüketim", val: e.consumption ? `${formatNumber(e.consumption)} L/100 km` : "—", highlight: !!e.consumption },
                             ].map((col, ci) => (
                               <div key={col.label} style={{ padding: "10px 14px", borderRight: ci % 2 === 0 ? "1px solid #1a1a2a" : "none", borderTop: ci >= 2 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "9px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
@@ -540,7 +540,7 @@ export default function FuelTracker() {
 
             {filteredEnriched.length > 0 && (() => {
                 const downloadCSV = (data, filename) => {
-                  const header = "Tarih,KM,Litre,Tutar (TL),Tuketim (L/100km)";
+                  const header = "Tarih,KM,Litre,Tutar (TL),Tuketim (L/100 km)";
                   const rows = data.map(e =>
                     `${e.date},${e.km},${e.liters},${e.totalPrice},${e.consumption ? e.consumption.toFixed(2) : ""}`
                   );
@@ -624,7 +624,7 @@ export default function FuelTracker() {
                             {[
                               { label: "Toplam Yakıt", val: `${formatNumber(m.liters)} L` },
                               { label: "Toplam Harcama", val: `${formatNumber(m.spent)} ₺` },
-                              { label: "Ort. L/100km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },
+                              { label: "Ort. L/100 km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },
                               { label: "Ort. ₺/Litre", val: m.liters > 0 ? `${formatNumber(m.spent / m.liters)} ₺` : "—" },
                             ].map((col, ci) => (
                               <div key={col.label} style={{ padding: "10px 14px", borderRight: ci % 2 === 0 ? "1px solid #1a1a2a" : "none", borderTop: ci >= 2 ? "1px solid #1a1a2a" : "none" }}>

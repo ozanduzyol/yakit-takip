@@ -1,30 +1,11 @@
 // Vercel Serverless Function
 // Dosya yolu: /api/fuel-prices.js
-// EPDK SOAP Web Servisi - sorguNo 71 = günlük en yüksek hacimli 8 firmanın fiyatları
 
-export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET");
+import http from "http";
 
-  try {
-    // Bugünün tarihi GG/AA/YYYY formatında
-    const today = new Date();
-    // EPDK genellikle 1-2 gün gecikmeyle yayınlar, önceki günü dene
-    const tryDates = [];
-    for (let i = 0; i <= 4; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dd = String(d.getDate()).padStart(2, "0");
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const yyyy = d.getFullYear();
-      tryDates.push(`${dd}/${mm}/${yyyy}`);
-    }
-
-    let parsed = null;
-    let usedDate = null;
-
-    for (const dateStr of tryDates) {
-      const soapBody = `<?xml version="1.0" encoding="UTF-8"?>
+function soapRequest(dateStr) {
+  return new Promise((resolve, reject) => {
+    const body = `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gen="http://genel.service.ws.epvys.g222.tubitak.gov.tr/">
   <soapenv:Header/>
   <soapenv:Body>
@@ -35,78 +16,85 @@ export default async function handler(req, res) {
   </soapenv:Body>
 </soapenv:Envelope>`;
 
-      const response = await fetch("http://lisansws.epdk.org.tr/services/bildirimPetrolTarife", {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/xml;charset=UTF-8",
-          "SOAPAction": "",
-        },
-        body: soapBody,
-        signal: AbortSignal.timeout(8000),
-      });
+    const options = {
+      hostname: "lisansws.epdk.org.tr",
+      port: 80,
+      path: "/services/bildirimPetrolTarife",
+      method: "POST",
+      headers: {
+        "Content-Type": "text/xml;charset=UTF-8",
+        "SOAPAction": '""',
+        "Content-Length": Buffer.byteLength(body),
+      },
+    };
 
-      if (!response.ok) continue;
+    const req = http.request(options, (res) => {
+      let data = "";
+      res.on("data", chunk => data += chunk);
+      res.on("end", () => resolve(data));
+    });
 
-      const xml = await response.text();
+    req.on("error", reject);
+    req.setTimeout(8000, () => { req.destroy(); reject(new Error("timeout")); });
+    req.write(body);
+    req.end();
+  });
+}
 
-      // CDATA içinden XML çıkar
-      const cdataMatch = xml.match(/<!\[CDATA\[([\s\S]*?)\]\]>/);
-      if (!cdataMatch) continue;
+function parseXml(xml) {
+  const cdataMatch = xml.match(/<!\[CDATA\[([\s\S]*?)\]\]>/);
+  if (!cdataMatch) return null;
+  const inner = cdataMatch[1];
 
-      const innerXml = cdataMatch[1];
+  const entries = [...inner.matchAll(/<PetrolPiyasasiEnYuksekHacimliSekizFirmaninAkaryakitFiyatlari>([\s\S]*?)<\/PetrolPiyasasiEnYuksekHacimliSekizFirmaninAkaryakitFiyatlari>/g)];
+  if (!entries.length) return null;
 
-      // Benzin 95 ve Motorin fiyatlarını çek
-      const entries = [...innerXml.matchAll(/<PetrolPiyasasiEnYuksekHacimliSekizFirmaninAkaryakitFiyatlari>([\s\S]*?)<\/PetrolPiyasasiEnYuksekHacimliSekizFirmaninAkaryakitFiyatlari>/g)];
+  const benzin95 = [], motorin = [];
 
-      if (entries.length === 0) continue;
-
-      // Shell veya ortalama bul
-      const fiyatlar = { benzin95: [], motorin: [] };
-
-      for (const entry of entries) {
-        const block = entry[1];
-        const yakitTipi = block.match(/<YakitTipi>(.*?)<\/YakitTipi>/)?.[1] || "";
-        const fiyat = parseFloat(block.match(/<Fiyat>(.*?)<\/Fiyat>/)?.[1] || "0");
-        const firma = block.match(/<FirmaAdi>(.*?)<\/FirmaAdi>/)?.[1] || "";
-
-        if (fiyat <= 0) continue;
-
-        const isShell = firma.toLowerCase().includes("shell");
-        const isBenzin = yakitTipi.toLowerCase().includes("95") || yakitTipi.toLowerCase().includes("benzin");
-        const isMotor = yakitTipi.toLowerCase().includes("motorin") || yakitTipi.toLowerCase().includes("dizel");
-
-        if (isBenzin) fiyatlar.benzin95.push({ fiyat, firma, isShell });
-        if (isMotor) fiyatlar.motorin.push({ fiyat, firma, isShell });
-      }
-
-      const findPrice = (list) => {
-        if (list.length === 0) return null;
-        const shell = list.find(x => x.isShell);
-        if (shell) return { fiyat: shell.fiyat, firma: shell.firma };
-        const avg = list.reduce((s, x) => s + x.fiyat, 0) / list.length;
-        return { fiyat: Math.round(avg * 100) / 100, firma: "Ortalama" };
-      };
-
-      const benzin = findPrice(fiyatlar.benzin95);
-      const motorin = findPrice(fiyatlar.motorin);
-
-      if (benzin || motorin) {
-        parsed = { benzin95: benzin, motorin, tarih: dateStr };
-        usedDate = dateStr;
-        break;
-      }
-    }
-
-    if (!parsed) {
-      return res.status(200).json({
-        success: false,
-        error: "EPDK verisi bulunamadı (son 4 gün kontrol edildi)",
-      });
-    }
-
-    res.status(200).json({ success: true, data: parsed });
-
-  } catch (err) {
-    res.status(200).json({ success: false, error: err.message });
+  for (const e of entries) {
+    const b = e[1];
+    const yakitTipi = b.match(/<YakitTipi>(.*?)<\/YakitTipi>/)?.[1] || "";
+    const fiyat = parseFloat((b.match(/<Fiyat>(.*?)<\/Fiyat>/)?.[1] || "0").replace(",", "."));
+    const firma = b.match(/<FirmaAdi>(.*?)<\/FirmaAdi>/)?.[1] || "";
+    if (fiyat <= 0) continue;
+    const isShell = firma.toLowerCase().includes("shell");
+    if (yakitTipi.includes("95") || yakitTipi.toLowerCase().includes("benzin")) benzin95.push({ fiyat, firma, isShell });
+    if (yakitTipi.toLowerCase().includes("motorin") || yakitTipi.toLowerCase().includes("dizel")) motorin.push({ fiyat, firma, isShell });
   }
+
+  const best = (list) => {
+    if (!list.length) return null;
+    const shell = list.find(x => x.isShell);
+    if (shell) return { fiyat: shell.fiyat, firma: shell.firma };
+    const avg = list.reduce((s, x) => s + x.fiyat, 0) / list.length;
+    return { fiyat: Math.round(avg * 100) / 100, firma: "Ortalama" };
+  };
+
+  return { benzin95: best(benzin95), motorin: best(motorin) };
+}
+
+export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
+  const today = new Date();
+  const tryDates = [];
+  for (let i = 0; i <= 5; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    tryDates.push(`${dd}/${mm}/${d.getFullYear()}`);
+  }
+
+  for (const dateStr of tryDates) {
+    try {
+      const xml = await soapRequest(dateStr);
+      const parsed = parseXml(xml);
+      if (parsed && (parsed.benzin95 || parsed.motorin)) {
+        return res.status(200).json({ success: true, data: { ...parsed, tarih: dateStr } });
+      }
+    } catch (_) {}
+  }
+
+  res.status(200).json({ success: false, error: "EPDK verisi alınamadı (son 5 gün denendi)" });
 }

@@ -13,18 +13,21 @@ function formatNumber(val, decimals = 2) {
   return num.toLocaleString("tr-TR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-// Numeric input with Turkish formatting (inputmode numeric, allows comma)
+// Numeric input: binlik . ondalik , otomatik format
 function NumericInput({ value, onChange, placeholder, style }) {
   const handleChange = (e) => {
-    // Allow only digits and comma
-    const raw = e.target.value.replace(/[^0-9,]/g, "");
-    onChange(raw);
+    const stripped = e.target.value.replace(/[^0-9,]/g, "");
+    const parts = stripped.split(",");
+    const intPart = parts[0].replace(/\./g, "");
+    const decPart = parts.length > 1 ? "," + parts.slice(1).join("") : "";
+    const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + decPart;
+    onChange(formatted);
   };
   return (
     <input
       type="text"
       inputMode="decimal"
-      pattern="[0-9,]*"
+      pattern="[0-9.,]*"
       placeholder={placeholder}
       value={value}
       onChange={handleChange}
@@ -35,7 +38,8 @@ function NumericInput({ value, onChange, placeholder, style }) {
 
 export default function FuelTracker() {
   const [entries, setEntries] = useState([]);
-  const [form, setForm] = useState({ date: "", km: "", liters: "", totalPrice: "" });
+  const today = new Date().toISOString().split("T")[0];
+  const [form, setForm] = useState({ date: today, km: "", liters: "", totalPrice: "" });
   const [shellPrice, setShellPrice] = useState({ benzin: "", motorin: "", lpg: "" });
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showForm, setShowForm] = useState(false);
@@ -113,7 +117,7 @@ export default function FuelTracker() {
   };
 
   // Parse Turkish formatted number (comma as decimal)
-  const parseTR = (str) => parseFloat((str || "").replace(",", "."));
+  const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
 
   const handleAdd = async () => {
     if (!form.date || !form.km || !form.liters || !form.totalPrice) return;
@@ -138,7 +142,7 @@ export default function FuelTracker() {
     });
     if (!error) {
       await fetchEntries();
-      setForm({ date: "", km: "", liters: "", totalPrice: "" });
+      setForm({ date: new Date().toISOString().split("T")[0], km: "", liters: "", totalPrice: "" });
       setReceiptImage(null);
       setReceiptFile(null);
       setShowForm(false);

@@ -523,7 +523,7 @@ export default function FuelTracker() {
                               { label: "Km", val: formatNumber(e.km, 0) },
                               { label: "Litre", val: `${formatNumber(e.liters)} L` },
                               { label: "Ödeme", val: `${formatNumber(e.totalPrice)} ₺` },
-                              { label: "Tüketim", val: e.consumption ? `${formatNumber(e.consumption)} L/100` : "—", highlight: !!e.consumption },
+                              { label: "Tüketim", val: e.consumption ? `${formatNumber(e.consumption)} L/100km` : "—", highlight: !!e.consumption },
                             ].map((col, ci) => (
                               <div key={col.label} style={{ padding: "10px 14px", borderRight: ci % 2 === 0 ? "1px solid #1a1a2a" : "none", borderTop: ci >= 2 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "9px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>

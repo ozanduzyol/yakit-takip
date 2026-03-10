@@ -624,10 +624,10 @@ export default function FuelTracker() {
                           </div>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
-                              { label: "Toplam Yakıt", val: `${formatNumber(m.liters)} L` },
-                              { label: "Toplam Harcama", val: `${formatNumber(m.spent)} ₺` },
-                              { label: "Ort. L/100 km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },
-                              { label: "Ort. ₺/Litre", val: m.liters > 0 ? `${formatNumber(m.spent / m.liters)} ₺` : "—" },
+                              { label: "Yakıt", val: `${formatNumber(m.liters)} L` },
+                              { label: "Harcama", val: `${formatNumber(m.spent)} ₺` },
+                              { label: "L/100 km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },
+                              { label: "₺/Litre", val: m.liters > 0 ? `${formatNumber(m.spent / m.liters)} ₺` : "—" },
                             ].map((col, ci) => (
                               <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 3 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>

@@ -1,5 +1,4 @@
 // Vercel Serverless Function — /api/fuel-prices.js
-// Bigpara üzerinden EPDK akaryakıt fiyatları
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -8,75 +7,60 @@ export default async function handler(req, res) {
   try {
     const response = await fetch("https://bigpara.hurriyet.com.tr/akaryakit-fiyatlari/", {
       headers: {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
-        "Accept": "text/html,application/xhtml+xml",
-        "Accept-Language": "tr-TR,tr;q=0.9",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8",
+        "Referer": "https://www.google.com/",
       },
       signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
     const html = await response.text();
 
-    // Benzin 95 fiyatı
-    const benzinMatch = html.match(/Kurşunsuz Benzin 95 Oktan[\s\S]{0,300}?(\d{2,3}[.,]\d{2})\s*TL/i)
-      || html.match(/Benzin.*?(\d{2,3}[.,]\d{2})\s*TL/i);
-
-    // Motorin fiyatı  
-    const motorinMatch = html.match(/Motorin Litre[\s\S]{0,200}?(\d{2,3}[.,]\d{2})\s*TL/i)
-      || html.match(/Motorin.*?(\d{2,3}[.,]\d{2})\s*TL/i);
-
-    const parsePrice = (str) => {
-      if (!str) return null;
-      return parseFloat(str.replace(",", "."));
+    // Bigpara fiyat tablosundan çek
+    // Örnek: "Kurşunsuz Benzin 95 Oktan Litre fiyatı 59,90TL"
+    const parse = (regex) => {
+      const m = html.match(regex);
+      if (!m) return null;
+      return parseFloat(m[1].replace(",", "."));
     };
 
-    const benzin95 = benzinMatch ? parsePrice(benzinMatch[1]) : null;
-    const motorin = motorinMatch ? parsePrice(motorinMatch[1]) : null;
+    const benzin = parse(/Kurşunsuz Benzin 95 Oktan Litre fiyatı\s*([\d,]+)\s*TL/i)
+      || parse(/Benzin 95[^<]{0,60}?([\d]{2,3}[.,]\d{2})\s*TL/i);
 
-    // Tarih için bugün
+    const motorin = parse(/Motorin Litre fiyatı\s*([\d,]+)\s*TL/i)
+      || parse(/Motorin[^<]{0,60}?([\d]{2,3}[.,]\d{2})\s*TL/i);
+
+    const lpg = parse(/(?:Otogaz|LPG|TP Otogaz) Litre fiyatı\s*([\d,]+)\s*TL/i)
+      || parse(/(?:Otogaz|LPG)[^<]{0,60}?([\d]{2,3}[.,]\d{2})\s*TL/i);
+
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, "0");
     const mm = String(today.getMonth() + 1).padStart(2, "0");
     const tarih = `${dd}/${mm}/${today.getFullYear()}`;
 
-    if (benzin95 || motorin) {
-      return res.status(200).json({
-        success: true,
-        data: {
-          benzin95: benzin95 ? { fiyat: benzin95, firma: "EPDK Ortalaması" } : null,
-          motorin: motorin ? { fiyat: motorin, firma: "EPDK Ortalaması" } : null,
-          tarih,
-          kaynak: "EPDK (Bigpara)",
-        },
-      });
+    if (!benzin && !motorin && !lpg) {
+      // HTML'yi loga yaz — debug için
+      const snippet = html.slice(0, 3000);
+      throw new Error("Parse başarısız. Snippet: " + snippet);
     }
 
-    // Bigpara başarısız olursa JSON içinde ara
-    const jsonMatch = html.match(/"price"\s*:\s*"?([\d.,]+)"?/g);
-    if (jsonMatch) {
-      const prices = jsonMatch.map(m => parseFloat(m.match(/([\d.,]+)/)[1].replace(",", ".")))
-        .filter(p => p > 30 && p < 200);
-      if (prices.length >= 2) {
-        return res.status(200).json({
-          success: true,
-          data: {
-            benzin95: { fiyat: prices[0], firma: "EPDK" },
-            motorin: { fiyat: prices[1], firma: "EPDK" },
-            tarih,
-            kaynak: "EPDK",
-          },
-        });
-      }
-    }
-
-    throw new Error("Fiyat parse edilemedi");
+    return res.status(200).json({
+      success: true,
+      data: {
+        benzin95: benzin ? { fiyat: benzin, firma: "EPDK Ortalaması" } : null,
+        motorin: motorin ? { fiyat: motorin, firma: "EPDK Ortalaması" } : null,
+        lpg: lpg ? { fiyat: lpg, firma: "EPDK Ortalaması" } : null,
+        tarih,
+        kaynak: "EPDK (Bigpara)",
+      },
+    });
 
   } catch (err) {
     return res.status(200).json({
       success: false,
-      error: `Veri alınamadı: ${err.message}`,
+      error: err.message.slice(0, 200),
     });
   }
 }

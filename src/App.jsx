@@ -707,10 +707,10 @@ export default function FuelTracker() {
               {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }, { key: "lpg", label: "LPG", emoji: "🔵" }].map(f => (
                 <div key={f.key} style={{ background: "#0f0f1a", padding: "12px 10px", borderRadius: "10px", minWidth: 0, overflow: "hidden", textAlign: "center" }}>
                   <div style={{ fontSize: "11px", fontWeight: "600", color: "#555", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
                     <NumericInput placeholder="0,00" value={shellPrice[f.key]} onChange={v => setShellPrice(p => ({ ...p, [f.key]: v }))}
-                      style={{ background: "#0a0a0f", border: "1px solid #2a2a3a", color: "#e8e4d9", padding: "8px 6px", fontSize: "14px", fontWeight: "800", width: "100%", fontFamily: MONO, outline: "none", boxSizing: "border-box", borderRadius: "6px", minWidth: 0 }} />
-                    <span style={{ color: "#555", fontWeight: "600" }}>₺</span>
+                      style={{ background: "#0a0a0f", border: "1px solid #2a2a3a", color: "#e8e4d9", padding: "8px 6px", fontSize: "14px", fontWeight: "800", width: "100%", fontFamily: MONO, outline: "none", boxSizing: "border-box", borderRadius: "6px", minWidth: 0, textAlign: "center" }} />
+                    <span style={{ color: "#555", fontWeight: "600", flexShrink: 0 }}>₺</span>
                   </div>
                   {shellPrice[f.key] && <div style={{ marginTop: "8px", fontSize: "12px", color: "#ff8c00", fontWeight: "600" }}>✓ {formatNumber(parseTR(shellPrice[f.key]))} ₺/L</div>}
                 </div>

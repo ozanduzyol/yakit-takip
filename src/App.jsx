@@ -49,6 +49,7 @@ export default function FuelTracker() {
   const [editSaving, setEditSaving] = useState(false);
   const [filterMonth, setFilterMonth] = useState("all");
   const [epdkData, setEpdkData] = useState(null);
+  const [userIl, setUserIl] = useState("bursa");
   const [epdkLoading, setEpdkLoading] = useState(false);
   const [epdkError, setEpdkError] = useState(null);
 
@@ -60,11 +61,31 @@ export default function FuelTracker() {
     fetchEntries();
   }, []);
 
-  const fetchEpdk = async () => {
+  const getIlFromCoords = async (lat, lon) => {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=tr`, {
+      headers: { "User-Agent": "FuelTrackerApp/1.0" }
+    });
+    const json = await r.json();
+    return json.address?.province || json.address?.state || json.address?.city || "bursa";
+  };
+
+  const fetchEpdk = async (useLocation = false) => {
     setEpdkLoading(true);
     setEpdkError(null);
     try {
-      const res = await fetch("/api/fuel-prices");
+      let il = userIl;
+      if (useLocation) {
+        const coords = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
+            e => reject(e),
+            { timeout: 8000 }
+          );
+        });
+        il = await getIlFromCoords(coords.lat, coords.lon);
+        setUserIl(il);
+      }
+      const res = await fetch(`/api/fuel-prices?il=${encodeURIComponent(il)}`);
       const json = await res.json();
       if (json.success) {
         setEpdkData(json.data);
@@ -72,7 +93,7 @@ export default function FuelTracker() {
         setEpdkError(json.error || "Veri alınamadı");
       }
     } catch (e) {
-      setEpdkError("Bağlantı hatası");
+      setEpdkError(e.code === 1 ? "Konum izni reddedildi" : "Bağlantı hatası");
     } finally {
       setEpdkLoading(false);
     }
@@ -579,18 +600,28 @@ export default function FuelTracker() {
             {/* EPDK otomatik fiyat kartı */}
             <div style={{ background: "#0f0f1a", border: "1px solid #1e1e2a", borderRadius: "10px", padding: "16px", marginBottom: "16px", borderLeft: "3px solid #ff8c00" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#ff8c00", textTransform: "uppercase", letterSpacing: "1px" }}>📡 EPDK Güncel Fiyatlar</div>
-                <button onClick={fetchEpdk} disabled={epdkLoading} style={{
-                  background: "transparent", border: "1px solid #2a2a3a", color: "#666",
-                  padding: "5px 12px", fontSize: "11px", fontWeight: "600",
-                  cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
-                }}>{epdkLoading ? "Yükleniyor..." : "↻ Güncelle"}</button>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: "700", color: "#ff8c00", textTransform: "uppercase", letterSpacing: "1px" }}>📡 EPDK Güncel Fiyatlar</div>
+                  <div style={{ fontSize: "11px", color: "#555", marginTop: "2px" }}>📍 {userIl.charAt(0).toUpperCase() + userIl.slice(1)}</div>
+                </div>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button onClick={() => fetchEpdk(true)} disabled={epdkLoading} style={{
+                    background: "transparent", border: "1px solid #2a2a3a", color: "#666",
+                    padding: "5px 10px", fontSize: "11px", fontWeight: "600",
+                    cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
+                  }}>📍 Konum</button>
+                  <button onClick={() => fetchEpdk(false)} disabled={epdkLoading} style={{
+                    background: "transparent", border: "1px solid #2a2a3a", color: "#666",
+                    padding: "5px 10px", fontSize: "11px", fontWeight: "600",
+                    cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px",
+                  }}>{epdkLoading ? "..." : "↻"}</button>
+                </div>
               </div>
               {epdkError && <div style={{ fontSize: "12px", color: "#ff4444", marginBottom: "8px" }}>⚠ {epdkError}</div>}
               {epdkData ? (
                 <div>
                   <div style={{ fontSize: "10px", color: "#444", marginBottom: "10px" }}>Tarih: {epdkData.tarih} · Kaynak: EPDK</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
                     {epdkData.benzin95 && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div>
@@ -600,14 +631,14 @@ export default function FuelTracker() {
                     )}
                     {epdkData.motorin && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
-                        <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🔵 Motorin</div>
+                        <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>⚫ Motorin</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.motorin.fiyat)} ₺</div>
                         <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.motorin.firma}</div>
                       </div>
                     )}
                     {epdkData.lpg && (
-                      <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px", gridColumn: "1 / -1" }}>
-                        <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟠 LPG / Otogaz</div>
+                      <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
+                        <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🔵 LPG / Otogaz</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.lpg.fiyat)} ₺</div>
                         <div style={{ fontSize: "10px", color: "#444", marginTop: "2px" }}>{epdkData.lpg.firma}</div>
                       </div>
@@ -662,7 +693,7 @@ export default function FuelTracker() {
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: "8px", marginBottom: "16px" }}>
-              {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "🔵" }, { key: "lpg", label: "LPG", emoji: "🟠" }].map(f => (
+              {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }, { key: "lpg", label: "LPG", emoji: "🔵" }].map(f => (
                 <div key={f.key} style={{ background: "#0f0f1a", padding: "18px", borderRadius: "10px" }}>
                   <div style={{ fontSize: "11px", fontWeight: "600", color: "#555", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

@@ -60,7 +60,7 @@ export default async function handler(req, res) {
   const ilSlug = toSlug(il);
   const ilceSlug = toSlug(ilce);
 
-  const today = new Date();
+  const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
   const dd = String(today.getDate()).padStart(2, "0");
   const mm = String(today.getMonth() + 1).padStart(2, "0");
   const hh = String(today.getHours()).padStart(2, "0");

@@ -57,6 +57,7 @@ export default function FuelTracker() {
   const [filterMonth, setFilterMonth] = useState("all");
   const [epdkData, setEpdkData] = useState(null);
   const [userIl, setUserIl] = useState("bursa");
+  const [userIlce, setUserIlce] = useState("nilufer");
   const [epdkLoading, setEpdkLoading] = useState(false);
   const [epdkError, setEpdkError] = useState(null);
 
@@ -105,6 +106,7 @@ export default function FuelTracker() {
         il = info.il;
         ilce = info.ilce;
         setUserIl(il);
+        setUserIlce(ilce);
       }
       const res = await fetch(`/api/fuel-prices?il=${encodeURIComponent(il)}&ilce=${encodeURIComponent(ilce)}`);
       const json = await res.json();
@@ -660,7 +662,7 @@ export default function FuelTracker() {
                 <div style={{ textAlign: "center", fontSize: "12px", color: "#555" }}>
                   {epdkLoading
                     ? <span style={{ color: "#ff8c00", animation: "pulse 1s infinite" }}>⏳ Fiyatlar alınıyor...</span>
-                    : <>📍 {userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</>
+                    : <>📍 {userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")} / {userIlce.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</>
                   }
                 </div>
               </div>

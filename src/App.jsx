@@ -718,20 +718,20 @@ export default function FuelTracker() {
               {epdkError && <div style={{ fontSize: "12px", color: "#ff4444", marginBottom: "8px" }}>⚠ {epdkError}</div>}
               {epdkData ? (
                 <div>
-                  <div style={{ fontSize: "10px", color: "#444", marginBottom: "10px" }}>Tarih: {epdkData.tarih} · {epdkData.kaynak || "EPDK"}</div>
+                  <div style={{ fontSize: "10px", color: "#444", marginBottom: "10px" }}>Tarih: {epdkData.tarih}</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                     {epdkData.benzin95 && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.benzin95.fiyat)} ₺</div>
-                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{epdkData.benzin95.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{[userIl, userIlce].filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" / ")}</div>
                       </div>
                     )}
                     {epdkData.motorin && (
                       <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>⚫ Motorin</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.motorin.fiyat)} ₺</div>
-                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{epdkData.motorin.firma.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</div>
+                        <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{[userIl, userIlce].filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" / ")}</div>
                       </div>
                     )}
                   </div>
@@ -809,10 +809,10 @@ export default function FuelTracker() {
             fontFamily: FONT, cursor: "pointer",
             borderTop: activeTab === tab.id ? "2px solid #ff8c00" : "2px solid transparent",
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            padding: "14px 0 12px", gap: "4px",
+            padding: "10px 2px 8px", gap: "3px",
           }}>
-            <span style={{ fontSize: "20px", lineHeight: 1 }}>{tab.emoji}</span>
-            <span style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.3px", whiteSpace: "nowrap" }}>{tab.label}</span>
+            <span style={{ fontSize: "17px", lineHeight: 1 }}>{tab.emoji}</span>
+            <span style={{ fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.3px", whiteSpace: "nowrap" }}>{tab.label}</span>
           </button>
         ))}
       </div>

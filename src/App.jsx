@@ -10,10 +10,10 @@ const FONT = "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans
 const MONO = "'JetBrains Mono', 'Fira Code', 'Courier New', monospace";
 
 const MAINT_CATEGORIES = [
-  { id: "lastik", label: "Lastik", color: "#ffdd00", emoji: "🟡" },
-  { id: "silecek", label: "Silecek", color: "#64d2ff", emoji: "🔵" },
-  { id: "fren", label: "Fren", color: "#ff6655", emoji: "🔴" },
-  { id: "genel", label: "Genel Servis", color: "#44cc88", emoji: "🟢" },
+  { id: "lastik", label: "Lastik", color: "#ffdd00", emoji: "🛞" },
+  { id: "silecek", label: "Silecek", color: "#64d2ff", emoji: "🌧️" },
+  { id: "fren", label: "Fren", color: "#ff6655", emoji: "🛑" },
+  { id: "genel", label: "Genel Servis", color: "#44cc88", emoji: "🔧" },
 ];
 
 function formatNumber(val, decimals = 2) {
@@ -43,7 +43,7 @@ const toTR = (num) => {
 };
 const emptyForm = () => ({ date: new Date().toISOString().split("T")[0], km: "", liters: "", totalPrice: "" });
 const emptyMaint = () => ({ date: new Date().toISOString().split("T")[0], km: "", category: "lastik", description: "", cost: "" });
-const emptyTrip = () => ({ date: new Date().toISOString().split("T")[0], title: "", startKm: "", endKm: "", consumption: "", fuelPrice: "", tollCost: "", notes: "" });
+const emptyTrip = () => ({ date: new Date().toISOString().split("T")[0], tripDateFrom: "", tripDateTo: "", title: "", startKm: "", endKm: "", consumption: "", fuelPrice: "", tollCost: "", notes: "" });
 
 export default function FuelTracker() {
   // Fuel
@@ -222,17 +222,28 @@ export default function FuelTracker() {
     setMaintLoading(true);
     const { data, error } = await supabase.from("maintenance_entries").select("*").order("date", { ascending: false });
     if (!error && data) {
-      setMaintEntries(data.map(e => ({ id: e.id, date: e.date, km: parseFloat(e.km), category: e.category, description: e.description || "", cost: parseFloat(e.cost) })));
+      setMaintEntries(data.map(e => ({ id: e.id, date: e.date, km: parseFloat(e.km), category: e.category, description: e.description || "", cost: parseFloat(e.cost), receipt: e.receipt_url || null })));
     }
     setMaintLoading(false);
   };
+
+  const [maintReceiptFile, setMaintReceiptFile] = useState(null);
+  const [maintReceiptPreview, setMaintReceiptPreview] = useState(null);
+  const [editMaintReceiptFile, setEditMaintReceiptFile] = useState(null);
+  const [editMaintReceiptPreview, setEditMaintReceiptPreview] = useState(null);
 
   const handleAddMaint = async () => {
     if (!maintForm.date || !maintForm.km || !maintForm.cost) return;
     setMaintSaving(true);
     try {
-      const { error } = await supabase.from("maintenance_entries").insert({ date: maintForm.date, km: parseTR(maintForm.km), category: maintForm.category, description: maintForm.description, cost: parseTR(maintForm.cost) });
-      if (!error) { await fetchMaintEntries(); setMaintForm(emptyMaint()); setShowMaintForm(false); }
+      let receiptUrl = null;
+      if (maintReceiptFile) {
+        const fileName = `${Date.now()}_${maintReceiptFile.name}`;
+        const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, maintReceiptFile, { contentType: maintReceiptFile.type });
+        if (!uploadError) { const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName); receiptUrl = urlData.publicUrl; }
+      }
+      const { error } = await supabase.from("maintenance_entries").insert({ date: maintForm.date, km: parseTR(maintForm.km), category: maintForm.category, description: maintForm.description, cost: parseTR(maintForm.cost), receipt_url: receiptUrl });
+      if (!error) { await fetchMaintEntries(); setMaintForm(emptyMaint()); setMaintReceiptFile(null); setMaintReceiptPreview(null); setShowMaintForm(false); }
     } finally { setMaintSaving(false); }
   };
 
@@ -243,13 +254,21 @@ export default function FuelTracker() {
 
   const startEditMaint = (e) => {
     setEditingMaintId(e.id);
-    setEditMaintForm({ date: e.date, km: String(Math.round(e.km)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), category: e.category, description: e.description, cost: toTR(e.cost) });
+    setEditMaintReceiptFile(null);
+    setEditMaintReceiptPreview(e.receipt || null);
+    setEditMaintForm({ date: e.date, km: String(Math.round(e.km)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), category: e.category, description: e.description, cost: toTR(e.cost), receipt: e.receipt || null });
   };
 
   const handleEditMaintSave = async () => {
     setEditMaintSaving(true);
     try {
-      const { error } = await supabase.from("maintenance_entries").update({ date: editMaintForm.date, km: parseTR(editMaintForm.km), category: editMaintForm.category, description: editMaintForm.description, cost: parseTR(editMaintForm.cost) }).eq("id", editingMaintId);
+      let receiptUrl = editMaintForm.receipt || null;
+      if (editMaintReceiptFile) {
+        const fileName = `${Date.now()}_${editMaintReceiptFile.name}`;
+        const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, editMaintReceiptFile, { contentType: editMaintReceiptFile.type });
+        if (!uploadError) { const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName); receiptUrl = urlData.publicUrl; }
+      }
+      const { error } = await supabase.from("maintenance_entries").update({ date: editMaintForm.date, km: parseTR(editMaintForm.km), category: editMaintForm.category, description: editMaintForm.description, cost: parseTR(editMaintForm.cost), receipt_url: receiptUrl }).eq("id", editingMaintId);
       if (!error) { await fetchMaintEntries(); setEditingMaintId(null); }
     } finally { setEditMaintSaving(false); }
   };
@@ -498,7 +517,7 @@ export default function FuelTracker() {
                 ))}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "20px" }}>
-                <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px" }}>
+                <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
                   <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bakım ₺</div>
                   <div style={{ fontSize: "18px", fontWeight: "700", color: "#ffdd00", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)}</div>
                 </div>
@@ -636,7 +655,7 @@ export default function FuelTracker() {
                                     <button onClick={() => handleDelete(e.id, e.receipt)} style={{ background: "none", border: "1px solid #1a2a45", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#3d5270"; }}>✕</button>
                                   </div>
                                 </div>
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a2a45" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "18% 18% 16% 26% 22%", borderTop: "1px solid #1a2a45" }}>
                                   {[
                                     { label: "Km", val: formatNumber(e.km, 0) },
                                     { label: "Miktar", val: `${formatNumber(e.liters)} L` },
@@ -686,7 +705,7 @@ export default function FuelTracker() {
                                 <span style={{ fontSize: "15px", fontWeight: "800", color: "#e8eef8", fontFamily: MONO }}>{monthName(key)}</span>
                                 <span style={{ fontSize: "11px", color: "#4a6080", fontWeight: "500" }}>{m.count} dolum</span>
                               </div>
-                              <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a2a45" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "18% 18% 16% 26% 22%", borderTop: "1px solid #1a2a45" }}>
                                 {[
                                   { label: "Top. Km", val: monthKm ? `${formatNumber(monthKm, 0)}` : "—" },
                                   { label: "Miktar", val: `${formatNumber(m.liters)} L` },
@@ -826,7 +845,8 @@ export default function FuelTracker() {
                                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                   <span style={{ fontSize: "13px", fontWeight: "800", color: cat.color }}>{cat.emoji} {cat.label}</span>
                                 </div>
-                                <div style={{ display: "flex", gap: "6px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                  {e.receipt && <a href={e.receipt} target="_blank" rel="noopener noreferrer"><img src={e.receipt} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} /></a>}
                                   <button onClick={() => startEditMaint(e)} style={{ background: "none", border: "1px solid #1a2a45", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#666"; }}>✎</button>
                                   <button onClick={() => handleDeleteMaint(e.id)} style={{ background: "none", border: "1px solid #1a2a45", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#3d5270"; }}>✕</button>
                                 </div>
@@ -902,10 +922,28 @@ export default function FuelTracker() {
                   </div>
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                      <div style={lbl}>Yolculuk Tarihi Aralığı (litre fiyatı için)</div>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "8px" }}>
+                      <input type="date" value={tripForm.tripDateFrom} onChange={e => setTripForm(p => ({ ...p, tripDateFrom: e.target.value }))} style={{ ...inp, colorScheme: "dark", fontSize: "12px", padding: "7px 10px" }} />
+                      <input type="date" value={tripForm.tripDateTo} onChange={e => setTripForm(p => ({ ...p, tripDateTo: e.target.value }))} style={{ ...inp, colorScheme: "dark", fontSize: "12px", padding: "7px 10px" }} />
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                       <div style={lbl}>Litre Fiyatı ₺</div>
-                      {shellPrice.benzin && <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: shellPrice.benzin }))} style={{ background: "none", border: "1px solid #1a2a45", color: "#64d2ff", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>EPDK'dan al</button>}
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        {(tripForm.tripDateFrom || tripForm.tripDateTo) && (() => {
+                          const from = tripForm.tripDateFrom || "0000-00-00";
+                          const to = tripForm.tripDateTo || "9999-99-99";
+                          const relevant = entries.filter(e => e.date >= from && e.date <= to && e.liters > 0);
+                          if (relevant.length === 0) return null;
+                          const avgPrice = relevant.reduce((s, e) => s + e.totalPrice / e.liters, 0) / relevant.length;
+                          return <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: toTR(avgPrice) }))} style={{ background: "none", border: "1px solid #44cc88", color: "#44cc88", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>⌀ Ort. al ({relevant.length} dolum)</button>;
+                        })()}
+                        {shellPrice.benzin && <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: shellPrice.benzin }))} style={{ background: "none", border: "1px solid #1a2a45", color: "#64d2ff", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>EPDK'dan al</button>}
+                      </div>
                     </div>
                     <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={inp} />
+                    {tripForm.fuelPrice && <div style={{ marginTop: "4px", fontSize: "11px", color: "#4a6080" }}>Manuel düzenleme yapabilirsin</div>}
                   </div>
                   <div><div style={lbl}>Otoyol / Köprü Ücreti ₺ (opsiyonel)</div><NumericInput value={tripForm.tollCost} onChange={v => setTripForm(p => ({ ...p, tollCost: v }))} placeholder="0,00" style={inp} /></div>
                   <div><div style={lbl}>Not (opsiyonel)</div><input type="text" value={tripForm.notes} onChange={e => setTripForm(p => ({ ...p, notes: e.target.value }))} placeholder="Tatil, iş, vb." style={inp} /></div>
@@ -1073,7 +1111,7 @@ export default function FuelTracker() {
           { id: "trips", emoji: "🛣️", label: "Yolculuk" },
           { id: "graphs", emoji: "📈", label: "Grafik" },
         ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: "0 1 20%", background: "none", border: "none", minWidth: 0, maxWidth: "20%", color: activeTab === tab.id ? "#64d2ff" : "#4a6080", fontFamily: FONT, cursor: "pointer", borderTop: activeTab === tab.id ? "2px solid #64d2ff" : "2px solid transparent", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "10px 0 8px", gap: "2px" }}>
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: "0 1 20%", background: "none", border: "none", minWidth: 0, maxWidth: "20%", color: activeTab === tab.id ? "#64d2ff" : "#4a6080", fontFamily: FONT, cursor: "pointer", borderTop: activeTab === tab.id ? "2px solid #64d2ff" : "2px solid transparent", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "6px 0 4px", gap: "2px" }}>
             <span style={{ fontSize: "16px", lineHeight: 1 }}>{tab.emoji}</span>
             <span style={{ fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.2px", whiteSpace: "nowrap", overflow: "hidden", maxWidth: "100%", textAlign: "center" }}>{tab.label}</span>
           </button>

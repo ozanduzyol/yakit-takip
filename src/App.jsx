@@ -255,13 +255,13 @@ export default function FuelTracker() {
   });
 
   const inp = {
-    background: "#13131f", border: "1px solid #2a2a3a", color: "#e8e4d9",
+    background: "#222222", border: "1px solid #2a2a3a", color: "#e8e4d9",
     padding: "10px 12px", width: "100%", maxWidth: "100%", fontSize: "14px", fontFamily: FONT,
     outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "block",
   };
 
   const editInp = {
-    background: "#0a0a0f", border: "1px solid #ff8c00", color: "#e8e4d9",
+    background: "#111111", border: "1px solid #ff8c00", color: "#e8e4d9",
     padding: "6px 10px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "13px", fontFamily: MONO,
     outline: "none", boxSizing: "border-box", borderRadius: "5px", fontWeight: "700",
     WebkitAppearance: "none", appearance: "none", display: "block",
@@ -270,7 +270,7 @@ export default function FuelTracker() {
   const lbl = { fontSize: "10px", letterSpacing: "1px", color: "#555", display: "block", marginBottom: "6px", fontWeight: "600", textTransform: "uppercase", fontFamily: FONT };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0f", color: "#e8e4d9", fontFamily: FONT, overflowX: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "#111111", color: "#e8e4d9", fontFamily: FONT, overflowX: "hidden" }}>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
       <style>{`
         input[type="date"] {
@@ -317,7 +317,7 @@ export default function FuelTracker() {
         {!loading && activeTab === "dashboard" && (
           <div>
             {entries.length < 2 && (
-              <div style={{ background: "#0f0f1a", border: "1px dashed #2a2a3a", borderRadius: "10px", padding: "32px", textAlign: "center", marginBottom: "20px" }}>
+              <div style={{ background: "#1c1c1c", border: "1px dashed #2a2a3a", borderRadius: "10px", padding: "32px", textAlign: "center", marginBottom: "20px" }}>
                 <div style={{ fontSize: "32px", marginBottom: "8px" }}>⛽</div>
                 <div style={{ color: "#555", fontSize: "13px" }}>İstatistikler için en az 2 kayıt gereklidir.</div>
               </div>
@@ -332,11 +332,11 @@ export default function FuelTracker() {
                   <div style={{ fontSize: "9px", fontWeight: "600", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Bitiş</div>
                   <input type="date" value={panelTo} onChange={e => setPanelTo(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px", width: "100%", boxSizing: "border-box", height: "38px" }} />
                 </div>
-                <button onClick={() => { setPanelFrom(""); setPanelTo(""); }} style={{ background: "none", border: "1px solid #2a2a3a", color: panelFrom || panelTo ? "#ff8c00" : "#333", padding: "7px 10px", fontSize: "11px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", whiteSpace: "nowrap" }}>✕</button>
+                <button onClick={() => { setPanelFrom(""); setPanelTo(""); }} style={{ background: "none", border: "1px solid #2a2a3a", color: panelFrom || panelTo ? "#ff8c00" : "#333", padding: "7px 10px", fontSize: "11px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", whiteSpace: "nowrap", height: "38px", boxSizing: "border-box" }}>✕</button>
               </div>
             )}
             {entries.length >= 2 && (<>
-              <div style={{ background: "#0f0f1a", borderRadius: "10px", overflow: "hidden", marginBottom: "20px" }}>
+              <div style={{ background: "#1c1c1c", borderRadius: "10px", overflow: "hidden", marginBottom: "20px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", borderBottom: "1px solid #1a1a2a" }}>
                   {[
                     { label: "L/100km", val: `${formatNumber(avg100km)}` },
@@ -364,10 +364,10 @@ export default function FuelTracker() {
             </button>
 
             {showForm && (
-              <div id="kayit-form" style={{ background: "#0d0d18", padding: "20px", border: "1px solid #1e1e2a", borderRadius: "10px" }}>
+              <div id="kayit-form" style={{ background: "#1a1a1a", padding: "20px", border: "1px solid #1e1e2a", borderRadius: "10px" }}>
                 <div style={{ marginBottom: "18px" }}>
                   <div style={{ ...lbl, color: "#ff8c00" }}>📷 Fiş Fotoğrafı (Opsiyonel)</div>
-                  <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#0a0a0f", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#111111", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
                     <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (!f) return; setReceiptFile(f); setReceiptImage(URL.createObjectURL(f)); }} style={{ display: "none" }} />
                     {receiptImage ? (
                       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -387,7 +387,7 @@ export default function FuelTracker() {
                       </button>
                     </div>
                     {dateMode === "picker"
-                      ? <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#2a2a3a", colorScheme: "dark", maxWidth: "100%", display: "block" }} />
+                      ? <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#333333", colorScheme: "dark", maxWidth: "100%", display: "block" }} />
                       : <input type="text" placeholder="GG.AA.YYYY" value={form.date} onChange={e => {
                           const raw = e.target.value;
                           setForm(p => {
@@ -395,9 +395,9 @@ export default function FuelTracker() {
                             const iso = parts.length === 3 && parts[2].length === 4 ? `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}` : raw;
                             return { ...p, date: iso };
                           });
-                        }} style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#2a2a3a" }} />}
+                        }} style={{ ...inp, borderColor: form.date ? "#ff8c00" : "#333333" }} />}
                   </div>
-                  <div><label style={lbl}>Güncel Km</label><NumericInput placeholder="45.230" value={form.km} onChange={v => setForm(p => ({ ...p, km: v }))} style={{ ...inp, borderColor: form.km ? "#ff8c00" : "#2a2a3a" }} /></div>
+                  <div><label style={lbl}>Güncel Km</label><NumericInput placeholder="45.230" value={form.km} onChange={v => setForm(p => ({ ...p, km: v }))} style={{ ...inp, borderColor: form.km ? "#ff8c00" : "#333333" }} /></div>
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                       <label style={lbl}>Ödenen Toplam ₺</label>
@@ -407,7 +407,7 @@ export default function FuelTracker() {
                         </span>
                       )}
                     </div>
-                    <NumericInput placeholder="1.250,00" value={form.totalPrice} onChange={v => setForm(p => ({ ...p, totalPrice: v }))} style={{ ...inp, borderColor: form.totalPrice ? "#ff8c00" : "#2a2a3a" }} />
+                    <NumericInput placeholder="1.250,00" value={form.totalPrice} onChange={v => setForm(p => ({ ...p, totalPrice: v }))} style={{ ...inp, borderColor: form.totalPrice ? "#ff8c00" : "#333333" }} />
                     {form.totalPrice && shellPrice.benzin && (() => {
                       const litre = parseTR(form.totalPrice) / parseTR(shellPrice.benzin);
                       return litre > 0 ? (
@@ -426,12 +426,12 @@ export default function FuelTracker() {
                       <label style={lbl}>Alınan Litre</label>
                       {form.liters && <span style={{ fontSize: "10px", color: "#555" }}>{formatNumber(parseTR(form.liters))} L</span>}
                     </div>
-                    <NumericInput placeholder="35,5" value={form.liters} onChange={v => setForm(p => ({ ...p, liters: v }))} style={{ ...inp, borderColor: form.liters ? "#ff8c00" : "#2a2a3a" }} />
+                    <NumericInput placeholder="35,5" value={form.liters} onChange={v => setForm(p => ({ ...p, liters: v }))} style={{ ...inp, borderColor: form.liters ? "#ff8c00" : "#333333" }} />
                   </div>
                 </div>
 
                 <button onClick={handleAdd} disabled={saving || !form.date || !form.km || !form.liters || !form.totalPrice} style={{
-                  background: (saving || !form.date || !form.km || !form.liters || !form.totalPrice) ? "#1a1a2a" : "#ff8c00",
+                  background: (saving || !form.date || !form.km || !form.liters || !form.totalPrice) ? "#2a2a2a" : "#ff8c00",
                   color: (saving || !form.date || !form.km || !form.liters || !form.totalPrice) ? "#444" : "#000",
                   border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700",
                   cursor: "pointer", fontFamily: FONT, borderRadius: "8px",
@@ -460,7 +460,7 @@ export default function FuelTracker() {
                 <button onClick={() => setFilterMonth("all")} style={{
                   background: filterMonth === "all" ? "#ff8c00" : "transparent",
                   color: filterMonth === "all" ? "#000" : "#555",
-                  border: "1px solid " + (filterMonth === "all" ? "#ff8c00" : "#2a2a3a"),
+                  border: "1px solid " + (filterMonth === "all" ? "#ff8c00" : "#333333"),
                   padding: "5px 12px", fontSize: "11px", fontWeight: "600",
                   cursor: "pointer", fontFamily: FONT, borderRadius: "20px",
                 }}>Tümü</button>
@@ -468,7 +468,7 @@ export default function FuelTracker() {
                   <button key={m} onClick={() => setFilterMonth(m)} style={{
                     background: filterMonth === m ? "#ff8c00" : "transparent",
                     color: filterMonth === m ? "#000" : "#555",
-                    border: "1px solid " + (filterMonth === m ? "#ff8c00" : "#2a2a3a"),
+                    border: "1px solid " + (filterMonth === m ? "#ff8c00" : "#333333"),
                     padding: "5px 12px", fontSize: "11px", fontWeight: "600",
                     cursor: "pointer", fontFamily: FONT, borderRadius: "20px",
                   }}>{monthName(m)}</button>
@@ -479,7 +479,7 @@ export default function FuelTracker() {
               ? <div style={{ color: "#555", textAlign: "center", padding: "48px", fontSize: "14px" }}>Bu ayda kayıt yok.</div>
               : <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {filteredEnriched.map((e, i) => (
-                    <div key={e.id} style={{ background: "#0f0f1a", borderRadius: "10px", borderLeft: i === 0 ? "3px solid #2a2a3a" : "3px solid #ff8c00", overflow: "hidden" }}>
+                    <div key={e.id} style={{ background: "#1c1c1c", borderRadius: "10px", borderLeft: i === 0 ? "3px solid #2a2a3a" : "3px solid #ff8c00", overflow: "hidden" }}>
                       {editingId === e.id ? (
                         <div style={{ padding: "14px" }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
@@ -525,21 +525,21 @@ export default function FuelTracker() {
                               )}
                               <button onClick={() => startEdit(e)} style={{ background: "none", border: "1px solid #2a2a3a", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }}
                                 onMouseEnter={ev => { ev.target.style.borderColor = "#ff8c00"; ev.target.style.color = "#ff8c00"; }}
-                                onMouseLeave={ev => { ev.target.style.borderColor = "#2a2a3a"; ev.target.style.color = "#666"; }}
+                                onMouseLeave={ev => { ev.target.style.borderColor = "#333333"; ev.target.style.color = "#666"; }}
                               >✎</button>
                               <button onClick={() => handleDelete(e.id, e.receipt)} style={{ background: "none", border: "1px solid #2a2a3a", color: "#444", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }}
                                 onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }}
-                                onMouseLeave={ev => { ev.target.style.borderColor = "#2a2a3a"; ev.target.style.color = "#444"; }}
+                                onMouseLeave={ev => { ev.target.style.borderColor = "#333333"; ev.target.style.color = "#444"; }}
                               >✕</button>
                             </div>
                           </div>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
                               { label: "Km", val: formatNumber(e.km, 0) },
-                              { label: "Litre", val: `${formatNumber(e.liters)} L` },
-                              { label: "Ödeme", val: `${formatNumber(e.totalPrice)} ₺` },
-                              { label: "₺/Km", val: e.consumption && (e.km - (enriched[enriched.findIndex(x => x.id === e.id) - 1]?.km || e.km)) > 0 ? `${formatNumber(e.totalPrice / (e.km - (enriched[enriched.findIndex(x => x.id === e.id) - 1]?.km || e.km)))}` : "—" },
+                              { label: "Miktar", val: `${formatNumber(e.liters)} L` },
                               { label: "L/100km", val: e.consumption ? `${formatNumber(e.consumption)}` : "—", highlight: !!e.consumption },
+                              { label: "Harcama", val: `${formatNumber(e.totalPrice)} ₺` },
+                              { label: "₺/Km", val: e.consumption && (e.km - (enriched[enriched.findIndex(x => x.id === e.id) - 1]?.km || e.km)) > 0 ? `${formatNumber(e.totalPrice / (e.km - (enriched[enriched.findIndex(x => x.id === e.id) - 1]?.km || e.km)))}` : "—" },
                             ].map((col, ci) => (
                               <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
@@ -585,13 +585,13 @@ export default function FuelTracker() {
                     <button onClick={() => downloadCSV(filteredEnriched, `fuel-tracker-${filterMonth === "all" ? "tum" : filterMonth}-${new Date().toISOString().slice(0,10)}.csv`)}
                       style={btnStyle}
                       onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
-                      onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
+                      onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#333333"; ev.currentTarget.style.color = "#555"; }}
                     >↓ {filterMonth === "all" ? "CSV indir" : "Seçili ayı indir"}</button>
                     {filterMonth !== "all" && (
                       <button onClick={() => downloadCSV(enriched, `fuel-tracker-tum-${new Date().toISOString().slice(0,10)}.csv`)}
                         style={btnStyle}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
-                        onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
+                        onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#333333"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Tüm kayıtları indir</button>
                     )}
                   </div>
@@ -629,7 +629,7 @@ export default function FuelTracker() {
                       const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length-1].km - sortedE[0].km : null;
                       const cons = monthKm > 0 ? (m.liters / monthKm) * 100 : null;
                       return (
-                        <div key={key} style={{ background: "#0f0f1a", borderRadius: "10px", borderLeft: "3px solid #ff8c00", overflow: "hidden" }}>
+                        <div key={key} style={{ background: "#1c1c1c", borderRadius: "10px", borderLeft: "3px solid #ff8c00", overflow: "hidden" }}>
                           <div style={{ padding: "12px 14px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span style={{ fontSize: "15px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{monthName(key)}</span>
                             <span style={{ fontSize: "11px", color: "#555", fontWeight: "500" }}>{m.count} dolum</span>
@@ -637,10 +637,10 @@ export default function FuelTracker() {
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
                               { label: "Top. Km", val: monthKm ? `${formatNumber(monthKm, 0)}` : "—" },
-                              { label: "Yakıt", val: `${formatNumber(m.liters)} L` },
+                              { label: "Miktar", val: `${formatNumber(m.liters)} L` },
+                              { label: "L/100km", val: cons ? `${formatNumber(cons)}` : "—", highlight: !!cons },
                               { label: "Harcama", val: `${formatNumber(m.spent)} ₺` },
                               { label: "₺/Km", val: monthKm > 0 ? `${formatNumber(m.spent / monthKm)}` : "—" },
-                              { label: "L/100km", val: cons ? `${formatNumber(cons)}` : "—", highlight: !!cons },
                             ].map((col, ci) => (
                               <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
@@ -677,13 +677,15 @@ export default function FuelTracker() {
             const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length-1].km - sortedE[0].km : null;
             const cons = monthKm > 0 ? parseFloat((m.liters / monthKm * 100).toFixed(2)) : null;
             const km = monthKm ? parseFloat(monthKm.toFixed(0)) : null;
-            return { label, liters: parseFloat(m.liters.toFixed(2)), spent: parseFloat(m.spent.toFixed(2)), cons, km };
+            const costPerKm = monthKm > 0 ? parseFloat((m.spent / monthKm).toFixed(2)) : null;
+            return { label, liters: parseFloat(m.liters.toFixed(2)), spent: parseFloat(m.spent.toFixed(2)), cons, km, costPerKm };
           });
           const charts = [
-            { key: "spent", label: "Aylık Harcama (₺)", color: "#ff8c00", unit: "₺" },
-            { key: "liters", label: "Aylık Yakıt (L)", color: "#44aaff", unit: "L" },
             { key: "km", label: "Aylık Km", color: "#cc88ff", unit: "km" },
-            { key: "cons", label: "Ort. L/100 km", color: "#44ff88", unit: "L" },
+            { key: "liters", label: "Aylık Yakıt Miktarı (L)", color: "#44aaff", unit: "L" },
+            { key: "cons", label: "Aylık L/100 km", color: "#44ff88", unit: "L" },
+            { key: "spent", label: "Aylık Harcama (₺)", color: "#ff8c00", unit: "₺" },
+            { key: "costPerKm", label: "Aylık ₺/Km", color: "#ffdd00", unit: "₺" },
           ];
           return (
             <div>
@@ -691,15 +693,15 @@ export default function FuelTracker() {
                 ? <div style={{ color: "#555", textAlign: "center", padding: "48px", fontSize: "14px" }}>Grafik için en az 2 aylık kayıt gereklidir.</div>
                 : <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                     {charts.map(c => (
-                      <div key={c.key} style={{ background: "#0f0f1a", borderRadius: "10px", padding: "14px", borderLeft: `3px solid ${c.color}` }}>
+                      <div key={c.key} style={{ background: "#1c1c1c", borderRadius: "10px", padding: "14px", borderLeft: `3px solid ${c.color}` }}>
                         <div style={{ fontSize: "10px", fontWeight: "700", color: c.color, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>{c.label}</div>
                         <ResponsiveContainer width="100%" height={140}>
                           <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2a" />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
                             <XAxis dataKey="label" tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} />
                             <Tooltip
-                              contentStyle={{ background: "#0a0a0f", border: "1px solid #2a2a3a", borderRadius: "6px", fontSize: "12px" }}
+                              contentStyle={{ background: "#111111", border: "1px solid #2a2a3a", borderRadius: "6px", fontSize: "12px" }}
                               labelStyle={{ color: "#888" }}
                               itemStyle={{ color: c.color }}
                               formatter={v => v != null ? [`${v} ${c.unit}`, c.label] : ["—", c.label]}
@@ -718,7 +720,7 @@ export default function FuelTracker() {
         {/* SHELL */}
         {!loading && activeTab === "shell" && (
           <div>
-            <div style={{ background: "#0f0f1a", border: "1px solid #1e1e2a", borderRadius: "10px", padding: "16px", marginBottom: "16px", borderLeft: "3px solid #ff8c00" }}>
+            <div style={{ background: "#1c1c1c", border: "1px solid #1e1e2a", borderRadius: "10px", padding: "16px", marginBottom: "16px", borderLeft: "3px solid #ff8c00" }}>
               <div style={{ marginBottom: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
                   <div style={{ fontSize: "11px", fontWeight: "700", color: "#ff8c00", textTransform: "uppercase", letterSpacing: "1px" }}>📡 EPDK Güncel Fiyatlar</div>
@@ -742,14 +744,14 @@ export default function FuelTracker() {
                   <div style={{ fontSize: "10px", color: "#444", marginBottom: "10px" }}>Tarih: {epdkData.tarih}</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                     {epdkData.benzin95 && (
-                      <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
+                      <div style={{ background: "#111111", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.benzin95.fiyat)} ₺</div>
                         <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{[userIl, userIlce].filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" / ")}</div>
                       </div>
                     )}
                     {epdkData.motorin && (
-                      <div style={{ background: "#0a0a0f", padding: "12px", borderRadius: "8px" }}>
+                      <div style={{ background: "#111111", padding: "12px", borderRadius: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>⚫ Motorin</div>
                         <div style={{ fontSize: "18px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{formatNumber(epdkData.motorin.fiyat)} ₺</div>
                         <div style={{ fontSize: "10px", color: "#444", marginTop: "1px", lineHeight: 1.2 }}>{[userIl, userIlce].filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" / ")}</div>
@@ -761,14 +763,14 @@ export default function FuelTracker() {
                       <button onClick={() => setShellPrice(p => ({ ...p, benzin: toTR(epdkData.benzin95.fiyat) }))}
                         style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
-                        onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
+                        onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#333333"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Benzin fiyatını forma aktar</button>
                     )}
                     {epdkData.motorin && (
                       <button onClick={() => setShellPrice(p => ({ ...p, motorin: toTR(epdkData.motorin.fiyat) }))}
                         style={{ background: "transparent", border: "1px solid #2a2a3a", color: "#555", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", textAlign: "center", lineHeight: 1.4 }}
                         onMouseEnter={ev => { ev.currentTarget.style.borderColor = "#ff8c00"; ev.currentTarget.style.color = "#ff8c00"; }}
-                        onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#2a2a3a"; ev.currentTarget.style.color = "#555"; }}
+                        onMouseLeave={ev => { ev.currentTarget.style.borderColor = "#333333"; ev.currentTarget.style.color = "#555"; }}
                       >↓ Motorin fiyatını forma aktar</button>
                     )}
                     {(epdkData.benzin95 || epdkData.motorin) && (
@@ -790,11 +792,11 @@ export default function FuelTracker() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "16px", minWidth: 0 }}>
               {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }].map(f => (
-                <div key={f.key} style={{ background: "#0f0f1a", padding: "12px 10px", borderRadius: "10px", minWidth: 0, overflow: "hidden", textAlign: "center" }}>
+                <div key={f.key} style={{ background: "#1c1c1c", padding: "12px 10px", borderRadius: "10px", minWidth: 0, overflow: "hidden", textAlign: "center" }}>
                   <div style={{ fontSize: "11px", fontWeight: "600", color: "#555", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
                     <NumericInput placeholder="0,00" value={shellPrice[f.key]} onChange={v => setShellPrice(p => ({ ...p, [f.key]: v }))}
-                      style={{ background: "#0a0a0f", border: "1px solid #2a2a3a", color: "#e8e4d9", padding: "8px 6px", fontSize: "14px", fontWeight: "800", width: "100%", fontFamily: MONO, outline: "none", boxSizing: "border-box", borderRadius: "6px", minWidth: 0, textAlign: "center" }} />
+                      style={{ background: "#111111", border: "1px solid #2a2a3a", color: "#e8e4d9", padding: "8px 6px", fontSize: "14px", fontWeight: "800", width: "100%", fontFamily: MONO, outline: "none", boxSizing: "border-box", borderRadius: "6px", minWidth: 0, textAlign: "center" }} />
                     <span style={{ color: "#555", fontWeight: "600", flexShrink: 0 }}>₺</span>
                   </div>
                   {shellPrice[f.key] && <div style={{ marginTop: "8px", fontSize: "12px", color: "#ff8c00", fontWeight: "600" }}>✓ {formatNumber(parseTR(shellPrice[f.key]))} ₺/L</div>}
@@ -813,7 +815,7 @@ export default function FuelTracker() {
       {/* SABİT BOTTOM TAB BAR */}
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
-        background: "rgba(10,10,15,0.97)", borderTop: "1px solid #1e1e2a",
+        background: "rgba(17,17,17,0.97)", borderTop: "1px solid #1e1e2a",
         display: "flex", alignItems: "stretch", justifyContent: "center",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}>

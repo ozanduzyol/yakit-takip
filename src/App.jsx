@@ -378,7 +378,8 @@ export default function FuelTracker() {
     const nextDate = new Date(baseDate);
     nextDate.setMonth(nextDate.getMonth() + intMonths);
     const nextKm = baseKm + intKm;
-    const currentKm = entries.length > 0 ? entries[entries.length - 1].km : parseFloat(vehicleInfo.purchase_km || 0);
+    const fuelAfterService = entries.filter(e => e.date >= (lastMaint ? lastMaint.date : vehicleInfo.purchase_date));
+    const currentKm = fuelAfterService.length > 0 ? fuelAfterService[fuelAfterService.length - 1].km : (lastMaint ? lastMaint.km : parseFloat(vehicleInfo.purchase_km || 0));
     const daysLeft = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
     const kmLeft = nextKm - currentKm;
     const isUrgent = daysLeft < 30 || kmLeft < 1500;
@@ -515,7 +516,7 @@ export default function FuelTracker() {
                 ].map(s => (
                   <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #64d2ff" }}>
                     <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
-                    <div style={{ fontSize: "22px", fontWeight: "800", color: "#64d2ff", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{s.val}</div>
+                    <div style={{ fontSize: "17px", fontWeight: "800", color: "#64d2ff", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{s.val}</div>
                   </div>
                 ))}
               </div>
@@ -527,18 +528,18 @@ export default function FuelTracker() {
                 ].map(s => (
                   <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.border}` }}>
                     <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
-                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#e8eef8", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{s.val}</div>
+                    <div style={{ fontSize: "15px", fontWeight: "700", color: "#e8eef8", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{s.val}</div>
                   </div>
                 ))}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "20px" }}>
                 <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
                   <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bakım Maliyeti</div>
-                  <div style={{ fontSize: "18px", fontWeight: "700", color: "#ffdd00", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)} ₺</div>
+                  <div style={{ fontSize: "15px", fontWeight: "700", color: "#ffdd00", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)} ₺</div>
                 </div>
                 <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ff6655" }}>
                   <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Toplam Maliyet</div>
-                  <div style={{ fontSize: "18px", fontWeight: "700", color: "#ff6655", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalSpent + totalMaintCost)} ₺</div>
+                  <div style={{ fontSize: "15px", fontWeight: "700", color: "#ff6655", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalSpent + totalMaintCost)} ₺</div>
                 </div>
               </div>
             </>)}
@@ -794,7 +795,7 @@ export default function FuelTracker() {
             <div style={{ marginBottom: "12px" }}>
               <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
                 <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Top. Bakım Maliyeti</div>
-                <div style={{ fontSize: "20px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)} ₺</div>
+                <div style={{ fontSize: "16px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)} ₺</div>
               </div>
 
             </div>

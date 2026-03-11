@@ -97,7 +97,7 @@ export default function FuelTracker() {
     setEpdkData(null);
     try {
       let il = userIl;
-      let ilce = "nilufer";
+      let ilce = userIlce;
       if (useLocation) {
         const coords = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(
@@ -799,12 +799,12 @@ export default function FuelTracker() {
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             flex: 1, background: "none", border: "none",
             color: activeTab === tab ? "#ff8c00" : "#444",
-            fontSize: "10px", fontWeight: "600", textTransform: "uppercase",
-            letterSpacing: "0.3px", padding: "12px 4px 10px",
+            fontSize: "9px", fontWeight: "600", textTransform: "uppercase",
+            letterSpacing: "0.3px", padding: "8px 2px 6px",
             cursor: "pointer", fontFamily: FONT,
             borderTop: activeTab === tab ? "2px solid #ff8c00" : "2px solid transparent",
           }}>
-            <div style={{ fontSize: "18px", marginBottom: "3px", lineHeight: 1 }}>
+            <div style={{ fontSize: "16px", marginBottom: "2px", lineHeight: 1 }}>
               {tab === "dashboard" ? "📊" : tab === "records" ? "📋" : tab === "monthly" ? "📅" : tab === "graphs" ? "📈" : "⛽"}
             </div>
             {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : tab === "monthly" ? "Aylık" : tab === "graphs" ? "Grafik" : "Fiyatlar"}

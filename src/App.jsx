@@ -615,7 +615,7 @@ export default function FuelTracker() {
                           </div>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
-                              { label: "Toplam km", val: monthKm ? `${formatNumber(monthKm, 0)}` : "—" },
+                              { label: "Top. Km", val: monthKm ? `${formatNumber(monthKm, 0)}` : "—" },
                               { label: "Yakıt", val: `${formatNumber(m.liters)} L` },
                               { label: "Harcama", val: `${formatNumber(m.spent)} ₺` },
                               { label: "L/100 km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },

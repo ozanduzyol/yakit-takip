@@ -527,7 +527,7 @@ export default function FuelTracker() {
                                 if (!prev?.consumption) return null;
                                 const diff = e.consumption - prev.consumption;
                                 if (Math.abs(diff) < 0.1) return null;
-                                return <span style={{ fontSize: "11px", fontWeight: "700", color: diff < 0 ? "#44cc88" : "#ff6655" }}>{diff < 0 ? "↓" : "↑"} {formatNumber(Math.abs(diff))}</span>;
+                                return <span style={{ fontSize: "11px", fontWeight: "700", color: diff < 0 ? "#44cc88" : "#ff6655" }}>{diff < 0 ? "↓" : "↑"} {formatNumber(Math.abs(diff))} L/100km</span>;
                               })()}
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>

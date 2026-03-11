@@ -804,6 +804,15 @@ export default function FuelTracker() {
                   </div>
                   <div><div style={lbl}>Açıklama (opsiyonel)</div><input type="text" value={maintForm.description} onChange={e => setMaintForm(p => ({ ...p, description: e.target.value }))} placeholder="Örn: 4 lastik Bridgestone" style={inp} /></div>
                   <div><div style={lbl}>Ücret ₺</div><NumericInput value={maintForm.cost} onChange={v => setMaintForm(p => ({ ...p, cost: v }))} placeholder="1.500,00" style={inp} /></div>
+                  <div>
+                    <div style={{ ...lbl, color: "#64d2ff" }}>📷 Fotoğraf (opsiyonel)</div>
+                    <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#080c14", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
+                      <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (!f) return; setMaintReceiptFile(f); setMaintReceiptPreview(URL.createObjectURL(f)); }} style={{ display: "none" }} />
+                      {maintReceiptPreview
+                        ? <div style={{ display: "flex", alignItems: "center", gap: "12px" }}><img src={maintReceiptPreview} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px" }} /><span style={{ color: "#44ff88", fontSize: "13px" }}>✓ Fotoğraf eklendi</span></div>
+                        : <span style={{ color: "#4a6080", fontSize: "13px" }}>+ Fotoğraf ekle</span>}
+                    </label>
+                  </div>
                 </div>
                 <button onClick={handleAddMaint} disabled={maintSaving || !maintForm.date || !maintForm.km || !maintForm.cost} style={{ background: (!maintForm.date || !maintForm.km || !maintForm.cost) ? "#1a2a45" : "#64d2ff", color: (!maintForm.date || !maintForm.km || !maintForm.cost) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
                   {maintSaving ? "Kaydediliyor..." : "Kaydet →"}

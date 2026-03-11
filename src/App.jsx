@@ -711,7 +711,7 @@ export default function FuelTracker() {
                 <div style={{ textAlign: "center", fontSize: "12px", color: "#555" }}>
                   {epdkLoading
                     ? <span style={{ color: "#ff8c00", animation: "pulse 1s infinite" }}>⏳ Fiyatlar alınıyor...</span>
-                    : <>📍 {epdkData ? epdkData.kaynak.replace(" · Shell", "").replace(" · shell", "") : userIl.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</>
+                    : <>📍 {userIl.charAt(0).toUpperCase() + userIl.slice(1)}{userIlce ? ` / ${userIlce.charAt(0).toUpperCase() + userIlce.slice(1)}` : ""}</>
                   }
                 </div>
               </div>
@@ -795,19 +795,24 @@ export default function FuelTracker() {
         background: "rgba(10,10,15,0.97)", borderTop: "1px solid #1e1e2a",
         display: "flex", paddingBottom: "env(safe-area-inset-bottom)",
       }}>
-        {["dashboard", "records", "monthly", "graphs", "shell"].map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)} style={{
-            flex: 1, background: "none", border: "none",
-            color: activeTab === tab ? "#ff8c00" : "#444",
-            fontSize: "9px", fontWeight: "600", textTransform: "uppercase",
-            letterSpacing: "0.3px", padding: "8px 2px 6px",
+        {[
+          { id: "dashboard", emoji: "📊", label: "Panel" },
+          { id: "records",   emoji: "📋", label: "Kayıtlar" },
+          { id: "monthly",   emoji: "📅", label: "Aylık" },
+          { id: "graphs",    emoji: "📈", label: "Grafik" },
+          { id: "shell",     emoji: "⛽", label: "Fiyatlar" },
+        ].map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+            flex: 1, background: "none", border: "none", minWidth: 0,
+            color: activeTab === tab.id ? "#ff8c00" : "#444",
+            fontSize: "10px", fontWeight: "600", textTransform: "uppercase",
+            letterSpacing: "0.2px", padding: "10px 0 8px",
             cursor: "pointer", fontFamily: FONT,
-            borderTop: activeTab === tab ? "2px solid #ff8c00" : "2px solid transparent",
+            borderTop: activeTab === tab.id ? "2px solid #ff8c00" : "2px solid transparent",
+            overflow: "hidden",
           }}>
-            <div style={{ fontSize: "16px", marginBottom: "2px", lineHeight: 1 }}>
-              {tab === "dashboard" ? "📊" : tab === "records" ? "📋" : tab === "monthly" ? "📅" : tab === "graphs" ? "📈" : "⛽"}
-            </div>
-            {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : tab === "monthly" ? "Aylık" : tab === "graphs" ? "Grafik" : "Fiyatlar"}
+            <div style={{ fontSize: "18px", marginBottom: "3px", lineHeight: 1 }}>{tab.emoji}</div>
+            <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingInline: "2px" }}>{tab.label}</div>
           </button>
         ))}
       </div>

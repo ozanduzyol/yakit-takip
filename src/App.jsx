@@ -697,7 +697,7 @@ export default function FuelTracker() {
             { key: "km", label: "Aylık Km", color: "#cc88ff", unit: "km" },
             { key: "liters", label: "Aylık Yakıt Miktarı (L)", color: "#44aaff", unit: "L" },
             { key: "cons", label: "Aylık L/100 km", color: "#44ff88", unit: "L" },
-            { key: "spent", label: "Aylık Harcama (₺)", color: "#64d2ff", unit: "₺" },
+            { key: "spent", label: "Aylık Harcama (₺)", color: "#ff6655", unit: "₺" },
             { key: "costPerKm", label: "Aylık ₺/Km", color: "#ffdd00", unit: "₺" },
           ];
           return (

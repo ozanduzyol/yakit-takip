@@ -528,7 +528,7 @@ export default function FuelTracker() {
                                 <input type="file" accept="image/*" onChange={ev => { const f = ev.target.files[0]; if (!f) return; setEditReceiptFile(f); setEditReceiptPreview(URL.createObjectURL(f)); }} style={{ display: "none" }} />
                                 {editReceiptPreview
                                   ? <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                      <img src={editReceiptPreview} alt="fiş" style={{ width: "26px", height: "34px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "3px" }} />
+                                      <img src={editReceiptPreview} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px" }} />
                                       <span style={{ color: "#44cc88", fontSize: "12px" }}>✓ Fotoğraf seçildi</span>
                                     </div>
                                   : <span style={{ color: "#4a6080", fontSize: "12px" }}>+ Fotoğraf ekle</span>}
@@ -563,7 +563,7 @@ export default function FuelTracker() {
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                               {e.receipt && (
                                 <a href={e.receipt} target="_blank" rel="noopener noreferrer">
-                                  <img src={e.receipt} alt="fiş" style={{ width: "26px", height: "34px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "3px", display: "block" }} />
+                                  <img src={e.receipt} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} />
                                 </a>
                               )}
                               <button onClick={() => startEdit(e)} style={{ background: "none", border: "1px solid #1a2a45", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }}

@@ -285,7 +285,7 @@ export default function FuelTracker() {
         }
       `}</style>
       <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(255,140,0,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
-      <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto", padding: "24px 16px 90px 16px" }}>
+      <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto", padding: "24px 16px 110px 16px" }}>
 
         <div style={{ marginBottom: "28px" }}>
           <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#ff8c00", marginBottom: "6px", fontWeight: "600" }}>⛽ YAKIT TAKİP</div>
@@ -711,7 +711,7 @@ export default function FuelTracker() {
                 <div style={{ textAlign: "center", fontSize: "12px", color: "#555" }}>
                   {epdkLoading
                     ? <span style={{ color: "#ff8c00", animation: "pulse 1s infinite" }}>⏳ Fiyatlar alınıyor...</span>
-                    : <>📍 {userIl.charAt(0).toUpperCase() + userIl.slice(1)}{userIlce ? ` / ${userIlce.charAt(0).toUpperCase() + userIlce.slice(1)}` : ""}</>
+                    : <>📍 {(userIl || "").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}{userIlce ? ` / ${userIlce.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}` : ""}</>
                   }
                 </div>
               </div>
@@ -793,7 +793,8 @@ export default function FuelTracker() {
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
         background: "rgba(10,10,15,0.97)", borderTop: "1px solid #1e1e2a",
-        display: "flex", paddingBottom: "env(safe-area-inset-bottom)",
+        display: "flex", alignItems: "stretch",
+        paddingBottom: "env(safe-area-inset-bottom)",
       }}>
         {[
           { id: "dashboard", emoji: "📊", label: "Panel" },
@@ -804,15 +805,14 @@ export default function FuelTracker() {
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
             flex: 1, background: "none", border: "none", minWidth: 0,
-            color: activeTab === tab.id ? "#ff8c00" : "#444",
-            fontSize: "10px", fontWeight: "600", textTransform: "uppercase",
-            letterSpacing: "0.2px", padding: "10px 0 8px",
-            cursor: "pointer", fontFamily: FONT,
+            color: activeTab === tab.id ? "#ff8c00" : "#555",
+            fontFamily: FONT, cursor: "pointer",
             borderTop: activeTab === tab.id ? "2px solid #ff8c00" : "2px solid transparent",
-            overflow: "hidden",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            padding: "14px 0 12px", gap: "4px",
           }}>
-            <div style={{ fontSize: "18px", marginBottom: "3px", lineHeight: 1 }}>{tab.emoji}</div>
-            <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingInline: "2px" }}>{tab.label}</div>
+            <span style={{ fontSize: "20px", lineHeight: 1 }}>{tab.emoji}</span>
+            <span style={{ fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.3px", whiteSpace: "nowrap" }}>{tab.label}</span>
           </button>
         ))}
       </div>

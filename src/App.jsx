@@ -45,8 +45,6 @@ export default function FuelTracker() {
   const [showForm, setShowForm] = useState(false);
   const [receiptImage, setReceiptImage] = useState(null);
   const [receiptFile, setReceiptFile] = useState(null);
-  const [scanning, setScanning] = useState(false);
-  const [scanError, setScanError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dateMode, setDateMode] = useState("picker");
@@ -61,6 +59,10 @@ export default function FuelTracker() {
   const [userIlce, setUserIlce] = useState("nilufer");
   const [epdkLoading, setEpdkLoading] = useState(false);
   const [epdkError, setEpdkError] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
+  const [saveError, setSaveError] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
+  const [editError, setEditError] = useState(null);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -92,6 +94,7 @@ export default function FuelTracker() {
   const fetchEpdk = async (useLocation = false) => {
     setEpdkLoading(true);
     setEpdkError(null);
+    setEpdkData(null);
     try {
       let il = userIl;
       let ilce = "nilufer";
@@ -127,8 +130,12 @@ export default function FuelTracker() {
 
   const fetchEntries = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("fuel_entries").select("*").order("date", { ascending: true });
-    if (!error && data) {
+    setFetchError(null);
+    const { data, error } = await supabase.from("fuel_entries").select("*").order("date", { ascending: true }).order("created_at", { ascending: true });
+    if (error) {
+      console.error("fetchEntries hatası:", error);
+      setFetchError("Kayıtlar yüklenemedi. İnternet bağlantını kontrol et.");
+    } else if (data) {
       setEntries(data.map(e => ({
         id: e.id, date: e.date,
         km: parseFloat(e.km), liters: parseFloat(e.liters),
@@ -138,69 +145,57 @@ export default function FuelTracker() {
     setLoading(false);
   };
 
-  const handleReceiptUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setScanError(null); setScanning(true); setReceiptFile(file);
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const base64 = ev.target.result.split(",")[1];
-      setReceiptImage(ev.target.result);
-      try {
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "claude-sonnet-4-20250514", max_tokens: 1000,
-            messages: [{ role: "user", content: [
-              { type: "image", source: { type: "base64", media_type: file.type, data: base64 } },
-              { type: "text", text: `Bu bir akaryakıt fişi. Sadece JSON döndür:\n{"date":"YYYY-MM-DD","liters":"","totalPrice":"","km":""}` }
-            ]}]
-          })
-        });
-        const data = await response.json();
-        const text = data.content?.map(i => i.text || "").join("") || "";
-        const parsed = JSON.parse(text.replace(/```json|```/g, "").trim());
-        setForm(p => ({
-          ...p,
-          date: parsed.date || p.date,
-          liters: parsed.liters?.toString().replace(".", ",") || p.liters,
-          totalPrice: parsed.totalPrice?.toString().replace(".", ",") || p.totalPrice,
-        }));
-      } catch { setScanError("Fiş okunamadı. Lütfen bilgileri manuel girin."); }
-      finally { setScanning(false); }
-    };
-    reader.readAsDataURL(file);
-  };
-
 
   const handleAdd = async () => {
     if (!form.date || !form.km || !form.liters || !form.totalPrice) return;
     setSaving(true);
-    let receiptUrl = null;
-    if (receiptFile) {
-      const fileName = `${Date.now()}_${receiptFile.name}`;
-      const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, receiptFile, { contentType: receiptFile.type });
-      if (!uploadError) {
-        const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName);
-        receiptUrl = urlData.publicUrl;
+    setSaveError(null);
+    try {
+      let receiptUrl = null;
+      if (receiptFile) {
+        const fileName = `${Date.now()}_${receiptFile.name}`;
+        const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, receiptFile, { contentType: receiptFile.type });
+        if (uploadError) console.error("Fiş yükleme hatası:", uploadError);
+        else {
+          const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName);
+          receiptUrl = urlData.publicUrl;
+        }
       }
+      const { error } = await supabase.from("fuel_entries").insert({
+        date: form.date, km: parseTR(form.km), liters: parseTR(form.liters),
+        total_price: parseTR(form.totalPrice), receipt_url: receiptUrl,
+      });
+      if (error) {
+        console.error("Kayıt eklenemedi:", error);
+        setSaveError("Kayıt eklenemedi. Lütfen tekrar dene.");
+      } else {
+        await fetchEntries();
+        setForm(emptyForm()); setReceiptImage(null); setReceiptFile(null);
+        setShowForm(false);
+      }
+    } catch (e) {
+      console.error("handleAdd hatası:", e);
+      setSaveError("Beklenmeyen bir hata oluştu.");
+    } finally {
+      setSaving(false);
     }
-    const { error } = await supabase.from("fuel_entries").insert({
-      date: form.date, km: parseTR(form.km), liters: parseTR(form.liters),
-      total_price: parseTR(form.totalPrice), receipt_url: receiptUrl,
-    });
-    if (!error) {
-      await fetchEntries();
-      setForm(emptyForm()); setReceiptImage(null); setReceiptFile(null);
-      setShowForm(false); setScanError(null);
-    }
-    setSaving(false);
   };
 
   const handleDelete = async (id, receipt) => {
-    if (receipt) await supabase.storage.from("receipts").remove([receipt.split("/").pop()]);
-    await supabase.from("fuel_entries").delete().eq("id", id);
-    await fetchEntries();
+    setDeleteError(null);
+    try {
+      if (receipt) await supabase.storage.from("receipts").remove([receipt.split("/").pop()]);
+      const { error } = await supabase.from("fuel_entries").delete().eq("id", id);
+      if (error) {
+        console.error("Silme hatası:", error);
+        setDeleteError("Kayıt silinemedi. Lütfen tekrar dene.");
+      } else {
+        await fetchEntries();
+      }
+    } catch (e) {
+      console.error("handleDelete hatası:", e);
+      setDeleteError("Beklenmeyen bir hata oluştu.");
+    }
   };
 
   const startEdit = (e) => {
@@ -216,14 +211,27 @@ export default function FuelTracker() {
   const handleEditSave = async () => {
     if (!editForm.date || !editForm.km || !editForm.liters || !editForm.totalPrice) return;
     setEditSaving(true);
-    const { error } = await supabase.from("fuel_entries").update({
-      date: editForm.date,
-      km: parseTR(editForm.km),
-      liters: parseTR(editForm.liters),
-      total_price: parseTR(editForm.totalPrice),
-    }).eq("id", editingId);
-    if (!error) { await fetchEntries(); setEditingId(null); }
-    setEditSaving(false);
+    setEditError(null);
+    try {
+      const { error } = await supabase.from("fuel_entries").update({
+        date: editForm.date,
+        km: parseTR(editForm.km),
+        liters: parseTR(editForm.liters),
+        total_price: parseTR(editForm.totalPrice),
+      }).eq("id", editingId);
+      if (error) {
+        console.error("Düzenleme hatası:", error);
+        setEditError("Kayıt güncellenemedi. Lütfen tekrar dene.");
+      } else {
+        await fetchEntries();
+        setEditingId(null);
+      }
+    } catch (e) {
+      console.error("handleEditSave hatası:", e);
+      setEditError("Beklenmeyen bir hata oluştu.");
+    } finally {
+      setEditSaving(false);
+    }
   };
 
   const totalKm = entries.length >= 2 ? entries[entries.length - 1].km - entries[0].km : 0;
@@ -277,7 +285,7 @@ export default function FuelTracker() {
         }
       `}</style>
       <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(255,140,0,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
-      <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto", padding: "24px 16px" }}>
+      <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto", padding: "24px 16px 90px 16px" }}>
 
         <div style={{ marginBottom: "28px" }}>
           <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#ff8c00", marginBottom: "6px", fontWeight: "600" }}>⛽ YAKIT TAKİP</div>
@@ -286,21 +294,17 @@ export default function FuelTracker() {
           </h1>
         </div>
 
-        <div style={{ display: "flex", gap: "0px", marginBottom: "24px", borderBottom: "1px solid #1e1e2a", justifyContent: "center", width: "100%" }}>
-          {["dashboard", "records", "monthly", "graphs", "shell"].map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} style={{
-              background: "none", border: "none", color: activeTab === tab ? "#ff8c00" : "#555",
-              fontSize: "11px", letterSpacing: "0.5px", fontWeight: "600", textTransform: "uppercase",
-              padding: "10px 0", cursor: "pointer", flex: 1,
-              borderBottom: activeTab === tab ? "2px solid #ff8c00" : "2px solid transparent",
-              fontFamily: FONT, whiteSpace: "nowrap",
-            }}>
-              {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : tab === "monthly" ? "Aylık" : tab === "graphs" ? "Grafik" : "Fiyatlar"}
-            </button>
-          ))}
-        </div>
+
 
         {loading && <div style={{ textAlign: "center", padding: "48px", color: "#555", fontSize: "13px" }}>Yükleniyor...</div>}
+        {!loading && fetchError && (
+          <div style={{ background: "#1a0a0a", border: "1px solid #ff4444", borderRadius: "10px", padding: "16px", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+            <span style={{ color: "#ff4444", fontSize: "13px" }}>⚠ {fetchError}</span>
+            <button onClick={fetchEntries} style={{ background: "transparent", border: "1px solid #ff4444", color: "#ff4444", padding: "6px 14px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", whiteSpace: "nowrap" }}>
+              Tekrar Dene
+            </button>
+          </div>
+        )}
 
         {/* DASHBOARD */}
         {!loading && activeTab === "dashboard" && (
@@ -312,34 +316,26 @@ export default function FuelTracker() {
               </div>
             )}
             {entries.length >= 2 && (<>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: "8px", marginBottom: "8px" }}>
-                {[
-                  { label: "100 km Tüketim", value: `${formatNumber(avg100km)} L`, unit: "/ 100 km" },
-                  { label: "Km Maliyeti", value: `${formatNumber(avgPerKm)} ₺`, unit: "/ km" },
-                  { label: "Litre Fiyatı", value: `${formatNumber(avgLiterPrice)} ₺`, unit: "/ L ort." },
-                ].map(s => (
-                  <div key={s.label} style={{ background: "#0f0f1a", padding: "20px 16px", borderRadius: "10px", borderLeft: "3px solid #ff8c00" }}>
-                    <div style={{ fontSize: "10px", fontWeight: "600", color: "#666", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.label}</div>
-                    <div style={{ fontSize: "24px", fontWeight: "800", color: "#ff8c00", lineHeight: 1, fontFamily: MONO }}>{s.value}</div>
-                    <div style={{ fontSize: "11px", color: "#444", marginTop: "4px" }}>{s.unit}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: "8px", marginBottom: "20px" }}>
-                {[
-                  { label: "Toplam Km", value: `${formatNumber(totalKm, 0)} km` },
-                  { label: "Toplam Yakıt", value: `${formatNumber(totalLiters)} L` },
-                  { label: "Toplam Harcama", value: `${formatNumber(totalSpent)} ₺` },
-                ].map(s => (
-                  <div key={s.label} style={{ background: "#0f0f1a", padding: "16px", borderRadius: "10px" }}>
-                    <div style={{ fontSize: "10px", fontWeight: "600", color: "#444", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.label}</div>
-                    <div style={{ fontSize: "18px", fontWeight: "700", fontFamily: MONO }}>{s.value}</div>
-                  </div>
-                ))}
+              <div style={{ background: "#0f0f1a", borderRadius: "10px", overflow: "hidden", marginBottom: "20px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", borderBottom: "1px solid #1a1a2a" }}>
+                  {[
+                    { label: "L/100km", val: `${formatNumber(avg100km)}` },
+                    { label: "₺/km", val: `${formatNumber(avgPerKm)}` },
+                    { label: "₺/L ort.", val: `${formatNumber(avgLiterPrice)}` },
+                    { label: "Toplam km", val: `${formatNumber(totalKm, 0)}` },
+                    { label: "Toplam L", val: `${formatNumber(totalLiters)}` },
+                    { label: "Toplam ₺", val: `${formatNumber(totalSpent)}` },
+                  ].map((s, i) => (
+                    <div key={s.label} style={{ padding: "10px 8px", borderRight: i < 5 ? "1px solid #1a1a2a" : "none", textAlign: "center" }}>
+                      <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.3px", marginBottom: "4px" }}>{s.label}</div>
+                      <div style={{ fontSize: "12px", fontWeight: "800", color: i < 3 ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.val}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </>)}
 
-            <button onClick={() => { setShowForm(!showForm); setScanError(null); }} style={{
+            <button onClick={() => { setShowForm(!showForm); if (!showForm) setTimeout(() => document.getElementById("kayit-form")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); }} style={{
               background: showForm ? "transparent" : "#ff8c00", color: showForm ? "#ff8c00" : "#000",
               border: "1px solid #ff8c00", padding: "13px 28px", fontSize: "13px", fontWeight: "700",
               cursor: "pointer", fontFamily: FONT, display: "block", width: "100%", marginBottom: "8px", borderRadius: "8px",
@@ -348,20 +344,18 @@ export default function FuelTracker() {
             </button>
 
             {showForm && (
-              <div style={{ background: "#0d0d18", padding: "20px", border: "1px solid #1e1e2a", borderRadius: "10px" }}>
+              <div id="kayit-form" style={{ background: "#0d0d18", padding: "20px", border: "1px solid #1e1e2a", borderRadius: "10px" }}>
                 <div style={{ marginBottom: "18px" }}>
-                  <div style={{ ...lbl, color: "#ff8c00" }}>📷 Fiş Tarat (Opsiyonel)</div>
+                  <div style={{ ...lbl, color: "#ff8c00" }}>📷 Fiş Fotoğrafı (Opsiyonel)</div>
                   <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#0a0a0f", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
-                    <input type="file" accept="image/*" onChange={handleReceiptUpload} style={{ display: "none" }} />
-                    {scanning ? <span style={{ color: "#ff8c00", fontSize: "13px" }}>⏳ Fiş taranıyor...</span>
-                      : receiptImage ? (
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                          <img src={receiptImage} alt="fiş" style={{ width: "40px", height: "54px", objectFit: "cover", border: "1px solid #ff8c00", borderRadius: "4px" }} />
-                          <span style={{ color: "#44ff88", fontSize: "13px" }}>✓ Fiş tarandı</span>
-                        </div>
-                      ) : <span style={{ color: "#555", fontSize: "13px" }}>+ Fiş fotoğrafı yükle (AI otomatik doldurur)</span>}
+                    <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (!f) return; setReceiptFile(f); setReceiptImage(URL.createObjectURL(f)); }} style={{ display: "none" }} />
+                    {receiptImage ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <img src={receiptImage} alt="fiş" style={{ width: "40px", height: "54px", objectFit: "cover", border: "1px solid #ff8c00", borderRadius: "4px" }} />
+                        <span style={{ color: "#44ff88", fontSize: "13px" }}>✓ Fotoğraf eklendi</span>
+                      </div>
+                    ) : <span style={{ color: "#555", fontSize: "13px" }}>+ Fiş fotoğrafı ekle</span>}
                   </label>
-                  {scanError && <div style={{ color: "#ff4444", fontSize: "12px", marginTop: "6px" }}>⚠ {scanError}</div>}
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
@@ -424,6 +418,7 @@ export default function FuelTracker() {
                 }}>
                   {saving ? "Kaydediliyor..." : "Kaydet →"}
                 </button>
+                {saveError && <div style={{ color: "#ff4444", fontSize: "12px", marginTop: "8px" }}>⚠ {saveError}</div>}
               </div>
             )}
           </div>
@@ -486,16 +481,17 @@ export default function FuelTracker() {
                               <NumericInput value={editForm.totalPrice} onChange={v => setEditForm(p => ({ ...p, totalPrice: v }))} placeholder="1.250,00" style={{ ...editInp, width: "100%", maxWidth: "100%", boxSizing: "border-box" }} />
                             </div>
                           </div>
-                          <div style={{ display: "flex", gap: "8px" }}>
+                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                             <button onClick={handleEditSave} disabled={editSaving} style={{
                               background: "#ff8c00", color: "#000", border: "none", padding: "8px 20px",
                               fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px",
                             }}>{editSaving ? "Kaydediliyor..." : "Kaydet ✓"}</button>
-                            <button onClick={() => setEditingId(null)} style={{
+                            <button onClick={() => { setEditingId(null); setEditError(null); }} style={{
                               background: "transparent", color: "#888", border: "1px solid #2a2a3a", padding: "8px 16px",
                               fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px",
                             }}>İptal</button>
                           </div>
+                          {editError && <div style={{ color: "#ff4444", fontSize: "12px", marginTop: "8px" }}>⚠ {editError}</div>}
                         </div>
                       ) : (
                         <>
@@ -517,14 +513,14 @@ export default function FuelTracker() {
                               >✕</button>
                             </div>
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid #1a1a2a" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
                               { label: "Km", val: formatNumber(e.km, 0) },
                               { label: "Litre", val: `${formatNumber(e.liters)} L` },
                               { label: "Ödeme", val: `${formatNumber(e.totalPrice)} ₺` },
                               { label: "Tüketim", val: e.consumption ? `${formatNumber(e.consumption)} L/100 km` : "—", highlight: !!e.consumption },
                             ].map((col, ci) => (
-                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 3 ? "1px solid #1a1a2a" : "none" }}>
+                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 4 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                 <div style={{ fontSize: "11px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{col.val}</div>
                               </div>
@@ -537,6 +533,7 @@ export default function FuelTracker() {
                 </div>
             }
 
+            {deleteError && <div style={{ color: "#ff4444", fontSize: "12px", margin: "8px 0" }}>⚠ {deleteError}</div>}
             {filteredEnriched.length > 0 && (() => {
                 const downloadCSV = (data, filename) => {
                   const header = "Tarih,KM,Litre,Tutar (TL),Tuketim (L/100 km)";
@@ -616,14 +613,15 @@ export default function FuelTracker() {
                             <span style={{ fontSize: "15px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{monthName(key)}</span>
                             <span style={{ fontSize: "11px", color: "#555", fontWeight: "500" }}>{m.count} dolum</span>
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid #1a1a2a" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
+                              { label: "Toplam km", val: monthKm ? `${formatNumber(monthKm, 0)}` : "—" },
                               { label: "Yakıt", val: `${formatNumber(m.liters)} L` },
                               { label: "Harcama", val: `${formatNumber(m.spent)} ₺` },
                               { label: "L/100 km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },
                               { label: "₺/Litre", val: m.liters > 0 ? `${formatNumber(m.spent / m.liters)} ₺` : "—" },
                             ].map((col, ci) => (
-                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 3 ? "1px solid #1a1a2a" : "none" }}>
+                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 4 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                 <div style={{ fontSize: "11px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{col.val}</div>
                               </div>
@@ -657,11 +655,13 @@ export default function FuelTracker() {
             const sortedE = [...m.entries].sort((a,b) => a.date.localeCompare(b.date));
             const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length-1].km - sortedE[0].km : null;
             const cons = monthKm > 0 ? parseFloat((m.liters / monthKm * 100).toFixed(2)) : null;
-            return { label, liters: parseFloat(m.liters.toFixed(2)), spent: parseFloat(m.spent.toFixed(2)), cons };
+            const km = monthKm ? parseFloat(monthKm.toFixed(0)) : null;
+            return { label, liters: parseFloat(m.liters.toFixed(2)), spent: parseFloat(m.spent.toFixed(2)), cons, km };
           });
           const charts = [
             { key: "spent", label: "Aylık Harcama (₺)", color: "#ff8c00", unit: "₺" },
             { key: "liters", label: "Aylık Yakıt (L)", color: "#44aaff", unit: "L" },
+            { key: "km", label: "Aylık Km", color: "#cc88ff", unit: "km" },
             { key: "cons", label: "Ort. L/100 km", color: "#44ff88", unit: "L" },
           ];
           return (
@@ -780,26 +780,36 @@ export default function FuelTracker() {
                 </div>
               ))}
             </div>
-            {shellPrice.benzin && avgLiterPrice > 0 && (
-              <div style={{ background: "#0f0f1a", padding: "18px", borderRadius: "10px", borderLeft: "3px solid #ff8c00" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#555", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>Karşılaştırma</div>
-                <div style={{ fontSize: "14px", lineHeight: 2.2 }}>
-                  <span style={{ color: "#555" }}>Ortalama ödediğin:</span>{" "}<span style={{ color: "#ff8c00", fontWeight: "700", fontFamily: MONO }}>{formatNumber(avgLiterPrice)} ₺/L</span><br />
-                  <span style={{ color: "#555" }}>Shell 95 fiyatı:</span>{" "}<span style={{ color: "#ffcc00", fontWeight: "700", fontFamily: MONO }}>{formatNumber(parseTR(shellPrice.benzin))} ₺/L</span><br />
-                  <span style={{ color: "#555" }}>Fark:</span>{" "}
-                  <span style={{ color: avgLiterPrice < parseTR(shellPrice.benzin) ? "#44ff88" : "#ff4444", fontWeight: "700", fontFamily: MONO }}>
-                    {formatNumber(avgLiterPrice - parseTR(shellPrice.benzin))} ₺/L{" "}
-                    {avgLiterPrice < parseTR(shellPrice.benzin) ? "(daha ucuza aldın ✓)" : "(Shell'den pahalıya aldın)"}
-                  </span>
-                </div>
-              </div>
-            )}
+
           </div>
         )}
 
         <div style={{ marginTop: "40px", paddingTop: "16px", borderTop: "1px solid #1a1a2a", fontSize: "11px", color: "#333", textAlign: "center", fontWeight: "500" }}>
           Fuel Tracker — {entries.length} kayıt
         </div>
+      </div>
+
+      {/* SABİT BOTTOM TAB BAR */}
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
+        background: "rgba(10,10,15,0.97)", borderTop: "1px solid #1e1e2a",
+        display: "flex", paddingBottom: "env(safe-area-inset-bottom)",
+      }}>
+        {["dashboard", "records", "monthly", "graphs", "shell"].map(tab => (
+          <button key={tab} onClick={() => setActiveTab(tab)} style={{
+            flex: 1, background: "none", border: "none",
+            color: activeTab === tab ? "#ff8c00" : "#444",
+            fontSize: "10px", fontWeight: "600", textTransform: "uppercase",
+            letterSpacing: "0.3px", padding: "12px 4px 10px",
+            cursor: "pointer", fontFamily: FONT,
+            borderTop: activeTab === tab ? "2px solid #ff8c00" : "2px solid transparent",
+          }}>
+            <div style={{ fontSize: "18px", marginBottom: "3px", lineHeight: 1 }}>
+              {tab === "dashboard" ? "📊" : tab === "records" ? "📋" : tab === "monthly" ? "📅" : tab === "graphs" ? "📈" : "⛽"}
+            </div>
+            {tab === "dashboard" ? "Panel" : tab === "records" ? "Kayıtlar" : tab === "monthly" ? "Aylık" : tab === "graphs" ? "Grafik" : "Fiyatlar"}
+          </button>
+        ))}
       </div>
     </div>
   );

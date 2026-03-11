@@ -233,6 +233,10 @@ export default function FuelTracker() {
   const [editMaintReceiptFiles, setEditMaintReceiptFiles] = useState([]);
   const [editMaintReceiptPreviews, setEditMaintReceiptPreviews] = useState([]);
   const [tripReceiptFiles, setTripReceiptFiles] = useState([]);
+  const [showTollAdder, setShowTollAdder] = useState(false);
+  const [tollAddValue, setTollAddValue] = useState("");
+  const [showEditTollAdder, setShowEditTollAdder] = useState(false);
+  const [editTollAddValue, setEditTollAddValue] = useState("");
   const [tripReceiptPreviews, setTripReceiptPreviews] = useState([]);
   const [editTripReceiptFiles, setEditTripReceiptFiles] = useState([]);
   const [editTripReceiptPreviews, setEditTripReceiptPreviews] = useState([]);
@@ -960,7 +964,19 @@ export default function FuelTracker() {
                     <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={inp} />
                     {tripForm.fuelPrice && <div style={{ marginTop: "4px", fontSize: "11px", color: "#4a6080" }}>Manuel düzenleme yapabilirsin</div>}
                   </div>
-                  <div><div style={lbl}>Otoyol / Köprü Ücreti ₺ (opsiyonel)</div><NumericInput value={tripForm.tollCost} onChange={v => setTripForm(p => ({ ...p, tollCost: v }))} placeholder="0,00" style={inp} /></div>
+                  <div>
+                    <div style={lbl}>Otoyol / Köprü Ücreti ₺ (opsiyonel)</div>
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                      <NumericInput value={tripForm.tollCost} onChange={v => setTripForm(p => ({ ...p, tollCost: v }))} placeholder="0,00" style={{ ...inp, flex: 1 }} />
+                      <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); }} style={{ background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "8px", padding: "0 14px", height: "46px", fontSize: "18px", cursor: "pointer", fontWeight: "700", flexShrink: 0 }}>+</button>
+                    </div>
+                    {showTollAdder && (
+                      <div style={{ display: "flex", gap: "6px", marginTop: "6px", alignItems: "center" }}>
+                        <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="Eklenecek tutar" style={{ ...inp, flex: 1, fontSize: "13px" }} />
+                        <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { const cur = parseTR(tripForm.tollCost) || 0; setTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowTollAdder(false); setTollAddValue(""); } }} style={{ background: "#44cc88", border: "none", color: "#000", borderRadius: "8px", padding: "0 14px", height: "46px", fontSize: "13px", fontWeight: "700", cursor: "pointer", flexShrink: 0 }}>Ekle ✓</button>
+                      </div>
+                    )}
+                  </div>
                   <div><div style={lbl}>Not (opsiyonel)</div><input type="text" value={tripForm.notes} onChange={e => setTripForm(p => ({ ...p, notes: e.target.value }))} placeholder="Tatil, iş, vb." style={inp} /></div>
                   <div>
                     <div style={{ ...lbl, color: "#64d2ff" }}>📷 Fotoğraf (opsiyonel)</div>
@@ -1023,7 +1039,19 @@ export default function FuelTracker() {
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Bitiş Km</div><NumericInput value={editTripForm.endKm} onChange={v => setEditTripForm(p => ({ ...p, endKm: v }))} style={editInp} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>L/100 km</div><NumericInput value={editTripForm.consumption} onChange={v => setEditTripForm(p => ({ ...p, consumption: v }))} style={editInp} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı ₺</div><NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} style={editInp} /></div>
-                                <div><div style={{ ...lbl, marginBottom: "4px" }}>Otoyol ₺</div><NumericInput value={editTripForm.tollCost} onChange={v => setEditTripForm(p => ({ ...p, tollCost: v }))} style={editInp} /></div>
+                                <div>
+                                  <div style={{ ...lbl, marginBottom: "4px" }}>Otoyol ₺</div>
+                                  <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                                    <NumericInput value={editTripForm.tollCost} onChange={v => setEditTripForm(p => ({ ...p, tollCost: v }))} style={{ ...editInp, flex: 1 }} />
+                                    <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); }} style={{ background: showEditTollAdder ? "#64d2ff" : "#111e30", border: "1px solid #2a3a55", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", padding: "0 12px", height: "36px", fontSize: "18px", cursor: "pointer", fontWeight: "700", flexShrink: 0 }}>+</button>
+                                  </div>
+                                  {showEditTollAdder && (
+                                    <div style={{ display: "flex", gap: "6px", marginTop: "6px", alignItems: "center" }}>
+                                      <NumericInput value={editTollAddValue} onChange={v => setEditTollAddValue(v)} placeholder="Eklenecek tutar" style={{ ...editInp, flex: 1 }} />
+                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { const cur = parseTR(editTripForm.tollCost) || 0; setEditTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowEditTollAdder(false); setEditTollAddValue(""); } }} style={{ background: "#44cc88", border: "none", color: "#000", borderRadius: "6px", padding: "0 12px", height: "36px", fontSize: "12px", fontWeight: "700", cursor: "pointer", flexShrink: 0 }}>Ekle ✓</button>
+                                    </div>
+                                  )}
+                                </div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Not</div><input type="text" value={editTripForm.notes} onChange={ev => setEditTripForm(p => ({ ...p, notes: ev.target.value }))} style={editInp} /></div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "6px" }}>📷 Fotoğraf</div>

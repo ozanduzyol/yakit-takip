@@ -63,6 +63,8 @@ export default function FuelTracker() {
   const [saveError, setSaveError] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
   const [editError, setEditError] = useState(null);
+  const [panelFrom, setPanelFrom] = useState("");
+  const [panelTo, setPanelTo] = useState("");
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -234,9 +236,14 @@ export default function FuelTracker() {
     }
   };
 
-  const totalKm = entries.length >= 2 ? entries[entries.length - 1].km - entries[0].km : 0;
-  const totalLiters = entries.reduce((s, e) => s + e.liters, 0);
-  const totalSpent = entries.reduce((s, e) => s + e.totalPrice, 0);
+  const panelEntries = entries.filter(e => {
+    if (panelFrom && e.date < panelFrom) return false;
+    if (panelTo && e.date > panelTo) return false;
+    return true;
+  });
+  const totalKm = panelEntries.length >= 2 ? panelEntries[panelEntries.length - 1].km - panelEntries[0].km : 0;
+  const totalLiters = panelEntries.reduce((s, e) => s + e.liters, 0);
+  const totalSpent = panelEntries.reduce((s, e) => s + e.totalPrice, 0);
   const avg100km = totalKm > 0 ? (totalLiters / totalKm) * 100 : 0;
   const avgPerKm = totalKm > 0 ? totalSpent / totalKm : 0;
   const avgLiterPrice = totalLiters > 0 ? totalSpent / totalLiters : 0;
@@ -315,15 +322,30 @@ export default function FuelTracker() {
                 <div style={{ color: "#555", fontSize: "13px" }}>İstatistikler için en az 2 kayıt gereklidir.</div>
               </div>
             )}
-            {entries.length >= 2 && (<>
+            {entries.length >= 2 && (
+              <div style={{ display: "flex", gap: "8px", marginBottom: "12px", alignItems: "center" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Başlangıç</div>
+                  <input type="date" value={panelFrom} onChange={e => setPanelFrom(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px" }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Bitiş</div>
+                  <input type="date" value={panelTo} onChange={e => setPanelTo(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px" }} />
+                </div>
+                {(panelFrom || panelTo) && (
+                  <button onClick={() => { setPanelFrom(""); setPanelTo(""); }} style={{ background: "none", border: "1px solid #2a2a3a", color: "#555", padding: "7px 10px", fontSize: "11px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", alignSelf: "flex-end", whiteSpace: "nowrap" }}>✕ Temizle</button>
+                )}
+              </div>
+            )}
+            {panelEntries.length >= 2 && (<>
               <div style={{ background: "#0f0f1a", borderRadius: "10px", overflow: "hidden", marginBottom: "20px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", borderBottom: "1px solid #1a1a2a" }}>
                   {[
                     { label: "L/100km", val: `${formatNumber(avg100km)}` },
                     { label: "₺/km", val: `${formatNumber(avgPerKm)}` },
                     { label: "₺/L ort.", val: `${formatNumber(avgLiterPrice)}` },
-                    { label: "Toplam km", val: `${formatNumber(totalKm, 0)}` },
-                    { label: "Toplam L", val: `${formatNumber(totalLiters)}` },
+                    { label: "Top. km", val: `${formatNumber(totalKm, 0)}` },
+                    { label: "Top. L", val: `${formatNumber(totalLiters)}` },
                     { label: "Toplam ₺", val: `${formatNumber(totalSpent)}` },
                   ].map((s, i) => (
                     <div key={s.label} style={{ padding: "10px 8px", borderRight: i < 5 ? "1px solid #1a1a2a" : "none", textAlign: "center" }}>
@@ -613,15 +635,16 @@ export default function FuelTracker() {
                             <span style={{ fontSize: "15px", fontWeight: "800", color: "#e8e4d9", fontFamily: MONO }}>{monthName(key)}</span>
                             <span style={{ fontSize: "11px", color: "#555", fontWeight: "500" }}>{m.count} dolum</span>
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a1a2a" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
                               { label: "Top. Km", val: monthKm ? `${formatNumber(monthKm, 0)}` : "—" },
                               { label: "Yakıt", val: `${formatNumber(m.liters)} L` },
                               { label: "Harcama", val: `${formatNumber(m.spent)} ₺` },
-                              { label: "L/100 km", val: cons ? `${formatNumber(cons)} L` : "—", highlight: !!cons },
-                              { label: "₺/Litre", val: m.liters > 0 ? `${formatNumber(m.spent / m.liters)} ₺` : "—" },
+                              { label: "₺/Km", val: monthKm > 0 ? `${formatNumber(m.spent / monthKm)}` : "—" },
+                              { label: "L/100km", val: cons ? `${formatNumber(cons)}` : "—", highlight: !!cons },
+                              { label: "₺/Litre", val: m.liters > 0 ? `${formatNumber(m.spent / m.liters)}` : "—" },
                             ].map((col, ci) => (
-                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 4 ? "1px solid #1a1a2a" : "none" }}>
+                              <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 5 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                 <div style={{ fontSize: "11px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{col.val}</div>
                               </div>

@@ -374,7 +374,7 @@ export default function FuelTracker() {
     const purchaseDate = new Date(vehicleInfo.purchase_date);
     const intMonths = vehicleInfo.service_interval_months || 12;
     const intKm = vehicleInfo.service_interval_km || 15000;
-    const lastMaint = maintEntries.length > 0 ? [...maintEntries].sort((a, b) => b.date.localeCompare(a.date))[0] : null;
+    const lastMaint = maintEntries.filter(e => e.category === "genel").length > 0 ? [...maintEntries.filter(e => e.category === "genel")].sort((a, b) => b.date.localeCompare(a.date))[0] : null;
     const baseDate = lastMaint ? new Date(lastMaint.date) : purchaseDate;
     const baseKm = lastMaint ? lastMaint.km : parseFloat(vehicleInfo.purchase_km || 0);
     const nextDate = new Date(baseDate);

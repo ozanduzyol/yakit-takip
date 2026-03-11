@@ -335,7 +335,7 @@ export default function FuelTracker() {
                 <button onClick={() => { setPanelFrom(""); setPanelTo(""); }} style={{ background: "none", border: "1px solid #2a2a3a", color: panelFrom || panelTo ? "#ff8c00" : "#333", padding: "7px 10px", fontSize: "11px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", whiteSpace: "nowrap" }}>✕</button>
               </div>
             )}
-            {panelEntries.length >= 2 && (<>
+            {entries.length >= 2 && (<>
               <div style={{ background: "#0f0f1a", borderRadius: "10px", overflow: "hidden", marginBottom: "20px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", borderBottom: "1px solid #1a1a2a" }}>
                   {[
@@ -533,14 +533,14 @@ export default function FuelTracker() {
                               >✕</button>
                             </div>
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a1a2a" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
                               { label: "Km", val: formatNumber(e.km, 0) },
                               { label: "Litre", val: `${formatNumber(e.liters)} L` },
                               { label: "Ödeme", val: `${formatNumber(e.totalPrice)} ₺` },
                               { label: "Tüketim", val: e.consumption ? `${formatNumber(e.consumption)} L/100 km` : "—", highlight: !!e.consumption },
                             ].map((col, ci) => (
-                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 4 ? "1px solid #1a1a2a" : "none" }}>
+                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 3 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                 <div style={{ fontSize: "11px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{col.val}</div>
                               </div>

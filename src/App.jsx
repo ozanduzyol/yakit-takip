@@ -56,7 +56,7 @@ export default function FuelTracker() {
   const [filterMonth, setFilterMonth] = useState("all");
   const [epdkData, setEpdkData] = useState(null);
   const [userIl, setUserIl] = useState("bursa");
-  const [userIlce, setUserIlce] = useState("nilufer");
+  const [userIlce, setUserIlce] = useState("");
   const [epdkLoading, setEpdkLoading] = useState(false);
   const [epdkError, setEpdkError] = useState(null);
   const [fetchError, setFetchError] = useState(null);
@@ -793,7 +793,7 @@ export default function FuelTracker() {
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
         background: "rgba(10,10,15,0.97)", borderTop: "1px solid #1e1e2a",
-        display: "flex", alignItems: "stretch",
+        display: "flex", alignItems: "stretch", justifyContent: "center",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}>
         {[
@@ -804,15 +804,15 @@ export default function FuelTracker() {
           { id: "shell",     emoji: "⛽", label: "Fiyatlar" },
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-            flex: 1, background: "none", border: "none", minWidth: 0,
+            flex: "0 1 18%", background: "none", border: "none", minWidth: 0, maxWidth: "18%",
             color: activeTab === tab.id ? "#ff8c00" : "#555",
             fontFamily: FONT, cursor: "pointer",
             borderTop: activeTab === tab.id ? "2px solid #ff8c00" : "2px solid transparent",
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            padding: "10px 2px 8px", gap: "3px",
+            padding: "10px 0 8px", gap: "2px",
           }}>
-            <span style={{ fontSize: "17px", lineHeight: 1 }}>{tab.emoji}</span>
-            <span style={{ fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.3px", whiteSpace: "nowrap" }}>{tab.label}</span>
+            <span style={{ fontSize: "16px", lineHeight: 1 }}>{tab.emoji}</span>
+            <span style={{ fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.2px", whiteSpace: "nowrap", overflow: "hidden", maxWidth: "100%", textAlign: "center" }}>{tab.label}</span>
           </button>
         ))}
       </div>

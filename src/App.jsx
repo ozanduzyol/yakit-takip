@@ -87,7 +87,7 @@ export default function FuelTracker() {
     });
     const json = await r.json();
     const il = json.address?.province || json.address?.state || json.address?.city || "bursa";
-    const ilce = json.address?.county || json.address?.district || "";
+    const ilce = json.address?.county || json.address?.district || json.address?.town || json.address?.municipality || json.address?.suburb || "";
     return { il, ilce };
   };
 

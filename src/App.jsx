@@ -569,9 +569,7 @@ export default function FuelTracker() {
               const filteredEnriched = filterMonth === "all" ? enriched : enriched.filter(e => e.date.startsWith(filterMonth));
               return (
                 <div>
-                  <button onClick={() => { setShowForm(!showForm); if (!showForm) setTimeout(() => document.getElementById("kayit-form")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); }} style={{ background: showForm ? "transparent" : "#64d2ff", color: showForm ? "#64d2ff" : "#000", border: "1px solid #64d2ff", padding: "13px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, display: "block", width: "100%", marginBottom: "8px", borderRadius: "8px" }}>
-                    {showForm ? "✕ İptal" : "+ Yeni Kayıt Ekle"}
-                  </button>
+
 
                   {showForm && (
                     <div id="kayit-form" style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
@@ -800,12 +798,10 @@ export default function FuelTracker() {
 
             </div>
 
-            <button onClick={() => setShowMaintForm(!showMaintForm)} style={{ background: showMaintForm ? "transparent" : "#64d2ff", color: showMaintForm ? "#64d2ff" : "#000", border: "1px solid #64d2ff", padding: "13px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, display: "block", width: "100%", marginBottom: "8px", borderRadius: "8px" }}>
-              {showMaintForm ? "✕ İptal" : "+ Bakım Kaydı Ekle"}
-            </button>
+
 
             {showMaintForm && (
-              <div style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
+              <div id="maint-form" style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
                   <div><div style={lbl}>Tarih</div><input type="date" value={maintForm.date} onChange={e => setMaintForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, colorScheme: "dark" }} /></div>
                   <div><div style={lbl}>Güncel Km</div><NumericInput value={maintForm.km} onChange={v => setMaintForm(p => ({ ...p, km: v }))} placeholder="15.000" style={inp} /></div>
@@ -919,12 +915,10 @@ export default function FuelTracker() {
               );
             })()}
 
-            <button onClick={() => setShowTripForm(!showTripForm)} style={{ background: showTripForm ? "transparent" : "#64d2ff", color: showTripForm ? "#64d2ff" : "#000", border: "1px solid #64d2ff", padding: "13px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, display: "block", width: "100%", marginBottom: "8px", borderRadius: "8px" }}>
-              {showTripForm ? "✕ İptal" : "+ Yeni Yolculuk Ekle"}
-            </button>
+
 
             {showTripForm && (
-              <div style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
+              <div id="trip-form" style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
                   <div><div style={lbl}>Yolculuk Adı (opsiyonel)</div><input type="text" value={tripForm.title} onChange={e => setTripForm(p => ({ ...p, title: e.target.value }))} placeholder="Bursa → İstanbul" style={inp} /></div>
                   <div><div style={lbl}>Tarih</div><input type="date" value={tripForm.date} onChange={e => setTripForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, colorScheme: "dark" }} /></div>
@@ -1146,6 +1140,38 @@ export default function FuelTracker() {
           Fuel Tracker — {entries.length} yakıt · {maintEntries.length} bakım · {tripEntries.length} yolculuk
         </div>
       </div>
+
+
+      {/* FLOATING ACTION BUTTON */}
+      {(activeTab === "fuel" || activeTab === "maintenance" || activeTab === "trips") && (
+        <button
+          onClick={() => {
+            if (activeTab === "fuel") { setShowForm(p => { if (!p) setTimeout(() => document.getElementById("kayit-form")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); return !p; }); }
+            if (activeTab === "maintenance") { setShowMaintForm(p => { if (!p) setTimeout(() => document.getElementById("maint-form")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); return !p; }); }
+            if (activeTab === "trips") { setShowTripForm(p => { if (!p) setTimeout(() => document.getElementById("trip-form")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); return !p; }); }
+          }}
+          style={{
+            position: "fixed",
+            bottom: "calc(env(safe-area-inset-bottom) + 72px)",
+            right: "20px",
+            zIndex: 101,
+            width: "52px", height: "52px",
+            borderRadius: "50%",
+            background: (activeTab === "fuel" && showForm) || (activeTab === "maintenance" && showMaintForm) || (activeTab === "trips" && showTripForm) ? "#1a2a45" : "#64d2ff",
+            color: (activeTab === "fuel" && showForm) || (activeTab === "maintenance" && showMaintForm) || (activeTab === "trips" && showTripForm) ? "#64d2ff" : "#000",
+            border: "none",
+            fontSize: "26px",
+            fontWeight: "300",
+            cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            transition: "all 0.2s ease",
+            lineHeight: 1,
+          }}
+        >
+          {(activeTab === "fuel" && showForm) || (activeTab === "maintenance" && showMaintForm) || (activeTab === "trips" && showTripForm) ? "✕" : "+"}
+        </button>
+      )}
 
       {/* BOTTOM TAB BAR */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, background: "rgba(8,12,20,0.92)", borderTop: "1px solid #1a2a45", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", display: "flex", alignItems: "stretch", justifyContent: "center", paddingBottom: "env(safe-area-inset-bottom)" }}>

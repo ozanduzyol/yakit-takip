@@ -448,7 +448,7 @@ export default function FuelTracker() {
             {serviceStatus && (
               <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 16px", marginBottom: "12px", borderLeft: `3px solid ${serviceStatus.isOverdue ? "#ff4444" : serviceStatus.isUrgent ? "#ffdd00" : "#44cc88"}` }}>
                 <div style={{ fontSize: "10px", fontWeight: "700", color: serviceStatus.isOverdue ? "#ff4444" : serviceStatus.isUrgent ? "#ffdd00" : "#44cc88", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>
-                  {serviceStatus.isOverdue ? "🔴 Bakım Süresi Geçti!" : serviceStatus.isUrgent ? "🟡 Bakım Yaklaşıyor" : "🟢 Sonraki Bakım"}
+                  {serviceStatus.isOverdue ? "🔴 Bakım Süresi Geçti!" : serviceStatus.isUrgent ? "🟡 Bakım Yaklaşıyor" : "🔧 Sonraki Bakım"}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                   <div>
@@ -525,7 +525,7 @@ export default function FuelTracker() {
                 {[
                   { label: "Toplam km", val: formatNumber(totalKm, 0), border: "#8aa4c8" },
                   { label: "Toplam litre", val: formatNumber(totalLiters), border: "#8aa4c8" },
-                  { label: "Yakıt ₺", val: formatNumber(totalSpent), border: "#8aa4c8" },
+                  { label: "Yakıt Maliyeti", val: `${formatNumber(totalSpent)} ₺`, border: "#8aa4c8" },
                 ].map(s => (
                   <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.border}` }}>
                     <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
@@ -913,7 +913,7 @@ export default function FuelTracker() {
                   ].map(s => (
                     <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.color}` }}>
                       <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
-                      <div style={{ fontSize: "16px", fontWeight: "800", color: s.color, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{s.val}</div>
+                      <div style={{ fontSize: "13px", fontWeight: "800", color: s.color, fontFamily: MONO, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{s.val}</div>
                     </div>
                   ))}
                 </div>

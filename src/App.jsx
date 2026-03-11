@@ -36,6 +36,7 @@ function NumericInput({ value, onChange, placeholder, style }) {
 }
 
 const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
+const fmtDate = (iso) => { if (!iso) return ""; const [y,m,d] = iso.split("-"); return `${d}.${m}.${y}`; };
 const toTR = (num) => {
   if (!num && num !== 0) return "";
   const [int, dec] = num.toFixed(2).split(".");
@@ -222,28 +223,27 @@ export default function FuelTracker() {
     setMaintLoading(true);
     const { data, error } = await supabase.from("maintenance_entries").select("*").order("date", { ascending: false });
     if (!error && data) {
-      setMaintEntries(data.map(e => ({ id: e.id, date: e.date, km: parseFloat(e.km), category: e.category, description: e.description || "", cost: parseFloat(e.cost), receipt: e.receipt_url || null })));
+      setMaintEntries(data.map(e => ({ id: e.id, date: e.date, km: parseFloat(e.km), category: e.category, description: e.description || "", cost: parseFloat(e.cost), receipt: e.receipt_url || null, receipts: e.receipt_urls || [] })));
     }
     setMaintLoading(false);
   };
 
-  const [maintReceiptFile, setMaintReceiptFile] = useState(null);
-  const [maintReceiptPreview, setMaintReceiptPreview] = useState(null);
-  const [editMaintReceiptFile, setEditMaintReceiptFile] = useState(null);
-  const [editMaintReceiptPreview, setEditMaintReceiptPreview] = useState(null);
+  const [maintReceiptFiles, setMaintReceiptFiles] = useState([]);
+  const [maintReceiptPreviews, setMaintReceiptPreviews] = useState([]);
+  const [editMaintReceiptFiles, setEditMaintReceiptFiles] = useState([]);
+  const [editMaintReceiptPreviews, setEditMaintReceiptPreviews] = useState([]);
+  const [tripReceiptFiles, setTripReceiptFiles] = useState([]);
+  const [tripReceiptPreviews, setTripReceiptPreviews] = useState([]);
+  const [editTripReceiptFiles, setEditTripReceiptFiles] = useState([]);
+  const [editTripReceiptPreviews, setEditTripReceiptPreviews] = useState([]);
 
   const handleAddMaint = async () => {
     if (!maintForm.date || !maintForm.km || !maintForm.cost) return;
     setMaintSaving(true);
     try {
-      let receiptUrl = null;
-      if (maintReceiptFile) {
-        const fileName = `${Date.now()}_${maintReceiptFile.name}`;
-        const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, maintReceiptFile, { contentType: maintReceiptFile.type });
-        if (!uploadError) { const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName); receiptUrl = urlData.publicUrl; }
-      }
-      const { error } = await supabase.from("maintenance_entries").insert({ date: maintForm.date, km: parseTR(maintForm.km), category: maintForm.category, description: maintForm.description, cost: parseTR(maintForm.cost), receipt_url: receiptUrl });
-      if (!error) { await fetchMaintEntries(); setMaintForm(emptyMaint()); setMaintReceiptFile(null); setMaintReceiptPreview(null); setShowMaintForm(false); }
+      const urls = await uploadMultipleFiles(maintReceiptFiles);
+      const { error } = await supabase.from("maintenance_entries").insert({ date: maintForm.date, km: parseTR(maintForm.km), category: maintForm.category, description: maintForm.description, cost: parseTR(maintForm.cost), receipt_urls: urls });
+      if (!error) { await fetchMaintEntries(); setMaintForm(emptyMaint()); setMaintReceiptFiles([]); setMaintReceiptPreviews([]); setShowMaintForm(false); }
     } finally { setMaintSaving(false); }
   };
 
@@ -256,21 +256,33 @@ export default function FuelTracker() {
     setEditingMaintId(e.id);
     setEditMaintReceiptFile(null);
     setEditMaintReceiptPreview(e.receipt || null);
-    setEditMaintForm({ date: e.date, km: String(Math.round(e.km)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), category: e.category, description: e.description, cost: toTR(e.cost), receipt: e.receipt || null });
+    setEditMaintReceiptFiles([]);
+    setEditMaintReceiptPreviews([]);
+    setEditMaintForm({ date: e.date, km: String(Math.round(e.km)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), category: e.category, description: e.description, cost: toTR(e.cost), existingReceipts: e.receipts || (e.receipt ? [e.receipt] : []) });
   };
 
   const handleEditMaintSave = async () => {
     setEditMaintSaving(true);
     try {
-      let receiptUrl = editMaintForm.receipt || null;
-      if (editMaintReceiptFile) {
-        const fileName = `${Date.now()}_${editMaintReceiptFile.name}`;
-        const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, editMaintReceiptFile, { contentType: editMaintReceiptFile.type });
-        if (!uploadError) { const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName); receiptUrl = urlData.publicUrl; }
-      }
-      const { error } = await supabase.from("maintenance_entries").update({ date: editMaintForm.date, km: parseTR(editMaintForm.km), category: editMaintForm.category, description: editMaintForm.description, cost: parseTR(editMaintForm.cost), receipt_url: receiptUrl }).eq("id", editingMaintId);
+      const newUrls = await uploadMultipleFiles(editMaintReceiptFiles);
+      const allUrls = [...(editMaintForm.existingReceipts || []), ...newUrls];
+      const { error } = await supabase.from("maintenance_entries").update({ date: editMaintForm.date, km: parseTR(editMaintForm.km), category: editMaintForm.category, description: editMaintForm.description, cost: parseTR(editMaintForm.cost), receipt_urls: allUrls }).eq("id", editingMaintId);
       if (!error) { await fetchMaintEntries(); setEditingMaintId(null); }
     } finally { setEditMaintSaving(false); }
+  };
+
+
+  const uploadMultipleFiles = async (files) => {
+    const urls = [];
+    for (const file of files) {
+      const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`;
+      const { error } = await supabase.storage.from("receipts").upload(fileName, file, { contentType: file.type });
+      if (!error) {
+        const { data } = supabase.storage.from("receipts").getPublicUrl(fileName);
+        urls.push(data.publicUrl);
+      }
+    }
+    return urls;
   };
 
   // --- VEHICLE INFO ---
@@ -297,7 +309,7 @@ export default function FuelTracker() {
     setTripLoading(true);
     const { data, error } = await supabase.from("trip_entries").select("*").order("date", { ascending: false });
     if (!error && data) {
-      setTripEntries(data.map(e => ({ id: e.id, date: e.date, title: e.title || "", startKm: parseFloat(e.start_km), endKm: parseFloat(e.end_km), consumption: parseFloat(e.consumption), fuelPrice: parseFloat(e.fuel_price), tollCost: parseFloat(e.toll_cost || 0), notes: e.notes || "" })));
+      setTripEntries(data.map(e => ({ id: e.id, date: e.date, title: e.title || "", startKm: parseFloat(e.start_km), endKm: parseFloat(e.end_km), consumption: parseFloat(e.consumption), fuelPrice: parseFloat(e.fuel_price), tollCost: parseFloat(e.toll_cost || 0), notes: e.notes || "", receipts: e.receipt_urls || [] })));
     }
     setTripLoading(false);
   };
@@ -306,8 +318,9 @@ export default function FuelTracker() {
     if (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption || !tripForm.fuelPrice) return;
     setTripSaving(true);
     try {
-      const { error } = await supabase.from("trip_entries").insert({ date: tripForm.date, title: tripForm.title, start_km: parseTR(tripForm.startKm), end_km: parseTR(tripForm.endKm), consumption: parseTR(tripForm.consumption), fuel_price: parseTR(tripForm.fuelPrice), toll_cost: parseTR(tripForm.tollCost) || 0, notes: tripForm.notes });
-      if (!error) { await fetchTripEntries(); setTripForm(emptyTrip()); setShowTripForm(false); }
+      const urls = await uploadMultipleFiles(tripReceiptFiles);
+      const { error } = await supabase.from("trip_entries").insert({ date: tripForm.date, title: tripForm.title, start_km: parseTR(tripForm.startKm), end_km: parseTR(tripForm.endKm), consumption: parseTR(tripForm.consumption), fuel_price: parseTR(tripForm.fuelPrice), toll_cost: parseTR(tripForm.tollCost) || 0, notes: tripForm.notes, receipt_urls: urls });
+      if (!error) { await fetchTripEntries(); setTripForm(emptyTrip()); setTripReceiptFiles([]); setTripReceiptPreviews([]); setShowTripForm(false); }
     } finally { setTripSaving(false); }
   };
 
@@ -318,13 +331,17 @@ export default function FuelTracker() {
 
   const startEditTrip = (e) => {
     setEditingTripId(e.id);
-    setEditTripForm({ date: e.date, title: e.title, startKm: String(Math.round(e.startKm)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), endKm: String(Math.round(e.endKm)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), consumption: toTR(e.consumption), fuelPrice: toTR(e.fuelPrice), tollCost: toTR(e.tollCost), notes: e.notes });
+    setEditTripReceiptFiles([]);
+    setEditTripReceiptPreviews([]);
+    setEditTripForm({ date: e.date, title: e.title, startKm: String(Math.round(e.startKm)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), endKm: String(Math.round(e.endKm)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), consumption: toTR(e.consumption), fuelPrice: toTR(e.fuelPrice), tollCost: toTR(e.tollCost), notes: e.notes, existingReceipts: e.receipts || [] });
   };
 
   const handleEditTripSave = async () => {
     setEditTripSaving(true);
     try {
-      const { error } = await supabase.from("trip_entries").update({ date: editTripForm.date, title: editTripForm.title, start_km: parseTR(editTripForm.startKm), end_km: parseTR(editTripForm.endKm), consumption: parseTR(editTripForm.consumption), fuel_price: parseTR(editTripForm.fuelPrice), toll_cost: parseTR(editTripForm.tollCost) || 0, notes: editTripForm.notes }).eq("id", editingTripId);
+      const newUrls = await uploadMultipleFiles(editTripReceiptFiles);
+      const allUrls = [...(editTripForm.existingReceipts || []), ...newUrls];
+      const { error } = await supabase.from("trip_entries").update({ date: editTripForm.date, title: editTripForm.title, start_km: parseTR(editTripForm.startKm), end_km: parseTR(editTripForm.endKm), consumption: parseTR(editTripForm.consumption), fuel_price: parseTR(editTripForm.fuelPrice), toll_cost: parseTR(editTripForm.tollCost) || 0, notes: editTripForm.notes, receipt_urls: allUrls }).eq("id", editingTripId);
       if (!error) { await fetchTripEntries(); setEditingTripId(null); }
     } finally { setEditTripSaving(false); }
   };
@@ -506,11 +523,11 @@ export default function FuelTracker() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px", marginBottom: "12px" }}>
                 {[
-                  { label: "Toplam km", val: formatNumber(totalKm, 0) },
-                  { label: "Toplam litre", val: formatNumber(totalLiters) },
-                  { label: "Yakıt ₺", val: formatNumber(totalSpent) },
+                  { label: "Toplam km", val: formatNumber(totalKm, 0), border: "#8aa4c8" },
+                  { label: "Toplam litre", val: formatNumber(totalLiters), border: "#8aa4c8" },
+                  { label: "Yakıt ₺", val: formatNumber(totalSpent), border: "#8aa4c8" },
                 ].map(s => (
-                  <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px" }}>
+                  <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.border}` }}>
                     <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
                     <div style={{ fontSize: "18px", fontWeight: "700", color: "#e8eef8", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{s.val}</div>
                   </div>
@@ -646,7 +663,7 @@ export default function FuelTracker() {
                               <>
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
                                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    <span style={{ fontSize: "15px", fontWeight: "800", color: i === 0 ? "#4a6080" : "#e8eef8", fontFamily: MONO, letterSpacing: "-0.3px" }}>{e.date}</span>
+                                    <span style={{ fontSize: "15px", fontWeight: "800", color: i === 0 ? "#4a6080" : "#e8eef8", fontFamily: MONO, letterSpacing: "-0.3px" }}>{fmtDate(e.date)}</span>
                                     {e.consumption && i > 0 && (() => { const prev = enriched[i - 1]; if (!prev?.consumption) return null; const diff = e.consumption - prev.consumption; if (Math.abs(diff) < 0.1) return null; return <span style={{ fontSize: "11px", fontWeight: "700", color: diff < 0 ? "#44cc88" : "#ff6655" }}>{diff < 0 ? "↓" : "↑"} {formatNumber(Math.abs(diff))} L/100km</span>; })()}
                                   </div>
                                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -776,15 +793,12 @@ export default function FuelTracker() {
         {!loading && activeTab === "maintenance" && (
           <div>
             {/* Summary */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "12px" }}>
+            <div style={{ marginBottom: "12px" }}>
               <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
                 <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Toplam Bakım ₺</div>
                 <div style={{ fontSize: "20px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)}</div>
               </div>
-              <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px" }}>
-                <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bakım Sayısı</div>
-                <div style={{ fontSize: "20px", fontWeight: "800", color: "#e8eef8", fontFamily: MONO }}>{maintEntries.length}</div>
-              </div>
+
             </div>
 
             <button onClick={() => setShowMaintForm(!showMaintForm)} style={{ background: showMaintForm ? "transparent" : "#64d2ff", color: showMaintForm ? "#64d2ff" : "#000", border: "1px solid #64d2ff", padding: "13px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, display: "block", width: "100%", marginBottom: "8px", borderRadius: "8px" }}>
@@ -806,12 +820,11 @@ export default function FuelTracker() {
                   <div><div style={lbl}>Ücret ₺</div><NumericInput value={maintForm.cost} onChange={v => setMaintForm(p => ({ ...p, cost: v }))} placeholder="1.500,00" style={inp} /></div>
                   <div>
                     <div style={{ ...lbl, color: "#64d2ff" }}>📷 Fotoğraf (opsiyonel)</div>
-                    <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#080c14", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
-                      <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (!f) return; setMaintReceiptFile(f); setMaintReceiptPreview(URL.createObjectURL(f)); }} style={{ display: "none" }} />
-                      {maintReceiptPreview
-                        ? <div style={{ display: "flex", alignItems: "center", gap: "12px" }}><img src={maintReceiptPreview} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px" }} /><span style={{ color: "#44ff88", fontSize: "13px" }}>✓ Fotoğraf eklendi</span></div>
-                        : <span style={{ color: "#4a6080", fontSize: "13px" }}>+ Fotoğraf ekle</span>}
+                    <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#080c14", border: "1px dashed #333", padding: "12px 14px", borderRadius: "8px", marginBottom: maintReceiptPreviews.length > 0 ? "8px" : 0 }}>
+                      <input type="file" accept="image/*" multiple onChange={e => { const newFiles = Array.from(e.target.files); setMaintReceiptFiles(f => [...f, ...newFiles]); setMaintReceiptPreviews(p => [...p, ...newFiles.map(f => URL.createObjectURL(f))]); }} style={{ display: "none" }} />
+                      <span style={{ color: "#4a6080", fontSize: "13px" }}>+ Fotoğraf ekle</span>
                     </label>
+                    {maintReceiptPreviews.length > 0 && <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{maintReceiptPreviews.map((src, i) => (<div key={i} style={{ position: "relative" }}><img src={src} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "6px" }} /><button onClick={() => { setMaintReceiptFiles(f => f.filter((_,fi) => fi !== i)); setMaintReceiptPreviews(p => p.filter((_,pi) => pi !== i)); }} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: 0, padding: 0 }}>✕</button></div>))}</div>}
                   </div>
                 </div>
                 <button onClick={handleAddMaint} disabled={maintSaving || !maintForm.date || !maintForm.km || !maintForm.cost} style={{ background: (!maintForm.date || !maintForm.km || !maintForm.cost) ? "#1a2a45" : "#64d2ff", color: (!maintForm.date || !maintForm.km || !maintForm.cost) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
@@ -855,14 +868,14 @@ export default function FuelTracker() {
                                   <span style={{ fontSize: "13px", fontWeight: "800", color: cat.color }}>{cat.emoji} {cat.label}</span>
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                  {e.receipt && <a href={e.receipt} target="_blank" rel="noopener noreferrer"><img src={e.receipt} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} /></a>}
+                                  {(e.receipts && e.receipts.length > 0 ? e.receipts : e.receipt ? [e.receipt] : []).map((url, i) => (<a key={i} href={url} target="_blank" rel="noopener noreferrer"><img src={url} alt="foto" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} /></a>))}
                                   <button onClick={() => startEditMaint(e)} style={{ background: "none", border: "1px solid #1a2a45", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#666"; }}>✎</button>
                                   <button onClick={() => handleDeleteMaint(e.id)} style={{ background: "none", border: "1px solid #1a2a45", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#3d5270"; }}>✕</button>
                                 </div>
                               </div>
                               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderTop: "1px solid #1a2a45" }}>
                                 {[
-                                  { label: "Tarih", val: e.date },
+                                  { label: "Tarih", val: fmtDate(e.date) },
                                   { label: "Km", val: formatNumber(e.km, 0) },
                                   { label: "Ücret", val: `${formatNumber(e.cost)} ₺`, highlight: true },
                                 ].map((col, ci) => (
@@ -934,8 +947,8 @@ export default function FuelTracker() {
                       <div style={lbl}>Yolculuk Tarihi Aralığı (litre fiyatı için)</div>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "8px" }}>
-                      <input type="date" value={tripForm.tripDateFrom} onChange={e => setTripForm(p => ({ ...p, tripDateFrom: e.target.value }))} style={{ ...inp, colorScheme: "dark", fontSize: "12px", padding: "7px 10px" }} />
-                      <input type="date" value={tripForm.tripDateTo} onChange={e => setTripForm(p => ({ ...p, tripDateTo: e.target.value }))} style={{ ...inp, colorScheme: "dark", fontSize: "12px", padding: "7px 10px" }} />
+                      <input type="date" value={tripForm.tripDateFrom} onChange={e => setTripForm(p => ({ ...p, tripDateFrom: e.target.value }))} style={{ ...inp, colorScheme: "dark", fontSize: "12px", padding: "7px 10px", height: "38px" }} />
+                      <input type="date" value={tripForm.tripDateTo} onChange={e => setTripForm(p => ({ ...p, tripDateTo: e.target.value }))} style={{ ...inp, colorScheme: "dark", fontSize: "12px", padding: "7px 10px", height: "38px" }} />
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                       <div style={lbl}>Litre Fiyatı ₺</div>
@@ -956,6 +969,14 @@ export default function FuelTracker() {
                   </div>
                   <div><div style={lbl}>Otoyol / Köprü Ücreti ₺ (opsiyonel)</div><NumericInput value={tripForm.tollCost} onChange={v => setTripForm(p => ({ ...p, tollCost: v }))} placeholder="0,00" style={inp} /></div>
                   <div><div style={lbl}>Not (opsiyonel)</div><input type="text" value={tripForm.notes} onChange={e => setTripForm(p => ({ ...p, notes: e.target.value }))} placeholder="Tatil, iş, vb." style={inp} /></div>
+                  <div>
+                    <div style={{ ...lbl, color: "#64d2ff" }}>📷 Fotoğraf (opsiyonel)</div>
+                    <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#080c14", border: "1px dashed #333", padding: "12px 14px", borderRadius: "8px", marginBottom: tripReceiptPreviews.length > 0 ? "8px" : 0 }}>
+                      <input type="file" accept="image/*" multiple onChange={e => { const newFiles = Array.from(e.target.files); setTripReceiptFiles(f => [...f, ...newFiles]); setTripReceiptPreviews(p => [...p, ...newFiles.map(f => URL.createObjectURL(f))]); }} style={{ display: "none" }} />
+                      <span style={{ color: "#4a6080", fontSize: "13px" }}>+ Fotoğraf ekle</span>
+                    </label>
+                    {tripReceiptPreviews.length > 0 && <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{tripReceiptPreviews.map((src, i) => (<div key={i} style={{ position: "relative" }}><img src={src} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "6px" }} /><button onClick={() => { setTripReceiptFiles(f => f.filter((_,fi) => fi !== i)); setTripReceiptPreviews(p => p.filter((_,pi) => pi !== i)); }} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>✕</button></div>))}</div>}
+                  </div>
                 </div>
 
                 {/* Live calculation preview */}
@@ -1011,6 +1032,20 @@ export default function FuelTracker() {
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı ₺</div><NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} style={editInp} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Otoyol ₺</div><NumericInput value={editTripForm.tollCost} onChange={v => setEditTripForm(p => ({ ...p, tollCost: v }))} style={editInp} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Not</div><input type="text" value={editTripForm.notes} onChange={ev => setEditTripForm(p => ({ ...p, notes: ev.target.value }))} style={editInp} /></div>
+                                <div>
+                                  <div style={{ ...lbl, marginBottom: "6px" }}>📷 Fotoğraf</div>
+                                  {editTripForm.existingReceipts && editTripForm.existingReceipts.length > 0 && (
+                                    <div style={{ marginBottom: "8px" }}>
+                                      <div style={{ fontSize: "9px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Mevcut</div>
+                                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{editTripForm.existingReceipts.map((url, i) => (<div key={i} style={{ position: "relative" }}><a href={url} target="_blank" rel="noopener noreferrer"><img src={url} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #1a2a45", borderRadius: "6px" }} /></a><button onClick={() => setEditTripForm(p => ({ ...p, existingReceipts: p.existingReceipts.filter((_,fi) => fi !== i) }))} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>✕</button></div>))}</div>
+                                    </div>
+                                  )}
+                                  <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#080c14", border: "1px dashed #1a2a45", padding: "10px 12px", borderRadius: "8px", marginBottom: editTripReceiptPreviews.length > 0 ? "8px" : 0 }}>
+                                    <input type="file" accept="image/*" multiple onChange={ev => { const newFiles = Array.from(ev.target.files); setEditTripReceiptFiles(f => [...f, ...newFiles]); setEditTripReceiptPreviews(p => [...p, ...newFiles.map(f => URL.createObjectURL(f))]); }} style={{ display: "none" }} />
+                                    <span style={{ color: "#4a6080", fontSize: "12px" }}>+ Yeni fotoğraf ekle</span>
+                                  </label>
+                                  {editTripReceiptPreviews.length > 0 && <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{editTripReceiptPreviews.map((src, i) => (<div key={i} style={{ position: "relative" }}><img src={src} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "6px" }} /><button onClick={() => { setEditTripReceiptFiles(f => f.filter((_,fi) => fi !== i)); setEditTripReceiptPreviews(p => p.filter((_,pi) => pi !== i)); }} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>✕</button></div>))}</div>}
+                                </div>
                               </div>
                               <div style={{ display: "flex", gap: "8px" }}>
                                 <button onClick={handleEditTripSave} disabled={editTripSaving} style={{ background: "#64d2ff", color: "#000", border: "none", padding: "8px 20px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>{editTripSaving ? "Kaydediliyor..." : "Kaydet ✓"}</button>
@@ -1022,21 +1057,23 @@ export default function FuelTracker() {
                               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
                                 <div>
                                   <div style={{ fontSize: "14px", fontWeight: "800", color: "#e8eef8" }}>{t.title || "Yolculuk"}</div>
-                                  <div style={{ fontSize: "11px", color: "#4a6080", marginTop: "2px" }}>{t.date}</div>
+                                  <div style={{ fontSize: "11px", color: "#4a6080", marginTop: "2px" }}>{fmtDate(t.date)}</div>
                                 </div>
-                                <div style={{ display: "flex", gap: "6px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                  {(t.receipts && t.receipts.length > 0 ? t.receipts : []).map((url, i) => (<a key={i} href={url} target="_blank" rel="noopener noreferrer"><img src={url} alt="foto" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} /></a>))}
                                   <button onClick={() => startEditTrip(t)} style={{ background: "none", border: "1px solid #1a2a45", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#666"; }}>✎</button>
                                   <button onClick={() => handleDeleteTrip(t.id)} style={{ background: "none", border: "1px solid #1a2a45", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#3d5270"; }}>✕</button>
                                 </div>
                               </div>
-                              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid #1a2a45" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a2a45" }}>
                                 {[
                                   { label: "Mesafe", val: `${formatNumber(calc.km, 0)} km` },
-                                  { label: "Yakıt", val: `${formatNumber(calc.liters)} L` },
+                                  { label: "Yakıt L", val: `${formatNumber(calc.liters)} L` },
+                                  { label: "Yakıt ₺", val: `${formatNumber(calc.fuelCost)} ₺` },
                                   { label: "Otoyol", val: `${formatNumber(t.tollCost)} ₺` },
                                   { label: "Toplam", val: `${formatNumber(calc.total)} ₺`, highlight: true },
                                 ].map((col, ci) => (
-                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 3 ? "1px solid #1a2a45" : "none" }}>
+                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #1a2a45" : "none" }}>
                                     <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                     <div style={{ fontSize: "12px", fontWeight: "700", color: col.highlight ? "#ff6655" : "#8aa4c8", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
                                   </div>

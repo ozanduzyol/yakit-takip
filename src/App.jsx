@@ -326,11 +326,11 @@ export default function FuelTracker() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "8px", marginBottom: "12px", alignItems: "end" }}>
                 <div>
                   <div style={{ fontSize: "9px", fontWeight: "600", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Başlangıç</div>
-                  <input type="date" value={panelFrom} onChange={e => setPanelFrom(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px", width: "100%", boxSizing: "border-box" }} />
+                  <input type="date" value={panelFrom} onChange={e => setPanelFrom(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px", width: "100%", boxSizing: "border-box", height: "38px" }} />
                 </div>
                 <div>
                   <div style={{ fontSize: "9px", fontWeight: "600", color: "#555", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Bitiş</div>
-                  <input type="date" value={panelTo} onChange={e => setPanelTo(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px", width: "100%", boxSizing: "border-box" }} />
+                  <input type="date" value={panelTo} onChange={e => setPanelTo(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px", width: "100%", boxSizing: "border-box", height: "38px" }} />
                 </div>
                 <button onClick={() => { setPanelFrom(""); setPanelTo(""); }} style={{ background: "none", border: "1px solid #2a2a3a", color: panelFrom || panelTo ? "#ff8c00" : "#333", padding: "7px 10px", fontSize: "11px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", whiteSpace: "nowrap" }}>✕</button>
               </div>
@@ -533,14 +533,15 @@ export default function FuelTracker() {
                               >✕</button>
                             </div>
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid #1a1a2a" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a1a2a" }}>
                             {[
                               { label: "Km", val: formatNumber(e.km, 0) },
                               { label: "Litre", val: `${formatNumber(e.liters)} L` },
                               { label: "Ödeme", val: `${formatNumber(e.totalPrice)} ₺` },
+                              { label: "₺/Km", val: e.consumption && (e.km - (enriched[enriched.findIndex(x => x.id === e.id) - 1]?.km || e.km)) > 0 ? `${formatNumber(e.totalPrice / (e.km - (enriched[enriched.findIndex(x => x.id === e.id) - 1]?.km || e.km)))}` : "—" },
                               { label: "L/100km", val: e.consumption ? `${formatNumber(e.consumption)}` : "—", highlight: !!e.consumption },
                             ].map((col, ci) => (
-                              <div key={col.label} style={{ padding: "8px 10px", borderRight: ci < 3 ? "1px solid #1a1a2a" : "none" }}>
+                              <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #1a1a2a" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#444", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                 <div style={{ fontSize: "11px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{col.val}</div>
                               </div>

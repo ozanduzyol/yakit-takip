@@ -535,12 +535,12 @@ export default function FuelTracker() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "20px" }}>
                 <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
-                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bakım ₺</div>
-                  <div style={{ fontSize: "18px", fontWeight: "700", color: "#ffdd00", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)}</div>
+                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bakım Maliyeti</div>
+                  <div style={{ fontSize: "18px", fontWeight: "700", color: "#ffdd00", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)} ₺</div>
                 </div>
                 <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ff6655" }}>
-                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Toplam Maliyet ₺</div>
-                  <div style={{ fontSize: "18px", fontWeight: "700", color: "#ff6655", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalSpent + totalMaintCost)}</div>
+                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Toplam Maliyet</div>
+                  <div style={{ fontSize: "18px", fontWeight: "700", color: "#ff6655", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalSpent + totalMaintCost)} ₺</div>
                 </div>
               </div>
             </>)}
@@ -795,8 +795,8 @@ export default function FuelTracker() {
             {/* Summary */}
             <div style={{ marginBottom: "12px" }}>
               <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
-                <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Toplam Bakım ₺</div>
-                <div style={{ fontSize: "20px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)}</div>
+                <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Top. Bakım Maliyeti</div>
+                <div style={{ fontSize: "20px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)} ₺</div>
               </div>
 
             </div>
@@ -908,8 +908,8 @@ export default function FuelTracker() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px", marginBottom: "12px" }}>
                   {[
                     { label: "Toplam Km", val: formatNumber(totalTripKm, 0), color: "#cc88ff" },
-                    { label: "Otoyol ₺", val: formatNumber(totalTollCost), color: "#ffdd00" },
-                    { label: "Toplam ₺", val: formatNumber(totalTripCost), color: "#ff6655" },
+                    { label: "Otoyol", val: `${formatNumber(totalTollCost)} ₺`, color: "#ffdd00" },
+                    { label: "Top. Harcama", val: `${formatNumber(totalTripCost)} ₺`, color: "#ff6655" },
                   ].map(s => (
                     <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.color}` }}>
                       <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>

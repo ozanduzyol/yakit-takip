@@ -254,8 +254,6 @@ export default function FuelTracker() {
 
   const startEditMaint = (e) => {
     setEditingMaintId(e.id);
-    setEditMaintReceiptFile(null);
-    setEditMaintReceiptPreview(e.receipt || null);
     setEditMaintReceiptFiles([]);
     setEditMaintReceiptPreviews([]);
     setEditMaintForm({ date: e.date, km: String(Math.round(e.km)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), category: e.category, description: e.description, cost: toTR(e.cost), existingReceipts: e.receipts || (e.receipt ? [e.receipt] : []) });
@@ -845,7 +843,7 @@ export default function FuelTracker() {
                           {editingMaintId === e.id ? (
                             <div style={{ padding: "14px" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
-                                <div><div style={{ ...lbl, marginBottom: "4px" }}>Tarih</div><input type="date" value={editMaintForm.date} onChange={ev => setEditMaintForm(p => ({ ...p, date: ev.target.value }))} style={{ ...editInp, colorScheme: "dark" }} /></div>
+                                <div><div style={{ ...lbl, marginBottom: "4px" }}>Tarih</div><input type="date" value={editMaintForm.date} onChange={ev => setEditMaintForm(p => ({ ...p, date: ev.target.value }))} style={{ ...editInp, colorScheme: "dark", height: "38px", WebkitAppearance: "none", appearance: "none" }} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Km</div><NumericInput value={editMaintForm.km} onChange={v => setEditMaintForm(p => ({ ...p, km: v }))} placeholder="15.000" style={editInp} /></div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "4px" }}>Kategori</div>

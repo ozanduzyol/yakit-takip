@@ -968,12 +968,12 @@ export default function FuelTracker() {
                     <div style={lbl}>Otoyol / Köprü Ücreti ₺ (opsiyonel)</div>
                     <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                       <NumericInput value={tripForm.tollCost} onChange={v => setTripForm(p => ({ ...p, tollCost: v }))} placeholder="0,00" style={{ ...inp, flex: 1 }} />
-                      <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); }} style={{ background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "8px", padding: "0 14px", height: "46px", fontSize: "18px", cursor: "pointer", fontWeight: "700", flexShrink: 0 }}>+</button>
+                      <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); }} style={{ background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", cursor: "pointer", fontWeight: "700", flexShrink: 0, padding: 0 }}>+</button>
                     </div>
                     {showTollAdder && (
                       <div style={{ display: "flex", gap: "6px", marginTop: "6px", alignItems: "center" }}>
                         <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="Eklenecek tutar" style={{ ...inp, flex: 1, fontSize: "13px" }} />
-                        <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { const cur = parseTR(tripForm.tollCost) || 0; setTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowTollAdder(false); setTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", padding: "0 14px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0 }}>✓</button>
+                        <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { const cur = parseTR(tripForm.tollCost) || 0; setTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowTollAdder(false); setTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
                       </div>
                     )}
                   </div>
@@ -1043,12 +1043,12 @@ export default function FuelTracker() {
                                   <div style={{ ...lbl, marginBottom: "4px" }}>Otoyol ₺</div>
                                   <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                                     <NumericInput value={editTripForm.tollCost} onChange={v => setEditTripForm(p => ({ ...p, tollCost: v }))} style={{ ...editInp, flex: 1 }} />
-                                    <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); }} style={{ background: showEditTollAdder ? "#64d2ff" : "#111e30", border: "1px solid #2a3a55", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", padding: "0 12px", height: "36px", fontSize: "18px", cursor: "pointer", fontWeight: "700", flexShrink: 0 }}>+</button>
+                                    <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); }} style={{ background: showEditTollAdder ? "#64d2ff" : "#111e30", border: "1px solid #2a3a55", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", cursor: "pointer", fontWeight: "700", flexShrink: 0, padding: 0 }}>+</button>
                                   </div>
                                   {showEditTollAdder && (
                                     <div style={{ display: "flex", gap: "6px", marginTop: "6px", alignItems: "center" }}>
                                       <NumericInput value={editTollAddValue} onChange={v => setEditTollAddValue(v)} placeholder="Eklenecek tutar" style={{ ...editInp, flex: 1 }} />
-                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { const cur = parseTR(editTripForm.tollCost) || 0; setEditTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowEditTollAdder(false); setEditTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "6px", padding: "0 12px", height: "36px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0 }}>✓</button>
+                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { const cur = parseTR(editTripForm.tollCost) || 0; setEditTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowEditTollAdder(false); setEditTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
                                     </div>
                                   )}
                                 </div>

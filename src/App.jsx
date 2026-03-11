@@ -200,13 +200,19 @@ export default function FuelTracker() {
     }
   };
 
+  const [editReceiptFile, setEditReceiptFile] = useState(null);
+  const [editReceiptPreview, setEditReceiptPreview] = useState(null);
+
   const startEdit = (e) => {
     setEditingId(e.id);
+    setEditReceiptFile(null);
+    setEditReceiptPreview(e.receipt || null);
     setEditForm({
       date: e.date,
       km: String(Math.round(e.km)).replace(/\B(?=(\d{3})+(?!\d))/g, "."),
       liters: toTR(e.liters),
       totalPrice: toTR(e.totalPrice),
+      receipt: e.receipt || null,
     });
   };
 
@@ -215,11 +221,21 @@ export default function FuelTracker() {
     setEditSaving(true);
     setEditError(null);
     try {
+      let receiptUrl = editForm.receipt || null;
+      if (editReceiptFile) {
+        const fileName = `${Date.now()}_${editReceiptFile.name}`;
+        const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, editReceiptFile, { contentType: editReceiptFile.type });
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName);
+          receiptUrl = urlData.publicUrl;
+        }
+      }
       const { error } = await supabase.from("fuel_entries").update({
         date: editForm.date,
         km: parseTR(editForm.km),
         liters: parseTR(editForm.liters),
         total_price: parseTR(editForm.totalPrice),
+        receipt_url: receiptUrl,
       }).eq("id", editingId);
       if (error) {
         console.error("Düzenleme hatası:", error);
@@ -271,6 +287,8 @@ export default function FuelTracker() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#080c14", color: "#e8eef8", fontFamily: FONT, overflowX: "hidden" }}>
+      <meta name="theme-color" content="#080c14" />
+      <style>{`body { background: #080c14 !important; margin: 0; }`}</style>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
       <style>{`
         input[type="date"] {
@@ -503,6 +521,18 @@ export default function FuelTracker() {
                             <div>
                               <div style={{ ...lbl, marginBottom: "4px" }}>Tutar ₺</div>
                               <NumericInput value={editForm.totalPrice} onChange={v => setEditForm(p => ({ ...p, totalPrice: v }))} placeholder="1.250,00" style={{ ...editInp, width: "100%", maxWidth: "100%", boxSizing: "border-box" }} />
+                            </div>
+                            <div>
+                              <div style={{ ...lbl, marginBottom: "4px" }}>📷 Fiş Fotoğrafı</div>
+                              <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#080c14", border: "1px dashed #1a2a45", padding: "10px 12px", borderRadius: "8px" }}>
+                                <input type="file" accept="image/*" onChange={ev => { const f = ev.target.files[0]; if (!f) return; setEditReceiptFile(f); setEditReceiptPreview(URL.createObjectURL(f)); }} style={{ display: "none" }} />
+                                {editReceiptPreview
+                                  ? <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                      <img src={editReceiptPreview} alt="fiş" style={{ width: "26px", height: "34px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "3px" }} />
+                                      <span style={{ color: "#44cc88", fontSize: "12px" }}>✓ Fotoğraf seçildi</span>
+                                    </div>
+                                  : <span style={{ color: "#4a6080", fontSize: "12px" }}>+ Fotoğraf ekle</span>}
+                              </label>
                             </div>
                           </div>
                           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>

@@ -282,14 +282,12 @@ export default function FuelTracker() {
           box-sizing: border-box !important;
           display: block !important;
         }
-        input, select, textarea {
-          font-size: 16px !important;
-        }
+        input, select, textarea { font-size: 16px !important; }
         * { box-sizing: border-box; }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        button { transition: all 0.15s ease; }
+        .card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .card:active { transform: scale(0.99); }
       `}</style>
       <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto", padding: "24px 16px 110px 16px" }}>
 
@@ -335,22 +333,29 @@ export default function FuelTracker() {
               </div>
             )}
             {entries.length >= 2 && (<>
-              <div style={{ background: "#1e1b18", borderRadius: "10px", overflow: "hidden", marginBottom: "20px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", borderBottom: "1px solid #2e2b28" }}>
-                  {[
-                    { label: "L/100km", val: `${formatNumber(avg100km)}` },
-                    { label: "₺/km", val: `${formatNumber(avgPerKm)}` },
-                    { label: "₺/L ort.", val: `${formatNumber(avgLiterPrice)}` },
-                    { label: "Top. km", val: `${formatNumber(totalKm, 0)}` },
-                    { label: "Top. L", val: `${formatNumber(totalLiters)}` },
-                    { label: "Toplam ₺", val: `${formatNumber(totalSpent)}` },
-                  ].map((s, i) => (
-                    <div key={s.label} style={{ padding: "10px 8px", borderRight: i < 5 ? "1px solid #2e2b28" : "none", textAlign: "center" }}>
-                      <div style={{ fontSize: "8px", fontWeight: "600", color: "#4a4642", textTransform: "uppercase", letterSpacing: "0.3px", marginBottom: "4px" }}>{s.label}</div>
-                      <div style={{ fontSize: "12px", fontWeight: "800", color: i < 3 ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.val}</div>
-                    </div>
-                  ))}
-                </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px", marginBottom: "8px" }}>
+                {[
+                  { label: "L / 100 km", val: formatNumber(avg100km), unit: "L", accent: true },
+                  { label: "₺ / km", val: formatNumber(avgPerKm), unit: "₺", accent: true },
+                  { label: "₺ / litre", val: formatNumber(avgLiterPrice), unit: "₺", accent: true },
+                ].map(s => (
+                  <div key={s.label} className="card" style={{ background: "#1e1b18", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ff8c00" }}>
+                    <div style={{ fontSize: "9px", fontWeight: "600", color: "#5a5450", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
+                    <div style={{ fontSize: "22px", fontWeight: "800", color: "#ff8c00", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{s.val}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px", marginBottom: "20px" }}>
+                {[
+                  { label: "Toplam km", val: formatNumber(totalKm, 0) },
+                  { label: "Toplam litre", val: formatNumber(totalLiters) },
+                  { label: "Toplam ₺", val: formatNumber(totalSpent) },
+                ].map(s => (
+                  <div key={s.label} className="card" style={{ background: "#1e1b18", borderRadius: "12px", padding: "14px 12px" }}>
+                    <div style={{ fontSize: "9px", fontWeight: "600", color: "#5a5450", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
+                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#ede8e0", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{s.val}</div>
+                  </div>
+                ))}
               </div>
             </>)}
 
@@ -363,7 +368,7 @@ export default function FuelTracker() {
             </button>
 
             {showForm && (
-              <div id="kayit-form" style={{ background: "#1a1816", padding: "20px", border: "1px solid #2e2b28", borderRadius: "10px" }}>
+              <div id="kayit-form" style={{ background: "#1a1816", padding: "20px", border: "1px solid #2e2b28", borderRadius: "12px" }}>
                 <div style={{ marginBottom: "18px" }}>
                   <div style={{ ...lbl, color: "#ff8c00" }}>📷 Fiş Fotoğrafı (Opsiyonel)</div>
                   <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#0f0e0d", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
@@ -478,7 +483,7 @@ export default function FuelTracker() {
               ? <div style={{ color: "#5a5450", textAlign: "center", padding: "48px", fontSize: "14px" }}>Bu ayda kayıt yok.</div>
               : <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {filteredEnriched.map((e, i) => (
-                    <div key={e.id} style={{ background: "#1e1b18", borderRadius: "10px", borderLeft: i === 0 ? "3px solid #333333" : "3px solid #ff8c00", overflow: "hidden" }}>
+                    <div key={e.id} className="card" style={{ background: "#1e1b18", borderRadius: "12px", borderLeft: i === 0 ? "3px solid #332f2c" : "3px solid #ff8c00", overflow: "hidden" }}>
                       {editingId === e.id ? (
                         <div style={{ padding: "14px" }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
@@ -514,8 +519,17 @@ export default function FuelTracker() {
                         </div>
                       ) : (
                         <>
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
-                            <span style={{ fontSize: "13px", fontWeight: "700", color: i === 0 ? "#5a5450" : "#ede8e0", fontFamily: MONO }}>{e.date}</span>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <span style={{ fontSize: "15px", fontWeight: "800", color: i === 0 ? "#5a5450" : "#ede8e0", fontFamily: MONO, letterSpacing: "-0.3px" }}>{e.date}</span>
+                              {e.consumption && i > 0 && (() => {
+                                const prev = enriched[i - 1];
+                                if (!prev?.consumption) return null;
+                                const diff = e.consumption - prev.consumption;
+                                if (Math.abs(diff) < 0.1) return null;
+                                return <span style={{ fontSize: "11px", fontWeight: "700", color: diff < 0 ? "#44cc88" : "#ff6655" }}>{diff < 0 ? "↓" : "↑"} {formatNumber(Math.abs(diff))}</span>;
+                              })()}
+                            </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                               {e.receipt && (
                                 <a href={e.receipt} target="_blank" rel="noopener noreferrer">
@@ -542,7 +556,7 @@ export default function FuelTracker() {
                             ].map((col, ci) => (
                               <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #2e2b28" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#4a4642", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
-                                <div style={{ fontSize: "11px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{col.val}</div>
+                                <div style={{ fontSize: "12px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
                               </div>
                             ))}
                           </div>
@@ -628,7 +642,7 @@ export default function FuelTracker() {
                       const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length-1].km - sortedE[0].km : null;
                       const cons = monthKm > 0 ? (m.liters / monthKm) * 100 : null;
                       return (
-                        <div key={key} style={{ background: "#1e1b18", borderRadius: "10px", borderLeft: "3px solid #ff8c00", overflow: "hidden" }}>
+                        <div key={key} className="card" style={{ background: "#1e1b18", borderRadius: "12px", borderLeft: "3px solid #ff8c00", overflow: "hidden" }}>
                           <div style={{ padding: "12px 14px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span style={{ fontSize: "15px", fontWeight: "800", color: "#ede8e0", fontFamily: MONO }}>{monthName(key)}</span>
                             <span style={{ fontSize: "11px", color: "#5a5450", fontWeight: "500" }}>{m.count} dolum</span>
@@ -643,7 +657,7 @@ export default function FuelTracker() {
                             ].map((col, ci) => (
                               <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #2e2b28" : "none" }}>
                                 <div style={{ fontSize: "8px", fontWeight: "600", color: "#4a4642", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
-                                <div style={{ fontSize: "11px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{col.val}</div>
+                                <div style={{ fontSize: "12px", fontWeight: "700", color: col.highlight ? "#ff8c00" : "#c0bdb5", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
                               </div>
                             ))}
                           </div>
@@ -692,7 +706,7 @@ export default function FuelTracker() {
                 ? <div style={{ color: "#5a5450", textAlign: "center", padding: "48px", fontSize: "14px" }}>Grafik için en az 2 aylık kayıt gereklidir.</div>
                 : <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                     {charts.map(c => (
-                      <div key={c.key} style={{ background: "#1e1b18", borderRadius: "10px", padding: "14px", borderLeft: `3px solid ${c.color}` }}>
+                      <div key={c.key} style={{ background: "#1e1b18", borderRadius: "12px", padding: "16px", borderLeft: `3px solid ${c.color}` }}>
                         <div style={{ fontSize: "10px", fontWeight: "700", color: c.color, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>{c.label}</div>
                         <ResponsiveContainer width="100%" height={140}>
                           <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
@@ -814,7 +828,7 @@ export default function FuelTracker() {
       {/* SABİT BOTTOM TAB BAR */}
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
-        background: "rgba(15,14,13,0.97)", borderTop: "1px solid #2e2b28",
+        background: "rgba(15,14,13,0.92)", borderTop: "1px solid #2e2b28", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
         display: "flex", alignItems: "stretch", justifyContent: "center",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}>

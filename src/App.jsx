@@ -973,7 +973,7 @@ export default function FuelTracker() {
                     {showTollAdder && (
                       <div style={{ display: "flex", gap: "6px", marginTop: "6px", alignItems: "center" }}>
                         <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="Eklenecek tutar" style={{ ...inp, flex: 1, fontSize: "13px" }} />
-                        <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { const cur = parseTR(tripForm.tollCost) || 0; setTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowTollAdder(false); setTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                        <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { const cur = parseTR(tripForm.tollCost) || 0; setTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowTollAdder(false); setTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", padding: "0 14px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0 }}>✓</button>
                       </div>
                     )}
                   </div>
@@ -1048,7 +1048,7 @@ export default function FuelTracker() {
                                   {showEditTollAdder && (
                                     <div style={{ display: "flex", gap: "6px", marginTop: "6px", alignItems: "center" }}>
                                       <NumericInput value={editTollAddValue} onChange={v => setEditTollAddValue(v)} placeholder="Eklenecek tutar" style={{ ...editInp, flex: 1 }} />
-                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { const cur = parseTR(editTripForm.tollCost) || 0; setEditTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowEditTollAdder(false); setEditTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { const cur = parseTR(editTripForm.tollCost) || 0; setEditTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowEditTollAdder(false); setEditTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "6px", padding: "0 12px", height: "36px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0 }}>✓</button>
                                     </div>
                                   )}
                                 </div>

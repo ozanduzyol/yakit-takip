@@ -119,7 +119,7 @@ function formatNumber(val, decimals = 2) {
   return num.toLocaleString("tr-TR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-function NumericInput({ value, onChange, placeholder, style }) {
+function NumericInput({ value, onChange, onBlur, autoFocus, placeholder, style }) {
   const handleChange = (e) => {
     const stripped = e.target.value.replace(/[^0-9,]/g, "");
     const parts = stripped.split(",");
@@ -128,7 +128,7 @@ function NumericInput({ value, onChange, placeholder, style }) {
     const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + decPart;
     onChange(formatted);
   };
-  return <input type="text" inputMode="decimal" pattern="[0-9.,]*" placeholder={placeholder} value={value} onChange={handleChange} style={style} />;
+  return <input type="text" inputMode="decimal" pattern="[0-9.,]*" placeholder={placeholder} value={value} onChange={handleChange} onBlur={onBlur} autoFocus={autoFocus} style={style} />;
 }
 
 const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
@@ -355,6 +355,8 @@ export default function FuelTracker() {
   const [editMaintReceiptPreviews, setEditMaintReceiptPreviews] = useState([]);
   const [tripReceiptFiles, setTripReceiptFiles] = useState([]);
   const [showTollAdder, setShowTollAdder] = useState(false);
+  const [editingFuelPrice, setEditingFuelPrice] = useState(false);
+  const [editingEditFuelPrice, setEditingEditFuelPrice] = useState(false);
   const [tollAddValue, setTollAddValue] = useState("");
   const [tollAddLabel, setTollAddLabel] = useState("");
   const [editTollAddLabel, setEditTollAddLabel] = useState("");
@@ -1248,10 +1250,14 @@ export default function FuelTracker() {
                         {shellPrice.benzin && <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: shellPrice.benzin }))} style={{ background: "none", border: "1px solid #1a2a45", color: "#64d2ff", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>EPDK'dan al</button>}
                       </div>
                     </div>
-                    <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", padding: "0 12px" }}>
-                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: "0", margin: 0, width: "auto", minWidth: "40px", maxWidth: "100%", fontSize: "13px", fontFamily: FONT, outline: "none" }} />
-                      <span style={{ color: "#8aa4c8", fontSize: "13px", marginLeft: "4px", flexShrink: 0 }}>₺</span>
-                    </div>
+                    {editingFuelPrice || !tripForm.fuelPrice ? (
+                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} onBlur={() => setEditingFuelPrice(false)} autoFocus={editingFuelPrice} placeholder="44,50" style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "block", width: "100%", padding: "0 12px", fontSize: "13px", fontFamily: FONT, color: "#e8eef8", outline: "none", boxSizing: "border-box" }} />
+                    ) : (
+                      <div onClick={() => setEditingFuelPrice(true)} style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", padding: "0 12px", cursor: "text" }}>
+                        <span style={{ fontSize: "13px", color: "#e8eef8", fontFamily: FONT }}>{tripForm.fuelPrice}</span>
+                        <span style={{ fontSize: "13px", color: "#8aa4c8", marginLeft: "4px" }}>₺</span>
+                      </div>
+                    )}
                     {tripForm.fuelPrice && <div style={{ marginTop: "4px", fontSize: "11px", color: "#4a6080" }}>Manuel düzenleme yapabilirsin</div>}
                   </div>
                   <div>
@@ -1410,10 +1416,14 @@ export default function FuelTracker() {
                                 </div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı</div>
-                                    <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", padding: "0 12px" }}>
-                                      <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: "0", margin: 0, width: "auto", minWidth: "40px", maxWidth: "100%", fontSize: "13px", fontFamily: FONT, outline: "none" }} />
-                                      <span style={{ color: "#8aa4c8", fontSize: "13px", marginLeft: "4px", flexShrink: 0 }}>₺</span>
-                                    </div>
+                                    {editingEditFuelPrice || !editTripForm.fuelPrice ? (
+                                      <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} onBlur={() => setEditingEditFuelPrice(false)} autoFocus={editingEditFuelPrice} placeholder="44,50" style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "block", width: "100%", padding: "0 12px", fontSize: "13px", fontFamily: FONT, color: "#e8eef8", outline: "none", boxSizing: "border-box" }} />
+                                    ) : (
+                                      <div onClick={() => setEditingEditFuelPrice(true)} style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", padding: "0 12px", cursor: "text" }}>
+                                        <span style={{ fontSize: "13px", color: "#e8eef8", fontFamily: FONT }}>{editTripForm.fuelPrice}</span>
+                                        <span style={{ fontSize: "13px", color: "#8aa4c8", marginLeft: "4px" }}>₺</span>
+                                      </div>
+                                    )}
                                 </div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "6px" }}>Otoyol Geçişleri</div>

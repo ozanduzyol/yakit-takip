@@ -569,7 +569,7 @@ export default function FuelTracker() {
   };
 
   // Styles
-  const inp = { background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "10px 12px", width: "100%", maxWidth: "100%", fontSize: "14px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "block" };
+  const inp = { background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "10px 12px", width: "100%", maxWidth: "100%", fontSize: "14px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "block", height: "44px" };
   const editInp = { background: "#080c14", border: "1px solid #64d2ff", color: "#e8eef8", padding: "6px 10px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "13px", fontFamily: MONO, outline: "none", boxSizing: "border-box", borderRadius: "5px", fontWeight: "700", WebkitAppearance: "none", appearance: "none", display: "block" };
   const lbl = { fontSize: "10px", letterSpacing: "1px", color: "#4a6080", display: "block", marginBottom: "6px", fontWeight: "600", textTransform: "uppercase", fontFamily: FONT };
 
@@ -585,7 +585,7 @@ export default function FuelTracker() {
       <style>{`body { background: #080c14 !important; margin: 0; }`}</style>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
       <style>{`
-        input[type="date"] { -webkit-appearance: none; appearance: none; width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; }
+        input[type="date"] { -webkit-appearance: none; appearance: none; width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; height: 44px !important; line-height: 1 !important; }
         input, select, textarea { font-size: 16px !important; }
         * { box-sizing: border-box; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }

@@ -668,11 +668,11 @@ export default function FuelTracker() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "8px", marginBottom: "12px", alignItems: "end" }}>
                 <div>
                   <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Başlangıç</div>
-                  <input type="date" value={panelFrom} onChange={e => setPanelFrom(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px", height: "38px" }} />
+                  <input type="date" value={panelFrom} onChange={e => setPanelFrom(e.target.value)} style={{ ...inp, colorScheme: "dark" }} />
                 </div>
                 <div>
                   <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Bitiş</div>
-                  <input type="date" value={panelTo} onChange={e => setPanelTo(e.target.value)} style={{ ...inp, fontSize: "12px", padding: "7px 10px", height: "38px" }} />
+                  <input type="date" value={panelTo} onChange={e => setPanelTo(e.target.value)} style={{ ...inp, colorScheme: "dark" }} />
                 </div>
                 <button onClick={() => { setPanelFrom(""); setPanelTo(""); }} style={{ background: "none", border: "1px solid #1a2a45", color: panelFrom || panelTo ? "#64d2ff" : "#1a2a45", fontSize: "13px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", width: "38px", height: "38px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
               </div>
@@ -825,9 +825,9 @@ export default function FuelTracker() {
                         {csvMode === "range" ? (
                           <>
                             <div style={{ display: "flex", gap: "6px", alignItems: "center", marginBottom: "10px" }}>
-                              <input type="date" value={csvFrom} onChange={e => setCsvFrom(e.target.value)} style={{ ...inp, flex: 1, colorScheme: "dark" }} />
+                              <input type="date" value={csvFrom} onChange={e => setCsvFrom(e.target.value)} style={{ ...inp, colorScheme: "dark" }} />
                               <span style={{ color: "#4a6080", fontSize: "11px" }}>—</span>
-                              <input type="date" value={csvTo} onChange={e => setCsvTo(e.target.value)} style={{ ...inp, flex: 1, colorScheme: "dark" }} />
+                              <input type="date" value={csvTo} onChange={e => setCsvTo(e.target.value)} style={{ ...inp, colorScheme: "dark" }} />
                             </div>
                             <button onClick={() => {
                               let rows = enriched;
@@ -1073,7 +1073,7 @@ export default function FuelTracker() {
                           {editingMaintId === e.id ? (
                             <div style={{ padding: "14px" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
-                                <div><div style={{ ...lbl, marginBottom: "4px" }}>Tarih</div><input type="date" value={editMaintForm.date} onChange={ev => setEditMaintForm(p => ({ ...p, date: ev.target.value }))} style={{ ...editInp, colorScheme: "dark", height: "38px", WebkitAppearance: "none", appearance: "none" }} /></div>
+                                <div><div style={{ ...lbl, marginBottom: "4px" }}>Tarih</div><input type="date" value={editMaintForm.date} onChange={ev => setEditMaintForm(p => ({ ...p, date: ev.target.value }))} style={{ ...editInp, colorScheme: "dark" }} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Km</div><NumericInput value={editMaintForm.km} onChange={v => setEditMaintForm(p => ({ ...p, km: v }))} placeholder="15.000" style={editInp} /></div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "4px" }}>Kategori</div>
@@ -1226,8 +1226,8 @@ export default function FuelTracker() {
                       <div style={lbl}>Yolculuk Tarihi Aralığı (litre fiyatı için)</div>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "8px" }}>
-                      <input type="date" value={tripForm.tripDateFrom} onChange={e => setTripForm(p => ({ ...p, tripDateFrom: e.target.value }))} style={{ ...inp, colorScheme: "dark", fontSize: "12px", padding: "7px 10px", height: "38px" }} />
-                      <input type="date" value={tripForm.tripDateTo} onChange={e => setTripForm(p => ({ ...p, tripDateTo: e.target.value }))} style={{ ...inp, colorScheme: "dark", fontSize: "12px", padding: "7px 10px", height: "38px" }} />
+                      <input type="date" value={tripForm.tripDateFrom} onChange={e => setTripForm(p => ({ ...p, tripDateFrom: e.target.value }))} style={{ ...inp, colorScheme: "dark" }} />
+                      <input type="date" value={tripForm.tripDateTo} onChange={e => setTripForm(p => ({ ...p, tripDateTo: e.target.value }))} style={{ ...inp, colorScheme: "dark" }} />
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                       <div style={lbl}>Litre Fiyatı ₺</div>

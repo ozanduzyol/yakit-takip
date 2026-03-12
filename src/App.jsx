@@ -1171,10 +1171,12 @@ export default function FuelTracker() {
                       <button onClick={() => setTripForm(p => ({ ...p, consumptionMode: "auto" }))} style={{ flex: 1, background: tripForm.consumptionMode === "auto" ? "#64d2ff" : "transparent", color: tripForm.consumptionMode === "auto" ? "#000" : "#4a6080", border: "1px solid " + (tripForm.consumptionMode === "auto" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Dolumlardan Hesapla</button>
                     </div>
                     {tripForm.consumptionMode === "manual" ? (
-                      <NumericInput value={tripForm.consumption} onChange={v => setTripForm(p => ({ ...p, consumption: v }))} placeholder="6,5" style={inp} />
-                      {tripForm.consumption && tripForm.fuelPrice && (
-                        <div style={{ marginTop: "4px", fontSize: "11px", color: "#8aa4c8" }}>= {formatNumber(parseTR(tripForm.consumption) * parseTR(tripForm.fuelPrice) / 100 * 100)} ₺ / 100 km</div>
-                      )}
+                      <>
+                        <NumericInput value={tripForm.consumption} onChange={v => setTripForm(p => ({ ...p, consumption: v }))} placeholder="6,5" style={inp} />
+                        {tripForm.consumption && tripForm.fuelPrice && (
+                          <div style={{ marginTop: "4px", fontSize: "11px", color: "#8aa4c8" }}>= {formatNumber(parseTR(tripForm.consumption) * parseTR(tripForm.fuelPrice) / 100 * 100)} ₺ / 100 km</div>
+                        )}
+                      </>
                     ) : (() => {
                       const startKm = parseTR(tripForm.startKm);
                       const endKm = parseTR(tripForm.endKm);

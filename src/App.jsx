@@ -570,7 +570,7 @@ export default function FuelTracker() {
 
   // Styles
   const inp = { background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", fontSize: "13px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", textAlign: "left" };
-  const editInp = { background: "#080c14", border: "1px solid #64d2ff", color: "#e8eef8", padding: "6px 10px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "13px", fontFamily: MONO, outline: "none", boxSizing: "border-box", borderRadius: "5px", fontWeight: "700", WebkitAppearance: "none", appearance: "none", display: "block" };
+  const editInp = { background: "#111e30", border: "1px solid #64d2ff", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "13px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", WebkitAppearance: "none", appearance: "none" };
   const lbl = { fontSize: "10px", letterSpacing: "1px", color: "#4a6080", display: "block", marginBottom: "6px", fontWeight: "600", textTransform: "uppercase", fontFamily: FONT };
 
   const monthName = (key) => {
@@ -756,7 +756,7 @@ export default function FuelTracker() {
                           <div style={{ background: "#0d1524", border: "1px solid #6644ff", borderRadius: "8px", padding: "10px", marginBottom: "8px", marginTop: "6px" }}>
                             <div style={{ fontSize: "11px", color: "#8aa4c8", marginBottom: "6px" }}>Gemini API anahtarı gir (bir kez kaydedilir)</div>
                             <div style={{ display: "flex", gap: "6px" }}>
-                              <input type="password" placeholder="AIza..." value={geminiKeyInput} onChange={e => setGeminiKeyInput(e.target.value)} style={{ ...inp, flex: 1, fontSize: "12px" }} />
+                              <input type="password" placeholder="AIza..." value={geminiKeyInput} onChange={e => setGeminiKeyInput(e.target.value)} style={{ ...inp, flex: 1, minWidth: 0 }} />
                               <button onClick={() => { const v = geminiKeyInput.trim(); if (v) { setGeminiKey(v); setShowGeminiKey(false); analyzeReceiptWithGemini(receiptFile); } }} style={{ background: "#6644ff", border: "none", color: "#fff", padding: "0 14px", fontSize: "12px", fontWeight: "700", cursor: "pointer", borderRadius: "8px" }}>Kaydet</button>
                             </div>
                           </div>
@@ -1007,7 +1007,7 @@ export default function FuelTracker() {
                     <div key={f.key} style={{ background: "#0f1829", padding: "12px 10px", borderRadius: "10px", textAlign: "center" }}>
                       <div style={{ fontSize: "11px", fontWeight: "600", color: "#4a6080", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-                        <NumericInput placeholder="0,00" value={shellPrice[f.key]} onChange={v => setShellPrice(p => ({ ...p, [f.key]: v }))} style={{ background: "#080c14", border: "1px solid #1a2a45", color: "#e8eef8", padding: "8px 6px", fontSize: "14px", fontWeight: "800", width: "100%", fontFamily: MONO, outline: "none", borderRadius: "6px", textAlign: "center" }} />
+                        <NumericInput placeholder="0,00" value={shellPrice[f.key]} onChange={v => setShellPrice(p => ({ ...p, [f.key]: v }))} style={{ background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "0 12px", fontSize: "13px", width: "100%", fontFamily: FONT, outline: "none", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", boxSizing: "border-box" }} />
                         <span style={{ color: "#4a6080", fontWeight: "600", flexShrink: 0 }}>₺</span>
                       </div>
                       {shellPrice[f.key] && <div style={{ marginTop: "8px", fontSize: "12px", color: "#64d2ff", fontWeight: "600" }}>✓ {formatNumber(parseTR(shellPrice[f.key]))} ₺/L</div>}
@@ -1262,8 +1262,8 @@ export default function FuelTracker() {
                         <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
                           <div style={{ display: "flex", gap: "6px", marginBottom: "8px", alignItems: "center" }}>
-                            <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5 }} />
-                            <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1 }} />
+                            <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5, minWidth: 0 }} />
+                            <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1, minWidth: 0 }} />
                             <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
                           </div>
                         )}
@@ -1283,8 +1283,8 @@ export default function FuelTracker() {
                         <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: showTollAdder ? "8px" : 0 }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
                           <div style={{ display: "flex", gap: "6px", marginTop: "8px", alignItems: "center" }}>
-                            <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5 }} />
-                            <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1 }} />
+                            <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5, minWidth: 0 }} />
+                            <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1, minWidth: 0 }} />
                             <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
                           </div>
                         )}
@@ -1411,7 +1411,7 @@ export default function FuelTracker() {
                                   <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); setEditTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showEditTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "6px" }}>{showEditTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                                   {showEditTollAdder && (
                                     <div style={{ display: "flex", gap: "5px", marginBottom: "6px", alignItems: "center" }}>
-                                      <input type="text" value={editTollAddLabel} onChange={ev => setEditTollAddLabel(ev.target.value)} placeholder="Geçiş adı" style={{ ...editInp, flex: 1.5, fontSize: "11px" }} />
+                                      <input type="text" value={editTollAddLabel} onChange={ev => setEditTollAddLabel(ev.target.value)} placeholder="Geçiş adı" style={{ ...editInp, flex: 1.5, minWidth: 0 }} />
                                       <NumericInput value={editTollAddValue} onChange={v => setEditTollAddValue(v)} placeholder="0,00" style={{ ...editInp, flex: 1 }} />
                                       <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { setEditTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: editTollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowEditTollAdder(false); setEditTollAddValue(""); setEditTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
                                     </div>

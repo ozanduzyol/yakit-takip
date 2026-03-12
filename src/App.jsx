@@ -585,7 +585,7 @@ export default function FuelTracker() {
       <style>{`body { background: #080c14 !important; margin: 0; }`}</style>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
       <style>{`
-        input[type="date"] { -webkit-appearance: none; appearance: none; width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: flex !important; align-items: center !important; height: 44px !important; line-height: 44px !important; font-size: 13px !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+        input[type="date"] { -webkit-appearance: none; appearance: none; width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: flex !important; align-items: center !important; height: 44px !important; line-height: 44px !important; font-size: 13px !important; font-family: Inter, sans-serif !important; padding: 0 12px !important; }
         input, select, textarea { font-size: 16px !important; }
         * { box-sizing: border-box; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
@@ -1172,6 +1172,9 @@ export default function FuelTracker() {
                     </div>
                     {tripForm.consumptionMode === "manual" ? (
                       <NumericInput value={tripForm.consumption} onChange={v => setTripForm(p => ({ ...p, consumption: v }))} placeholder="6,5" style={inp} />
+                      {tripForm.consumption && tripForm.fuelPrice && (
+                        <div style={{ marginTop: "4px", fontSize: "11px", color: "#8aa4c8" }}>= {formatNumber(parseTR(tripForm.consumption) * parseTR(tripForm.fuelPrice) / 100 * 100)} ₺ / 100 km</div>
+                      )}
                     ) : (() => {
                       const startKm = parseTR(tripForm.startKm);
                       const endKm = parseTR(tripForm.endKm);
@@ -1252,8 +1255,16 @@ export default function FuelTracker() {
                       <div style={{ marginBottom: "8px" }}>
                         <div style={{ marginBottom: "6px" }}>
                           <div style={lbl}>Toplam Otoyol Harcaması</div>
-                          <div style={{ ...inp, cursor: "default" }}>{formatNumber((tripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</div>
+                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", fontSize: "13px", fontFamily: FONT, boxSizing: "border-box", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "flex-start" }}>{formatNumber((tripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</div>
                         </div>
+                        <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
+                        {showTollAdder && (
+                          <div style={{ display: "flex", gap: "6px", marginBottom: "8px", alignItems: "center" }}>
+                            <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5 }} />
+                            <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1 }} />
+                            <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                          </div>
+                        )}
                         {tripForm.tollItems.map((item, i) => (
                           <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 12px", background: "#080c14", borderRadius: "6px", marginBottom: "4px" }}>
                             <span style={{ fontSize: "13px", color: "#e8eef8", fontFamily: FONT }}>{item.label}</span>
@@ -1265,13 +1276,17 @@ export default function FuelTracker() {
                         ))}
                       </div>
                     )}
-                    <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: showTollAdder ? "8px" : 0 }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
-                    {showTollAdder && (
-                      <div style={{ display: "flex", gap: "6px", marginTop: "8px", alignItems: "center" }}>
-                        <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5 }} />
-                        <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1 }} />
-                        <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
-                      </div>
+                    {(tripForm.tollItems||[]).length === 0 && (
+                      <>
+                        <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: showTollAdder ? "8px" : 0 }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
+                        {showTollAdder && (
+                          <div style={{ display: "flex", gap: "6px", marginTop: "8px", alignItems: "center" }}>
+                            <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5 }} />
+                            <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1 }} />
+                            <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                   <div><div style={lbl}>Not (opsiyonel)</div><input type="text" value={tripForm.notes} onChange={e => setTripForm(p => ({ ...p, notes: e.target.value }))} placeholder="Tatil, iş, vb." style={inp} /></div>

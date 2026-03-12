@@ -16,6 +16,102 @@ const MAINT_CATEGORIES = [
   { id: "genel", label: "Genel Servis", color: "#44cc88", emoji: "🔧" },
 ];
 
+
+
+const TANK_SIZE = 40; // litre
+
+// Her dolumdan sonra ağırlıklı ortalama fiyatı hesaplar
+// tam dolu doldurulduğu varsayılır → kalan = TANK_SIZE - alınan
+function computeWeightedHistory(entries) {
+  const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date) || a.km - b.km);
+  let avgPrice = 0;
+  return sorted.map(e => {
+    const liters = e.liters || 0;
+    const price = e.liters > 0 ? e.totalPrice / e.liters : 0;
+    if (liters > 0 && avgPrice === 0) {
+      // İlk dolum
+      avgPrice = price;
+    } else if (liters > 0) {
+      const remaining = Math.max(0, TANK_SIZE - liters);
+      avgPrice = (remaining * avgPrice + liters * price) / TANK_SIZE;
+    }
+    return { ...e, avgPrice: avgPrice > 0 ? avgPrice : price };
+  });
+}
+
+// Belirli bir km'deki ağırlıklı ortalama fiyatı bul
+function getWeightedPriceAtKm(history, km) {
+  const before = history.filter(e => e.km <= km);
+  if (before.length === 0) return null;
+  return before[before.length - 1].avgPrice;
+}
+
+// Yolculuk toplam yakıt maliyeti (weighted avg ile)
+function calcTripFuelCost(history, startKm, endKm, consumption) {
+  const km = endKm - startKm;
+  if (km <= 0 || !consumption) return null;
+  
+  // Başlangıçtaki ağırlıklı ortalama fiyat
+  const startPrice = getWeightedPriceAtKm(history, startKm);
+  if (!startPrice) return null;
+
+  // Bu km aralığındaki dolumlar
+  const fills = history.filter(e => e.km > startKm && e.km <= endKm && e.liters > 0);
+  
+  if (fills.length === 0) {
+    // Hiç dolum yok - başlangıç fiyatıyla hesapla
+    const liters = (km * consumption) / 100;
+    return { cost: liters * startPrice, avgPrice: startPrice, liters, segments: [] };
+  }
+
+  // Her segment için ayrı hesap
+  let totalCost = 0;
+  let totalLiters = 0;
+  const segments = [];
+  let prevKm = startKm;
+  let curPrice = startPrice;
+
+  for (const fill of fills) {
+    const segKm = fill.km - prevKm;
+    const segLiters = (segKm * consumption) / 100;
+    const segCost = segLiters * curPrice;
+    totalCost += segCost;
+    totalLiters += segLiters;
+    segments.push({ km: segKm, liters: segLiters, price: curPrice, cost: segCost });
+    curPrice = fill.avgPrice; // dolumdan sonra güncel fiyat
+    prevKm = fill.km;
+  }
+
+  // Son segment (son dolumdan bitişe)
+  const lastKm = endKm - prevKm;
+  if (lastKm > 0) {
+    const lastLiters = (lastKm * consumption) / 100;
+    const lastCost = lastLiters * curPrice;
+    totalCost += lastCost;
+    totalLiters += lastLiters;
+    segments.push({ km: lastKm, liters: lastLiters, price: curPrice, cost: lastCost });
+  }
+
+  return { cost: totalCost, avgPrice: totalCost / totalLiters, liters: totalLiters, segments };
+}
+
+function downloadCSV(rows, filename) {
+  const header = ["Tarih","Km","Litre","Toplam ₺","₺/Litre","L/100km","₺/Km"];
+  const lines = [header.join(";"), ...rows.map(e => [
+    fmtDate(e.date),
+    String(Math.round(e.km)),
+    e.liters.toFixed(2).replace(".",","),
+    e.totalPrice.toFixed(2).replace(".",","),
+    (e.totalPrice/e.liters).toFixed(4).replace(".",","),
+    e.l100km !== null ? e.l100km.toFixed(2).replace(".",",") : "",
+    e.costPerKm !== null ? e.costPerKm.toFixed(4).replace(".",",") : "",
+  ].join(";"))];
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
 function formatNumber(val, decimals = 2) {
   if (val === null || val === undefined || val === "") return "";
   const num = parseFloat(val);
@@ -37,6 +133,20 @@ function NumericInput({ value, onChange, placeholder, style }) {
 
 const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
 const fmtDate = (iso) => { if (!iso) return ""; const [y,m,d] = iso.split("-"); return `${d}.${m}.${y}`; };
+const parseDateInput = (val) => {
+  // DD.MM.YYYY → YYYY-MM-DD
+  const parts = val.replace(/[^0-9]/g, "");
+  if (parts.length >= 8) {
+    const d = parts.slice(0,2), m = parts.slice(2,4), y = parts.slice(4,8);
+    return `${y}-${m}-${d}`;
+  }
+  return "";
+};
+const fmtDateInput = (iso) => {
+  if (!iso) return "";
+  const [y,m,d] = iso.split("-");
+  return `${d}.${m}.${y}`;
+};
 const toTR = (num) => {
   if (!num && num !== 0) return "";
   const [int, dec] = num.toFixed(2).split(".");
@@ -44,7 +154,7 @@ const toTR = (num) => {
 };
 const emptyForm = () => ({ date: new Date().toISOString().split("T")[0], km: "", liters: "", totalPrice: "" });
 const emptyMaint = () => ({ date: new Date().toISOString().split("T")[0], km: "", category: "lastik", description: "", cost: "" });
-const emptyTrip = () => ({ date: new Date().toISOString().split("T")[0], tripDateFrom: "", tripDateTo: "", title: "", startKm: "", endKm: "", consumption: "", fuelPrice: "", tollCost: "", notes: "" });
+const emptyTrip = () => ({ date: new Date().toISOString().split("T")[0], tripDateFrom: "", tripDateTo: "", title: "", startKm: "", endKm: "", consumption: "", fuelPrice: "", tollItems: [], tollCost: "", notes: "", consumptionMode: "manual", tankPercent: "100" });
 
 export default function FuelTracker() {
   // Fuel
@@ -69,6 +179,17 @@ export default function FuelTracker() {
   const [editError, setEditError] = useState(null);
   const [panelFrom, setPanelFrom] = useState("");
   const [panelTo, setPanelTo] = useState("");
+  // CSV
+  const [csvFrom, setCsvFrom] = useState("");
+  const [csvTo, setCsvTo] = useState("");
+  const [showCsvOptions, setShowCsvOptions] = useState(false);
+  const [csvMode, setCsvMode] = useState("range"); // range | month
+  const [csvMonth, setCsvMonth] = useState("");
+  // Gemini
+  const [geminiKey, setGeminiKey] = useState("");
+  const [geminiLoading, setGeminiLoading] = useState(false);
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
+  const [geminiKeyInput, setGeminiKeyInput] = useState("");
 
   // EPDK
   const [epdkData, setEpdkData] = useState(null);
@@ -235,6 +356,8 @@ export default function FuelTracker() {
   const [tripReceiptFiles, setTripReceiptFiles] = useState([]);
   const [showTollAdder, setShowTollAdder] = useState(false);
   const [tollAddValue, setTollAddValue] = useState("");
+  const [tollAddLabel, setTollAddLabel] = useState("");
+  const [editTollAddLabel, setEditTollAddLabel] = useState("");
   const [showEditTollAdder, setShowEditTollAdder] = useState(false);
   const [editTollAddValue, setEditTollAddValue] = useState("");
   const [tripReceiptPreviews, setTripReceiptPreviews] = useState([]);
@@ -274,6 +397,43 @@ export default function FuelTracker() {
   };
 
 
+
+  const analyzeReceiptWithGemini = async (file) => {
+    if (!geminiKey) { setShowGeminiKey(true); return; }
+    setGeminiLoading(true);
+    try {
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(",")[1]);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { text: 'Bu bir akaryakıt pompası veya istasyon fişidir. Fişten şu bilgileri çıkar ve SADECE JSON olarak yanıtla (başka hiçbir şey yazma): {"tarih": "YYYY-MM-DD formatında tarih veya boş string", "litre": sayı veya null, "toplam": sayı veya null, "km": sayı veya null}. Tarih bulamazsan bugünün tarihini kullan.' },
+            { inline_data: { mime_type: file.type, data: base64 } }
+          ]}]
+        })
+      });
+      const data = await resp.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const clean = text.replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(clean);
+      setForm(p => ({
+        ...p,
+        ...(parsed.tarih ? { date: parsed.tarih } : {}),
+        ...(parsed.litre ? { liters: toTR(parsed.litre) } : {}),
+        ...(parsed.litre_fiyati ? { totalPrice: parsed.toplam ? toTR(parsed.toplam) : toTR(parsed.litre * parsed.litre_fiyati) } : {}),
+        ...(parsed.toplam ? { totalPrice: toTR(parsed.toplam) } : {}),
+      }));
+    } catch(e) {
+      console.error("Gemini hata:", e);
+    } finally { setGeminiLoading(false); }
+  };
+
   const uploadMultipleFiles = async (files) => {
     const urls = [];
     for (const file of files) {
@@ -311,7 +471,7 @@ export default function FuelTracker() {
     setTripLoading(true);
     const { data, error } = await supabase.from("trip_entries").select("*").order("date", { ascending: false });
     if (!error && data) {
-      setTripEntries(data.map(e => ({ id: e.id, date: e.date, title: e.title || "", startKm: parseFloat(e.start_km), endKm: parseFloat(e.end_km), consumption: parseFloat(e.consumption), fuelPrice: parseFloat(e.fuel_price), tollCost: parseFloat(e.toll_cost || 0), notes: e.notes || "", receipts: e.receipt_urls || [] })));
+      setTripEntries(data.map(e => { const items = e.toll_items ? (typeof e.toll_items === "string" ? JSON.parse(e.toll_items) : e.toll_items) : []; return { id: e.id, date: e.date, title: e.title || "", startKm: parseFloat(e.start_km), endKm: parseFloat(e.end_km), consumption: parseFloat(e.consumption), fuelPrice: parseFloat(e.fuel_price), tollCost: items.reduce((s,i) => s + i.amount, 0) || parseFloat(e.toll_cost || 0), tollItems: items, notes: e.notes || "", receipts: e.receipt_urls || [] }; }));
     }
     setTripLoading(false);
   };
@@ -321,7 +481,7 @@ export default function FuelTracker() {
     setTripSaving(true);
     try {
       const urls = await uploadMultipleFiles(tripReceiptFiles);
-      const { error } = await supabase.from("trip_entries").insert({ date: tripForm.date, title: tripForm.title, start_km: parseTR(tripForm.startKm), end_km: parseTR(tripForm.endKm), consumption: parseTR(tripForm.consumption), fuel_price: parseTR(tripForm.fuelPrice), toll_cost: parseTR(tripForm.tollCost) || 0, notes: tripForm.notes, receipt_urls: urls });
+      const tollTotal = tripForm.tollItems.reduce((s,i) => s + i.amount, 0); const wacResult = calcTripFuelCost(weightedHistory, parseTR(tripForm.startKm), parseTR(tripForm.endKm), parseTR(tripForm.consumption)); const effectivePrice = wacResult ? wacResult.avgPrice : parseTR(tripForm.fuelPrice); const { error } = await supabase.from("trip_entries").insert({ date: tripForm.date, title: tripForm.title, start_km: parseTR(tripForm.startKm), end_km: parseTR(tripForm.endKm), consumption: parseTR(tripForm.consumption), fuel_price: effectivePrice, toll_cost: tollTotal, toll_items: JSON.stringify(tripForm.tollItems), notes: tripForm.notes, receipt_urls: urls });
       if (!error) { await fetchTripEntries(); setTripForm(emptyTrip()); setTripReceiptFiles([]); setTripReceiptPreviews([]); setShowTripForm(false); }
     } finally { setTripSaving(false); }
   };
@@ -335,7 +495,7 @@ export default function FuelTracker() {
     setEditingTripId(e.id);
     setEditTripReceiptFiles([]);
     setEditTripReceiptPreviews([]);
-    setEditTripForm({ date: e.date, title: e.title, startKm: String(Math.round(e.startKm)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), endKm: String(Math.round(e.endKm)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), consumption: toTR(e.consumption), fuelPrice: toTR(e.fuelPrice), tollCost: toTR(e.tollCost), notes: e.notes, existingReceipts: e.receipts || [] });
+    setEditTripForm({ date: e.date, title: e.title, startKm: String(Math.round(e.startKm)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), endKm: String(Math.round(e.endKm)).replace(/\B(?=(\d{3})+(?!\d))/g, "."), consumption: toTR(e.consumption), fuelPrice: toTR(e.fuelPrice), tollCost: toTR(e.tollCost), tollItems: e.tollItems || [], notes: e.notes, existingReceipts: e.receipts || [], consumptionMode: "manual", tankPercent: "100" });
   };
 
   const handleEditTripSave = async () => {
@@ -343,7 +503,7 @@ export default function FuelTracker() {
     try {
       const newUrls = await uploadMultipleFiles(editTripReceiptFiles);
       const allUrls = [...(editTripForm.existingReceipts || []), ...newUrls];
-      const { error } = await supabase.from("trip_entries").update({ date: editTripForm.date, title: editTripForm.title, start_km: parseTR(editTripForm.startKm), end_km: parseTR(editTripForm.endKm), consumption: parseTR(editTripForm.consumption), fuel_price: parseTR(editTripForm.fuelPrice), toll_cost: parseTR(editTripForm.tollCost) || 0, notes: editTripForm.notes, receipt_urls: allUrls }).eq("id", editingTripId);
+      const tollTotal2 = (editTripForm.tollItems || []).reduce((s,i) => s + i.amount, 0); const { error } = await supabase.from("trip_entries").update({ date: editTripForm.date, title: editTripForm.title, start_km: parseTR(editTripForm.startKm), end_km: parseTR(editTripForm.endKm), consumption: parseTR(editTripForm.consumption), fuel_price: parseTR(editTripForm.fuelPrice), toll_cost: tollTotal2, toll_items: JSON.stringify(editTripForm.tollItems || []), notes: editTripForm.notes, receipt_urls: allUrls }).eq("id", editingTripId);
       if (!error) { await fetchTripEntries(); setEditingTripId(null); }
     } finally { setEditTripSaving(false); }
   };
@@ -363,10 +523,15 @@ export default function FuelTracker() {
 
   const totalMaintCost = maintEntries.reduce((s, e) => s + e.cost, 0);
 
+  // Ağırlıklı ortalama fiyat geçmişi
+  const weightedHistory = computeWeightedHistory(entries);
+  const currentWAC = weightedHistory.length > 0 ? weightedHistory[weightedHistory.length - 1].avgPrice : null;
+
   const enriched = entries.map((e, i) => {
-    if (i === 0) return { ...e, consumption: null };
+    const wh = weightedHistory.find(w => w.id === e.id);
+    if (i === 0) return { ...e, consumption: null, avgPrice: wh?.avgPrice || null };
     const dist = e.km - entries[i - 1].km;
-    return { ...e, consumption: dist > 0 ? (e.liters / dist) * 100 : null };
+    return { ...e, consumption: dist > 0 ? (e.liters / dist) * 100 : null, avgPrice: wh?.avgPrice || null };
   });
 
   // Service countdown
@@ -392,13 +557,15 @@ export default function FuelTracker() {
   };
   const serviceStatus = getServiceStatus();
 
-  // Trip calc helper
+  // Trip calc helper - weighted avg cost kullanır
   const calcTrip = (t) => {
     const km = t.endKm - t.startKm;
     const liters = (km * t.consumption) / 100;
-    const fuelCost = liters * t.fuelPrice;
+    const wac = calcTripFuelCost(weightedHistory, t.startKm, t.endKm, t.consumption);
+    const fuelCost = wac ? wac.cost : liters * t.fuelPrice;
+    const avgPrice = wac ? wac.avgPrice : t.fuelPrice;
     const total = fuelCost + (t.tollCost || 0);
-    return { km, liters, fuelCost, total };
+    return { km, liters, fuelCost, avgPrice, total, wac };
   };
 
   // Styles
@@ -516,7 +683,7 @@ export default function FuelTracker() {
                 {[
                   { label: "L / 100 km", val: formatNumber(avg100km) },
                   { label: "₺ / km", val: formatNumber(avgPerKm) },
-                  { label: "₺ / litre", val: formatNumber(avgLiterPrice) },
+                  { label: "₺ / litre (WAC)", val: currentWAC ? formatNumber(currentWAC) : formatNumber(avgLiterPrice) },
                 ].map(s => (
                   <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #64d2ff" }}>
                     <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
@@ -578,13 +745,31 @@ export default function FuelTracker() {
                   {showForm && (
                     <div id="kayit-form" style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
                       <div style={{ marginBottom: "18px" }}>
-                        <div style={{ ...lbl, color: "#64d2ff" }}>📷 Fiş Fotoğrafı (Opsiyonel)</div>
+                        <div style={{ ...lbl, color: "#64d2ff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span>📷 Fiş Fotoğrafı (Opsiyonel)</span>
+                          {receiptImage && !geminiLoading && (
+                            <button onClick={() => analyzeReceiptWithGemini(receiptFile)} style={{ background: "#6644ff", border: "none", color: "#fff", padding: "3px 10px", fontSize: "10px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>✨ Fişi Oku</button>
+                          )}
+                          {geminiLoading && <span style={{ fontSize: "10px", color: "#6644ff" }}>⏳ Okunuyor...</span>}
+                        </div>
+                        {showGeminiKey && !geminiKey && (
+                          <div style={{ background: "#0d1524", border: "1px solid #6644ff", borderRadius: "8px", padding: "10px", marginBottom: "8px", marginTop: "6px" }}>
+                            <div style={{ fontSize: "11px", color: "#8aa4c8", marginBottom: "6px" }}>Gemini API anahtarı gir (bir kez kaydedilir)</div>
+                            <div style={{ display: "flex", gap: "6px" }}>
+                              <input type="password" placeholder="AIza..." value={geminiKeyInput} onChange={e => setGeminiKeyInput(e.target.value)} style={{ ...inp, flex: 1, fontSize: "12px" }} />
+                              <button onClick={() => { const v = geminiKeyInput.trim(); if (v) { setGeminiKey(v); setShowGeminiKey(false); analyzeReceiptWithGemini(receiptFile); } }} style={{ background: "#6644ff", border: "none", color: "#fff", padding: "0 14px", fontSize: "12px", fontWeight: "700", cursor: "pointer", borderRadius: "8px" }}>Kaydet</button>
+                            </div>
+                          </div>
+                        )}
                         <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#080c14", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
                           <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (!f) return; setReceiptFile(f); setReceiptImage(URL.createObjectURL(f)); }} style={{ display: "none" }} />
                           {receiptImage ? (
                             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                               <img src={receiptImage} alt="fiş" style={{ width: "40px", height: "54px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "4px" }} />
-                              <span style={{ color: "#44ff88", fontSize: "13px" }}>✓ Fotoğraf eklendi</span>
+                              <div>
+                                <div style={{ color: "#44ff88", fontSize: "13px" }}>✓ Fotoğraf eklendi</div>
+                                <div style={{ color: "#4a6080", fontSize: "10px", marginTop: "2px" }}>Fişi Oku butonu ile formu otomatik doldur</div>
+                              </div>
                             </div>
                           ) : <span style={{ color: "#4a6080", fontSize: "13px" }}>+ Fiş fotoğrafı ekle</span>}
                         </label>
@@ -624,6 +809,50 @@ export default function FuelTracker() {
                       {saveError && <div style={{ color: "#ff4444", fontSize: "12px", marginTop: "8px" }}>⚠ {saveError}</div>}
                     </div>
                   )}
+
+                  {/* CSV İndir */}
+                  <div style={{ marginBottom: "12px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px" }}>Kayıtlar ({filteredEnriched.length})</div>
+                      <button onClick={() => setShowCsvOptions(p => !p)} style={{ background: "transparent", border: "1px solid #1a2a45", color: "#64d2ff", padding: "4px 10px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>⬇ CSV İndir</button>
+                    </div>
+                    {showCsvOptions && (
+                      <div style={{ background: "#0d1524", border: "1px solid #1a2a45", borderRadius: "8px", padding: "12px", marginTop: "8px" }}>
+                        <div style={{ display: "flex", gap: "6px", marginBottom: "10px" }}>
+                          <button onClick={() => setCsvMode("range")} style={{ flex: 1, background: csvMode === "range" ? "#64d2ff" : "transparent", color: csvMode === "range" ? "#000" : "#4a6080", border: "1px solid " + (csvMode === "range" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Tarih Aralığı</button>
+                          <button onClick={() => setCsvMode("month")} style={{ flex: 1, background: csvMode === "month" ? "#64d2ff" : "transparent", color: csvMode === "month" ? "#000" : "#4a6080", border: "1px solid " + (csvMode === "month" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Aylık</button>
+                        </div>
+                        {csvMode === "range" ? (
+                          <>
+                            <div style={{ display: "flex", gap: "6px", alignItems: "center", marginBottom: "10px" }}>
+                              <input type="date" value={csvFrom} onChange={e => setCsvFrom(e.target.value)} style={{ ...inp, flex: 1, colorScheme: "dark" }} />
+                              <span style={{ color: "#4a6080", fontSize: "11px" }}>—</span>
+                              <input type="date" value={csvTo} onChange={e => setCsvTo(e.target.value)} style={{ ...inp, flex: 1, colorScheme: "dark" }} />
+                            </div>
+                            <button onClick={() => {
+                              let rows = enriched;
+                              if (csvFrom) rows = rows.filter(e => e.date >= csvFrom);
+                              if (csvTo) rows = rows.filter(e => e.date <= csvTo);
+                              const label = csvFrom || csvTo ? `${csvFrom||""}--${csvTo||""}` : "tum";
+                              downloadCSV(rows, `yakit-${label}.csv`);
+                            }} style={{ width: "100%", background: "#64d2ff", border: "none", color: "#000", padding: "9px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>⬇ İndir</button>
+                          </>
+                        ) : (
+                          <>
+                            <select value={csvMonth} onChange={e => setCsvMonth(e.target.value)} style={{ ...editInp, width: "100%", marginBottom: "10px", appearance: "none", fontSize: "12px" }}>
+                              <option value="">— Ay seç —</option>
+                              {months.map(m => <option key={m} value={m}>{monthName(m)}</option>)}
+                            </select>
+                            <button onClick={() => {
+                              if (!csvMonth) return;
+                              const rows = enriched.filter(e => e.date.startsWith(csvMonth));
+                              downloadCSV(rows, `yakit-${csvMonth}.csv`);
+                            }} disabled={!csvMonth} style={{ width: "100%", background: csvMonth ? "#64d2ff" : "#1a2a45", border: "none", color: csvMonth ? "#000" : "#3d5270", padding: "9px", fontSize: "11px", fontWeight: "700", cursor: csvMonth ? "pointer" : "default", fontFamily: FONT, borderRadius: "6px" }}>⬇ İndir</button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
                   {months.length > 1 && (
                     <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
@@ -936,8 +1165,61 @@ export default function FuelTracker() {
                     </div>
                   )}
                   <div>
-                    <div style={lbl}>Araç Ekranı L/100 km</div>
-                    <NumericInput value={tripForm.consumption} onChange={v => setTripForm(p => ({ ...p, consumption: v }))} placeholder="6,5" style={inp} />
+                    <div style={{ ...lbl, marginBottom: "6px" }}>Yakıt Tüketimi (L/100 km)</div>
+                    <div style={{ display: "flex", gap: "6px", marginBottom: "8px" }}>
+                      <button onClick={() => setTripForm(p => ({ ...p, consumptionMode: "manual" }))} style={{ flex: 1, background: tripForm.consumptionMode === "manual" ? "#64d2ff" : "transparent", color: tripForm.consumptionMode === "manual" ? "#000" : "#4a6080", border: "1px solid " + (tripForm.consumptionMode === "manual" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Manuel Giriş</button>
+                      <button onClick={() => setTripForm(p => ({ ...p, consumptionMode: "auto" }))} style={{ flex: 1, background: tripForm.consumptionMode === "auto" ? "#64d2ff" : "transparent", color: tripForm.consumptionMode === "auto" ? "#000" : "#4a6080", border: "1px solid " + (tripForm.consumptionMode === "auto" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Dolumlardan Hesapla</button>
+                    </div>
+                    {tripForm.consumptionMode === "manual" ? (
+                      <NumericInput value={tripForm.consumption} onChange={v => setTripForm(p => ({ ...p, consumption: v }))} placeholder="6,5" style={inp} />
+                    ) : (() => {
+                      const startKm = parseTR(tripForm.startKm);
+                      const endKm = parseTR(tripForm.endKm);
+                      if (!startKm || !endKm || endKm <= startKm) return <div style={{ fontSize: "12px", color: "#4a6080", padding: "10px 0" }}>Önce başlangıç ve bitiş km gir.</div>;
+                      const km = endKm - startKm;
+                      const fuelsInRange = entries.filter(e => e.km > startKm && e.km <= endKm && e.liters > 0).sort((a,b) => a.km - b.km);
+                      const tankLiters = 40;
+                      const tankPct = parseTR(tripForm.tankPercent) || 100;
+                      const startFuel = tankLiters * (tankPct / 100);
+                      const refueled = fuelsInRange.reduce((s, e) => s + e.liters, 0);
+                      const totalUsed = startFuel + refueled; // bitişteki kalan yakıt bilinmiyor = 0 varsayımı
+                      const calcL100 = km > 0 ? (totalUsed / km) * 100 : 0;
+                      if (fuelsInRange.length === 0 && tankPct === 100) return (
+                        <div style={{ fontSize: "12px", color: "#4a6080", padding: "6px 0" }}>Bu km aralığında dolum kaydı yok.</div>
+                      );
+                      return (
+                        <div>
+                          <div style={{ background: "#080c14", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
+                            <div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Yolculuk Başındaki Depo Durumu</div>
+                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                              <NumericInput value={tripForm.tankPercent} onChange={v => setTripForm(p => ({ ...p, tankPercent: v }))} placeholder="100" style={{ ...inp, width: "70px", flex: "none" }} />
+                              <span style={{ fontSize: "12px", color: "#8aa4c8" }}>%  = {formatNumber(startFuel)} L</span>
+                            </div>
+                          </div>
+                          {fuelsInRange.length > 0 && (
+                            <div style={{ background: "#080c14", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
+                              <div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bu Km Aralığındaki Dolumlar</div>
+                              {fuelsInRange.map((e,i) => (
+                                <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#8aa4c8", padding: "2px 0" }}>
+                                  <span>{fmtDate(e.date)} — {formatNumber(e.km,0)} km</span>
+                                  <span style={{ color: "#64d2ff", fontFamily: MONO }}>{formatNumber(e.liters)} L</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <div style={{ background: "#080c14", border: "1px solid #64d2ff", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <div>
+                                <div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px" }}>Hesaplanan L/100km</div>
+                                <div style={{ fontSize: "11px", color: "#4a6080", marginTop: "2px" }}>{formatNumber(startFuel)} L başlangıç + {formatNumber(refueled)} L dolum = {formatNumber(totalUsed)} L / {formatNumber(km,0)} km</div>
+                              </div>
+                              <span style={{ fontSize: "20px", fontWeight: "800", color: "#64d2ff", fontFamily: MONO }}>{formatNumber(calcL100)}</span>
+                            </div>
+                          </div>
+                          <button onClick={() => setTripForm(p => ({ ...p, consumption: toTR(calcL100) }))} style={{ width: "100%", background: "#1a2a45", border: "1px solid #64d2ff", color: "#64d2ff", padding: "8px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Kullan → {formatNumber(calcL100)} L/100km</button>
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
@@ -965,15 +1247,32 @@ export default function FuelTracker() {
                     {tripForm.fuelPrice && <div style={{ marginTop: "4px", fontSize: "11px", color: "#4a6080" }}>Manuel düzenleme yapabilirsin</div>}
                   </div>
                   <div>
-                    <div style={lbl}>Otoyol / Köprü Ücreti ₺ (opsiyonel)</div>
-                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                      <NumericInput value={tripForm.tollCost} onChange={v => setTripForm(p => ({ ...p, tollCost: v }))} placeholder="0,00" style={{ ...inp, flex: 1 }} />
-                      <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); }} style={{ background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", cursor: "pointer", fontWeight: "700", flexShrink: 0, padding: 0 }}>+</button>
+                    <div style={{ ...lbl, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span>Otoyol / Köprü Geçişleri</span>
+                      <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", padding: "3px 10px", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>+ Geçiş Ekle</button>
                     </div>
                     {showTollAdder && (
-                      <div style={{ display: "flex", gap: "6px", marginTop: "6px", alignItems: "center" }}>
-                        <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="Eklenecek tutar" style={{ ...inp, flex: 1, fontSize: "13px" }} />
-                        <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { const cur = parseTR(tripForm.tollCost) || 0; setTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowTollAdder(false); setTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                      <div style={{ display: "flex", gap: "6px", marginBottom: "8px", alignItems: "center" }}>
+                        <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5, fontSize: "12px" }} />
+                        <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1, fontSize: "12px" }} />
+                        <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                      </div>
+                    )}
+                    {(tripForm.tollItems||[]).length > 0 && (
+                      <div style={{ background: "#080c14", borderRadius: "8px", overflow: "hidden", marginTop: "4px" }}>
+                        {tripForm.tollItems.map((item, i) => (
+                          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", borderBottom: i < tripForm.tollItems.length-1 ? "1px solid #1a2a45" : "none" }}>
+                            <span style={{ fontSize: "12px", color: "#8aa4c8" }}>{item.label}</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <span style={{ fontSize: "13px", fontWeight: "700", color: "#ffdd00", fontFamily: MONO }}>{formatNumber(item.amount)} ₺</span>
+                              <button onClick={() => setTripForm(p => ({ ...p, tollItems: p.tollItems.filter((_,fi) => fi !== i) }))} style={{ background: "none", border: "none", color: "#ff4444", cursor: "pointer", fontSize: "14px", padding: "0 2px" }}>✕</button>
+                            </div>
+                          </div>
+                        ))}
+                        <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 10px", borderTop: "1px solid #2a3a55" }}>
+                          <span style={{ fontSize: "11px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px" }}>Toplam</span>
+                          <span style={{ fontSize: "13px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO }}>{formatNumber((tripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</span>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -998,13 +1297,37 @@ export default function FuelTracker() {
                   return (
                     <div style={{ background: "#080c14", border: "1px solid #64d2ff", borderRadius: "10px", padding: "14px", marginBottom: "12px" }}>
                       <div style={{ fontSize: "10px", fontWeight: "700", color: "#64d2ff", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>Yolculuk Hesabı</div>
+                      {(() => {
+                        const wac = calcTripFuelCost(weightedHistory, parseTR(tripForm.startKm), parseTR(tripForm.endKm), parseTR(tripForm.consumption));
+                        const wacCost = wac ? wac.cost : fuelCost;
+                        const wacAvg = wac ? wac.avgPrice : parseTR(tripForm.fuelPrice);
+                        return wac && wac.segments.length > 1 ? (
+                          <div style={{ marginBottom: "10px", padding: "8px", background: "#0d1524", borderRadius: "6px" }}>
+                            <div style={{ fontSize: "9px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>WAC Segment Analizi</div>
+                            {wac.segments.map((s, i) => (
+                              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#8aa4c8", padding: "2px 0" }}>
+                                <span>{formatNumber(s.km, 0)} km × {formatNumber(s.price)} ₺/L</span>
+                                <span style={{ color: "#ffdd00", fontFamily: MONO }}>{formatNumber(s.cost)} ₺</span>
+                              </div>
+                            ))}
+                            <div style={{ borderTop: "1px solid #1a2a45", marginTop: "4px", paddingTop: "4px", display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
+                              <span style={{ color: "#64d2ff" }}>Ort. WAC</span>
+                              <span style={{ color: "#64d2ff", fontFamily: MONO, fontWeight: "700" }}>{formatNumber(wacAvg)} ₺/L</span>
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px" }}>
-                        {[
-                          { label: "Mesafe", val: `${formatNumber(km, 0)} km` },
-                          { label: "Yakıt", val: `${formatNumber(liters)} L` },
-                          { label: "Yakıt Tutarı", val: `${formatNumber(fuelCost)} ₺` },
-                          { label: "Toplam", val: `${formatNumber(fuelCost + toll)} ₺`, accent: true },
-                        ].map(r => (
+                        {(() => {
+                          const wac = calcTripFuelCost(weightedHistory, parseTR(tripForm.startKm), parseTR(tripForm.endKm), parseTR(tripForm.consumption));
+                          const wacCost = wac ? wac.cost : fuelCost;
+                          return [
+                            { label: "Mesafe", val: `${formatNumber(km, 0)} km` },
+                            { label: "Yakıt", val: `${formatNumber(liters)} L` },
+                            { label: wac ? "Yakıt (WAC)" : "Yakıt Tutarı", val: `${formatNumber(wacCost)} ₺`, highlight: !!wac },
+                            { label: "Toplam", val: `${formatNumber(wacCost + toll)} ₺`, accent: true },
+                          ];
+                        })().map(r => (
                           <div key={r.label}>
                             <div style={{ fontSize: "9px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px" }}>{r.label}</div>
                             <div style={{ fontSize: "14px", fontWeight: "800", color: r.accent ? "#ff6655" : "#e8eef8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{r.val}</div>
@@ -1015,7 +1338,7 @@ export default function FuelTracker() {
                   );
                 })()}
 
-                <button onClick={handleAddTrip} disabled={tripSaving || !tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption || !tripForm.fuelPrice} style={{ background: (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption || !tripForm.fuelPrice) ? "#1a2a45" : "#64d2ff", color: (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption || !tripForm.fuelPrice) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
+                <button onClick={handleAddTrip} disabled={tripSaving || !tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption} style={{ background: (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption) ? "#1a2a45" : "#64d2ff", color: (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption || !tripForm.fuelPrice) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
                   {tripSaving ? "Kaydediliyor..." : "Kaydet →"}
                 </button>
               </div>
@@ -1037,18 +1360,64 @@ export default function FuelTracker() {
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Tarih</div><input type="date" value={editTripForm.date} onChange={ev => setEditTripForm(p => ({ ...p, date: ev.target.value }))} style={{ ...editInp, colorScheme: "dark" }} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Başlangıç Km</div><NumericInput value={editTripForm.startKm} onChange={v => setEditTripForm(p => ({ ...p, startKm: v }))} style={editInp} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Bitiş Km</div><NumericInput value={editTripForm.endKm} onChange={v => setEditTripForm(p => ({ ...p, endKm: v }))} style={editInp} /></div>
-                                <div><div style={{ ...lbl, marginBottom: "4px" }}>L/100 km</div><NumericInput value={editTripForm.consumption} onChange={v => setEditTripForm(p => ({ ...p, consumption: v }))} style={editInp} /></div>
+                                <div>
+                                  <div style={{ ...lbl, marginBottom: "6px" }}>L/100 km</div>
+                                  <div style={{ display: "flex", gap: "5px", marginBottom: "6px" }}>
+                                    <button onClick={() => setEditTripForm(p => ({ ...p, consumptionMode: "manual" }))} style={{ flex: 1, background: editTripForm.consumptionMode === "manual" ? "#64d2ff" : "transparent", color: editTripForm.consumptionMode === "manual" ? "#000" : "#4a6080", border: "1px solid " + (editTripForm.consumptionMode === "manual" ? "#64d2ff" : "#1a2a45"), padding: "5px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Manuel</button>
+                                    <button onClick={() => setEditTripForm(p => ({ ...p, consumptionMode: "auto" }))} style={{ flex: 1, background: editTripForm.consumptionMode === "auto" ? "#64d2ff" : "transparent", color: editTripForm.consumptionMode === "auto" ? "#000" : "#4a6080", border: "1px solid " + (editTripForm.consumptionMode === "auto" ? "#64d2ff" : "#1a2a45"), padding: "5px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Dolumlardan</button>
+                                  </div>
+                                  {editTripForm.consumptionMode === "manual" ? (
+                                    <NumericInput value={editTripForm.consumption} onChange={v => setEditTripForm(p => ({ ...p, consumption: v }))} style={editInp} />
+                                  ) : (() => {
+                                    const startKm = parseTR(editTripForm.startKm);
+                                    const endKm = parseTR(editTripForm.endKm);
+                                    if (!startKm || !endKm || endKm <= startKm) return <div style={{ fontSize: "11px", color: "#4a6080" }}>Km aralığı gerekli.</div>;
+                                    const km = endKm - startKm;
+                                    const fuelsInRange = entries.filter(e => e.km > startKm && e.km <= endKm && e.liters > 0).sort((a,b) => a.km - b.km);
+                                    const tankPct = parseTR(editTripForm.tankPercent) || 100;
+                                    const startFuel = 40 * (tankPct / 100);
+                                    const refueled = fuelsInRange.reduce((s, e) => s + e.liters, 0);
+                                    const calcL100 = km > 0 ? ((startFuel + refueled) / km) * 100 : 0;
+                                    return (
+                                      <div>
+                                        <div style={{ display: "flex", gap: "6px", alignItems: "center", marginBottom: "6px" }}>
+                                          <NumericInput value={editTripForm.tankPercent} onChange={v => setEditTripForm(p => ({ ...p, tankPercent: v }))} placeholder="100" style={{ ...editInp, width: "60px", flex: "none" }} />
+                                          <span style={{ fontSize: "11px", color: "#8aa4c8" }}>% depo = {formatNumber(startFuel)} L</span>
+                                        </div>
+                                        <div style={{ fontSize: "11px", color: "#4a6080", marginBottom: "4px" }}>{fuelsInRange.length} dolum, +{formatNumber(refueled)} L → <span style={{ color: "#64d2ff", fontWeight: "700" }}>{formatNumber(calcL100)} L/100km</span></div>
+                                        <button onClick={() => setEditTripForm(p => ({ ...p, consumption: toTR(calcL100) }))} style={{ width: "100%", background: "#1a2a45", border: "1px solid #64d2ff", color: "#64d2ff", padding: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Kullan ✓</button>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı ₺</div><NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} style={editInp} /></div>
                                 <div>
-                                  <div style={{ ...lbl, marginBottom: "4px" }}>Otoyol ₺</div>
-                                  <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                                    <NumericInput value={editTripForm.tollCost} onChange={v => setEditTripForm(p => ({ ...p, tollCost: v }))} style={{ ...editInp, flex: 1 }} />
-                                    <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); }} style={{ background: showEditTollAdder ? "#64d2ff" : "#111e30", border: "1px solid #2a3a55", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", cursor: "pointer", fontWeight: "700", flexShrink: 0, padding: 0 }}>+</button>
+                                  <div style={{ ...lbl, marginBottom: "6px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span>Otoyol Geçişleri</span>
+                                    <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); setEditTollAddLabel(""); }} style={{ background: showEditTollAdder ? "#64d2ff" : "#111e30", border: "1px solid #2a3a55", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "5px", padding: "2px 8px", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}>+ Ekle</button>
                                   </div>
                                   {showEditTollAdder && (
-                                    <div style={{ display: "flex", gap: "6px", marginTop: "6px", alignItems: "center" }}>
-                                      <NumericInput value={editTollAddValue} onChange={v => setEditTollAddValue(v)} placeholder="Eklenecek tutar" style={{ ...editInp, flex: 1 }} />
-                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { const cur = parseTR(editTripForm.tollCost) || 0; setEditTripForm(p => ({ ...p, tollCost: toTR(cur + add) })); setShowEditTollAdder(false); setEditTollAddValue(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                                    <div style={{ display: "flex", gap: "5px", marginBottom: "6px", alignItems: "center" }}>
+                                      <input type="text" value={editTollAddLabel} onChange={ev => setEditTollAddLabel(ev.target.value)} placeholder="Geçiş adı" style={{ ...editInp, flex: 1.5, fontSize: "11px" }} />
+                                      <NumericInput value={editTollAddValue} onChange={v => setEditTollAddValue(v)} placeholder="0,00" style={{ ...editInp, flex: 1 }} />
+                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { setEditTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: editTollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowEditTollAdder(false); setEditTollAddValue(""); setEditTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                                    </div>
+                                  )}
+                                  {(editTripForm.tollItems||[]).length > 0 && (
+                                    <div style={{ background: "#080c14", borderRadius: "6px", overflow: "hidden" }}>
+                                      {(editTripForm.tollItems||[]).map((item, i) => (
+                                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 8px", borderBottom: i < (editTripForm.tollItems||[]).length-1 ? "1px solid #1a2a45" : "none" }}>
+                                          <span style={{ fontSize: "11px", color: "#8aa4c8" }}>{item.label}</span>
+                                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                            <span style={{ fontSize: "12px", fontWeight: "700", color: "#ffdd00", fontFamily: MONO }}>{formatNumber(item.amount)} ₺</span>
+                                            <button onClick={() => setEditTripForm(p => ({ ...p, tollItems: p.tollItems.filter((_,fi) => fi !== i) }))} style={{ background: "none", border: "none", color: "#ff4444", cursor: "pointer", fontSize: "13px", padding: "0 2px" }}>✕</button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                      <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 8px", borderTop: "1px solid #2a3a55" }}>
+                                        <span style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px" }}>Toplam</span>
+                                        <span style={{ fontSize: "12px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO }}>{formatNumber((editTripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</span>
+                                      </div>
                                     </div>
                                   )}
                                 </div>

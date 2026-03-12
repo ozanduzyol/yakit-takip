@@ -1248,7 +1248,10 @@ export default function FuelTracker() {
                         {shellPrice.benzin && <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: shellPrice.benzin }))} style={{ background: "none", border: "1px solid #1a2a45", color: "#64d2ff", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>EPDK'dan al</button>}
                       </div>
                     </div>
-                    <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={inp} />
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ ...inp, flex: 1, minWidth: 0 }} />
+                      {tripForm.fuelPrice && <span style={{ fontSize: "13px", color: "#e8eef8", fontFamily: FONT, flexShrink: 0 }}>₺</span>}
+                    </div>
                     {tripForm.fuelPrice && <div style={{ marginTop: "4px", fontSize: "11px", color: "#4a6080" }}>Manuel düzenleme yapabilirsin</div>}
                   </div>
                   <div>
@@ -1257,7 +1260,7 @@ export default function FuelTracker() {
                       <div style={{ marginBottom: "8px" }}>
                         <div style={{ marginBottom: "6px" }}>
                           <div style={lbl}>Toplam Otoyol Harcaması</div>
-                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", fontSize: "13px", fontFamily: FONT, boxSizing: "border-box", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "flex-start" }}>{formatNumber((tripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</div>
+                          <div style={{ ...inp, cursor: "default" }}>{formatNumber((tripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</div>
                         </div>
                         <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
@@ -1405,7 +1408,13 @@ export default function FuelTracker() {
                                     );
                                   })()}
                                 </div>
-                                <div><div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı ₺</div><NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} style={editInp} /></div>
+                                <div>
+                                  <div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı{editTripForm.fuelPrice ? " ₺" : ""}</div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} style={{ ...editInp, flex: 1, minWidth: 0 }} />
+                                    {editTripForm.fuelPrice && <span style={{ fontSize: "13px", color: "#e8eef8", fontFamily: FONT, flexShrink: 0 }}>₺</span>}
+                                  </div>
+                                </div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "6px" }}>Otoyol Geçişleri</div>
                                   <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); setEditTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showEditTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "6px" }}>{showEditTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>

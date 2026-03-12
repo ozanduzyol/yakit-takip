@@ -1260,9 +1260,9 @@ export default function FuelTracker() {
                     )}
                     {(tripForm.tollItems||[]).length > 0 && (
                       <div style={{ marginTop: "4px" }}>
-                        <div style={{ ...inp, display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "default", marginBottom: "6px" }}>
-                          <span style={{ fontSize: "11px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: FONT }}>Toplam Otoyol</span>
-                          <span style={{ fontSize: "14px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO }}>{formatNumber((tripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</span>
+                        <div style={{ marginBottom: "6px" }}>
+                          <div style={lbl}>Toplam Otoyol</div>
+                          <div style={{ ...inp, cursor: "default", color: "#ffdd00", fontFamily: MONO, fontWeight: "800", fontSize: "14px" }}>{formatNumber((tripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</div>
                         </div>
                         {tripForm.tollItems.map((item, i) => (
                           <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 12px", background: "#080c14", borderRadius: "6px", marginBottom: "4px" }}>
@@ -1405,9 +1405,9 @@ export default function FuelTracker() {
                                   )}
                                   {(editTripForm.tollItems||[]).length > 0 && (
                                     <div style={{ marginTop: "4px" }}>
-                                      <div style={{ ...editInp, display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "default", marginBottom: "4px" }}>
-                                        <span style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: FONT }}>Toplam Otoyol</span>
-                                        <span style={{ fontSize: "13px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO }}>{formatNumber((editTripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</span>
+                                      <div style={{ marginBottom: "4px" }}>
+                                        <div style={{ ...lbl, marginBottom: "4px" }}>Toplam Otoyol</div>
+                                        <div style={{ ...editInp, cursor: "default", color: "#ffdd00", fontWeight: "800" }}>{formatNumber((editTripForm.tollItems||[]).reduce((s,i) => s+i.amount,0))} ₺</div>
                                       </div>
                                       {(editTripForm.tollItems||[]).map((item, i) => (
                                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#080c14", borderRadius: "5px", marginBottom: "3px" }}>

@@ -571,8 +571,8 @@ export default function FuelTracker() {
   };
 
   // Styles
-  const inp = { background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", fontSize: "13px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", textAlign: "left" };
-  const editInp = { background: "#111e30", border: "1px solid #64d2ff", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "13px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", WebkitAppearance: "none", appearance: "none" };
+  const inp = { background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", fontSize: "12px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", textAlign: "left" };
+  const editInp = { background: "#111e30", border: "1px solid #64d2ff", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "12px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", WebkitAppearance: "none", appearance: "none" };
   const lbl = { fontSize: "10px", letterSpacing: "1px", color: "#4a6080", display: "block", marginBottom: "6px", fontWeight: "600", textTransform: "uppercase", fontFamily: FONT };
 
   const monthName = (key) => {
@@ -1255,7 +1255,7 @@ export default function FuelTracker() {
                     ) : (
                       <div onClick={() => setEditingFuelPrice(true)} style={{ ...inp, cursor: "text" }}>
                         <span style={{ fontSize: "13px", color: "#e8eef8", fontFamily: FONT }}>{tripForm.fuelPrice}</span>
-                        <span style={{ fontSize: "13px", color: "#8aa4c8", marginLeft: "4px" }}>₺</span>
+                        <span style={{ fontSize: "12px", color: "#8aa4c8", marginLeft: "4px" }}>₺</span>
                       </div>
                     )}
                     {tripForm.fuelPrice && <div style={{ marginTop: "4px", fontSize: "11px", color: "#4a6080" }}>Manuel düzenleme yapabilirsin</div>}
@@ -1382,8 +1382,10 @@ export default function FuelTracker() {
                               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Yolculuk Adı</div><input type="text" value={editTripForm.title} onChange={ev => setEditTripForm(p => ({ ...p, title: ev.target.value }))} style={editInp} /></div>
                                 <div><div style={{ ...lbl, marginBottom: "4px" }}>Tarih</div><input type="date" value={editTripForm.date} onChange={ev => setEditTripForm(p => ({ ...p, date: ev.target.value }))} style={{ ...editInp, colorScheme: "dark" }} /></div>
-                                <div><div style={{ ...lbl, marginBottom: "4px" }}>Başlangıç Km</div><NumericInput value={editTripForm.startKm} onChange={v => setEditTripForm(p => ({ ...p, startKm: v }))} style={editInp} /></div>
-                                <div><div style={{ ...lbl, marginBottom: "4px" }}>Bitiş Km</div><NumericInput value={editTripForm.endKm} onChange={v => setEditTripForm(p => ({ ...p, endKm: v }))} style={editInp} /></div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                                  <div><div style={{ ...lbl, marginBottom: "4px" }}>Başlangıç Km</div><NumericInput value={editTripForm.startKm} onChange={v => setEditTripForm(p => ({ ...p, startKm: v }))} style={editInp} /></div>
+                                  <div><div style={{ ...lbl, marginBottom: "4px" }}>Bitiş Km</div><NumericInput value={editTripForm.endKm} onChange={v => setEditTripForm(p => ({ ...p, endKm: v }))} style={editInp} /></div>
+                                </div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "6px" }}>L/100 km</div>
                                   <div style={{ display: "flex", gap: "5px", marginBottom: "6px" }}>
@@ -1421,7 +1423,7 @@ export default function FuelTracker() {
                                     ) : (
                                       <div onClick={() => setEditingEditFuelPrice(true)} style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", padding: "0 12px", cursor: "text" }}>
                                         <span style={{ fontSize: "13px", color: "#e8eef8", fontFamily: FONT }}>{editTripForm.fuelPrice}</span>
-                                        <span style={{ fontSize: "13px", color: "#8aa4c8", marginLeft: "4px" }}>₺</span>
+                                        <span style={{ fontSize: "12px", color: "#8aa4c8", marginLeft: "4px" }}>₺</span>
                                       </div>
                                     )}
                                 </div>

@@ -1250,9 +1250,9 @@ export default function FuelTracker() {
                         {shellPrice.benzin && <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: shellPrice.benzin }))} style={{ background: "none", border: "1px solid #1a2a45", color: "#64d2ff", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>EPDK'dan al</button>}
                       </div>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", padding: "0 12px" }}>
-                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "12px", fontFamily: FONT, outline: "none" }} />
-                      <span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "4px", flexShrink: 0 }}>₺</span>
+                    <div style={{ ...inp, padding: 0 }}>
+                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: "0 0 0 12px", width: "auto", minWidth: "40px", fontSize: "12px", fontFamily: FONT, outline: "none", height: "44px" }} />
+                      <span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "4px", paddingRight: "12px", flexShrink: 0 }}>₺</span>
                     </div>
                   </div>
                   <div>
@@ -1413,9 +1413,9 @@ export default function FuelTracker() {
                                 </div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı</div>
-                                    <div style={{ display: "flex", alignItems: "center", background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", padding: "0 12px" }}>
-                                      <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "12px", fontFamily: FONT, outline: "none" }} />
-                                      <span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "4px", flexShrink: 0 }}>₺</span>
+                                    <div style={{ ...editInp, padding: 0 }}>
+                                      <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: "0 0 0 12px", width: "auto", minWidth: "40px", fontSize: "12px", fontFamily: FONT, outline: "none", height: "44px" }} />
+                                      <span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "4px", paddingRight: "12px", flexShrink: 0 }}>₺</span>
                                     </div>
                                 </div>
                                 <div>

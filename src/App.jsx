@@ -141,6 +141,17 @@ function getTankFillBackground(pct) {
   return "#ff3b30";
 }
 
+function animateNumber(from, to, setValue, duration = 240) {
+  const start = performance.now();
+  const step = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    setValue(from + (to - from) * eased);
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
 function downloadCSV(rows, filename) {
   const header = ["Tarih","Km","Litre","Toplam ₺","₺/Litre","L/100km","₺/Km"];
   const lines = [header.join(";"), ...rows.map(e => [
@@ -302,6 +313,14 @@ export default function FuelTracker() {
     }
   }, []);
 
+  useEffect(() => {
+    animateNumber(animatedTripTollTotal, tripTollTotal, setAnimatedTripTollTotal);
+  }, [tripTollTotal]);
+
+  useEffect(() => {
+    animateNumber(animatedEditTripTollTotal, editTripTollTotal, setAnimatedEditTripTollTotal);
+  }, [editTripTollTotal]);
+
   // --- EPDK ---
   const getLocationInfo = async (lat, lon) => {
     const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=tr`, { headers: { "User-Agent": "FuelTrackerApp/1.0" } });
@@ -418,6 +437,8 @@ export default function FuelTracker() {
   const [editTollAddLabel, setEditTollAddLabel] = useState("");
   const [showEditTollAdder, setShowEditTollAdder] = useState(false);
   const [editTollAddValue, setEditTollAddValue] = useState("");
+  const [animatedTripTollTotal, setAnimatedTripTollTotal] = useState(0);
+  const [animatedEditTripTollTotal, setAnimatedEditTripTollTotal] = useState(0);
   const [tripReceiptPreviews, setTripReceiptPreviews] = useState([]);
   const [editTripReceiptFiles, setEditTripReceiptFiles] = useState([]);
   const [editTripReceiptPreviews, setEditTripReceiptPreviews] = useState([]);
@@ -1344,7 +1365,7 @@ export default function FuelTracker() {
                       <div style={{ marginBottom: "8px" }}>
                         <div style={{ marginBottom: "6px" }}>
                           <div style={lbl}>Toplam Otoyol Harcaması</div>
-                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(tripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
+                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(animatedTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                         </div>
                         <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
@@ -1515,7 +1536,7 @@ export default function FuelTracker() {
                                     <div style={{ marginTop: "4px" }}>
                                       <div style={{ marginBottom: "4px" }}>
                                         <div style={{ ...lbl, marginBottom: "4px" }}>Toplam Otoyol Harcaması</div>
-                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(editTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
+                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(animatedEditTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                                       </div>
                                       {(editTripForm.tollItems||[]).map((item, i) => (
                                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#080c14", borderRadius: "5px", marginBottom: "3px" }}>

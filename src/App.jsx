@@ -184,7 +184,7 @@ function NumericInput({ value, onChange, onBlur, autoFocus, placeholder, style }
       onChange={handleChange}
       onBlur={onBlur}
       autoFocus={autoFocus}
-      style={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", ...style }}
+      style={{ ...style, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}
     />
   );
 }
@@ -680,9 +680,9 @@ export default function FuelTracker() {
   };
 
   // Styles
-  const inp = { background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", fontSize: "12px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", textAlign: "left" };
-  const editInp = { background: "#111e30", border: "1px solid #64d2ff", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "12px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", WebkitAppearance: "none", appearance: "none" };
-  const lbl = { fontSize: "10px", letterSpacing: "1px", color: "#4a6080", display: "block", marginBottom: "6px", fontWeight: "600", textTransform: "uppercase", fontFamily: FONT };
+  const inp = { background: "#1b1f25", border: "1px solid #2a2f36", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", fontSize: "12px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", textAlign: "left" };
+  const editInp = { background: "#1b1f25", border: "1px solid #64d2ff", color: "#e8eef8", padding: "0 12px", width: "100%", maxWidth: "100%", minWidth: 0, fontSize: "12px", fontFamily: FONT, outline: "none", boxSizing: "border-box", borderRadius: "6px", display: "flex", alignItems: "center", height: "44px", WebkitAppearance: "none", appearance: "none" };
+  const lbl = { fontSize: "10px", letterSpacing: "1px", color: "#7a8088", display: "block", marginBottom: "6px", fontWeight: "600", textTransform: "uppercase", fontFamily: FONT };
 
   const monthName = (key) => {
     const [y, m] = key.split("-");
@@ -691,9 +691,9 @@ export default function FuelTracker() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#080c14", color: "#e8eef8", fontFamily: FONT, overflowX: "clip" }}>
-      <meta name="theme-color" content="#080c14" />
-      <style>{`body { background: #080c14 !important; margin: 0; }`}</style>
+    <div style={{ minHeight: "100vh", background: "#111315", color: "#e8eef8", fontFamily: FONT, overflowX: "clip" }}>
+      <meta name="theme-color" content="#111315" />
+      <style>{`body { background: #111315 !important; margin: 0; }`}</style>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
       <style>{`
         input[type="date"] { -webkit-appearance: none; appearance: none; width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: flex !important; align-items: center !important; height: 44px !important; line-height: 44px !important; font-size: 13px !important; font-family: Inter, sans-serif !important; padding: 0 12px !important; }
@@ -703,7 +703,8 @@ export default function FuelTracker() {
         button { transition: all 0.15s ease; }
         .card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
         .card:active { transform: scale(0.99); }
-        select { background: #111e30; border: 1px solid #1a2a45; color: #e8eef8; padding: 10px 12px; width: 100%; font-size: 14px; font-family: ${FONT}; outline: none; border-radius: 6px; appearance: none; }
+        select { background: #1b1f25; border: 1px solid #2a2f36; color: #e8eef8; padding: 10px 12px; width: 100%; font-size: 14px; font-family: ${FONT}; outline: none; border-radius: 6px; appearance: none; }
+        .mono-num { font-family: ${MONO}; font-variant-numeric: tabular-nums; }
       `}</style>
       <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto", padding: "24px 16px 110px 16px" }}>
 
@@ -714,9 +715,9 @@ export default function FuelTracker() {
           </h1>
         </div>
 
-        {loading && <div style={{ textAlign: "center", padding: "48px", color: "#4a6080", fontSize: "13px" }}>Yükleniyor...</div>}
+        {loading && <div style={{ textAlign: "center", padding: "48px", color: "#7a8088", fontSize: "13px" }}>Yükleniyor...</div>}
         {!loading && fetchError && (
-          <div style={{ background: "#0a0a1a", border: "1px solid #ff4444", borderRadius: "10px", padding: "16px", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+          <div style={{ background: "#15171b", border: "1px solid #ff4444", borderRadius: "10px", padding: "16px", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
             <span style={{ color: "#ff4444", fontSize: "13px" }}>⚠ {fetchError}</span>
             <button onClick={fetchEntries} style={{ background: "transparent", border: "1px solid #ff4444", color: "#ff4444", padding: "6px 14px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Tekrar Dene</button>
           </div>
@@ -727,28 +728,28 @@ export default function FuelTracker() {
           <div>
             {/* Bakım sayacı */}
             {serviceStatus && (
-              <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 16px", marginBottom: "12px", borderLeft: `3px solid ${serviceStatus.isOverdue ? "#ff4444" : serviceStatus.isUrgent ? "#ffdd00" : "#44cc88"}` }}>
+              <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 16px", marginBottom: "12px", borderLeft: `3px solid ${serviceStatus.isOverdue ? "#ff4444" : serviceStatus.isUrgent ? "#ffdd00" : "#44cc88"}` }}>
                 <div style={{ fontSize: "10px", fontWeight: "700", color: serviceStatus.isOverdue ? "#ff4444" : serviceStatus.isUrgent ? "#ffdd00" : "#44cc88", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>
                   {serviceStatus.isOverdue ? "🔴 Bakım Süresi Geçti!" : serviceStatus.isUrgent ? "🟡 Bakım Yaklaşıyor" : "🔧 Sonraki Bakım"}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                   <div>
-                    <div style={{ fontSize: "9px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>Kalan Gün</div>
+                    <div style={{ fontSize: "9px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>Kalan Gün</div>
                     <div style={{ fontSize: "20px", fontWeight: "800", fontFamily: MONO, color: serviceStatus.isOverdue ? "#ff4444" : "#e8eef8", fontVariantNumeric: "tabular-nums" }}>{serviceStatus.daysLeft < 0 ? `+${Math.abs(serviceStatus.daysLeft)}` : serviceStatus.daysLeft}</div>
-                    <div style={{ fontSize: "10px", color: "#4a6080" }}>{serviceStatus.nextDate}</div>
+                    <div style={{ fontSize: "10px", color: "#7a8088" }}>{serviceStatus.nextDate}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: "9px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>Kalan Km</div>
+                    <div style={{ fontSize: "9px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>Kalan Km</div>
                     <div style={{ fontSize: "20px", fontWeight: "800", fontFamily: MONO, color: serviceStatus.kmLeft < 0 ? "#ff4444" : "#e8eef8", fontVariantNumeric: "tabular-nums" }}>{serviceStatus.kmLeft < 0 ? `+${formatNumber(Math.abs(serviceStatus.kmLeft), 0)}` : formatNumber(serviceStatus.kmLeft, 0)}</div>
-                    <div style={{ fontSize: "10px", color: "#4a6080" }}>{formatNumber(serviceStatus.nextKm, 0)} km'de</div>
+                    <div style={{ fontSize: "10px", color: "#7a8088" }}>{formatNumber(serviceStatus.nextKm, 0)} km'de</div>
                   </div>
                 </div>
               </div>
             )}
 
             {!vehicleInfo && (
-              <div style={{ background: "#0f1829", border: "1px dashed #1a2a45", borderRadius: "10px", padding: "16px", marginBottom: "12px", textAlign: "center" }}>
-                <div style={{ fontSize: "13px", color: "#4a6080", marginBottom: "10px" }}>Bakım sayacı için araç bilgilerini gir</div>
+              <div style={{ background: "#1a1d21", border: "1px dashed #2a2f36", borderRadius: "10px", padding: "16px", marginBottom: "12px", textAlign: "center" }}>
+                <div style={{ fontSize: "13px", color: "#7a8088", marginBottom: "10px" }}>Bakım sayacı için araç bilgilerini gir</div>
                 <button onClick={() => { setVehicleForm({ purchase_date: "", purchase_km: "0" }); setShowVehicleForm(true); }} style={{ background: "#64d2ff", color: "#000", border: "none", padding: "8px 20px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>
                   + Araç Bilgisi Ekle
                 </button>
@@ -757,12 +758,12 @@ export default function FuelTracker() {
 
             {vehicleInfo && (
               <div style={{ marginBottom: "12px", display: "flex", justifyContent: "flex-end" }}>
-                <button onClick={() => { setVehicleForm({ purchase_date: vehicleInfo.purchase_date, purchase_km: String(vehicleInfo.purchase_km) }); setShowVehicleForm(true); }} style={{ background: "none", border: "1px solid #1a2a45", color: "#4a6080", padding: "5px 12px", fontSize: "11px", cursor: "pointer", fontFamily: FONT, borderRadius: "20px" }}>⚙ Araç Bilgisi</button>
+                <button onClick={() => { setVehicleForm({ purchase_date: vehicleInfo.purchase_date, purchase_km: String(vehicleInfo.purchase_km) }); setShowVehicleForm(true); }} style={{ background: "none", border: "1px solid #2a2f36", color: "#7a8088", padding: "5px 12px", fontSize: "11px", cursor: "pointer", fontFamily: FONT, borderRadius: "20px" }}>⚙ Araç Bilgisi</button>
               </div>
             )}
 
             {showVehicleForm && (
-              <div style={{ background: "#0d1524", border: "1px solid #1a2a45", borderRadius: "12px", padding: "16px", marginBottom: "12px" }}>
+              <div style={{ background: "#171a1f", border: "1px solid #2a2f36", borderRadius: "12px", padding: "16px", marginBottom: "12px" }}>
                 <div style={{ fontSize: "11px", fontWeight: "700", color: "#64d2ff", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Araç Bilgisi</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
                   <div><div style={lbl}>Alış Tarihi</div><input type="date" value={vehicleForm.purchase_date} onChange={e => setVehicleForm(p => ({ ...p, purchase_date: e.target.value }))} style={{ ...inp, colorScheme: "dark" }} /></div>
@@ -770,7 +771,7 @@ export default function FuelTracker() {
                 </div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button onClick={handleSaveVehicle} disabled={vehicleSaving} style={{ background: "#64d2ff", color: "#000", border: "none", padding: "8px 20px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>{vehicleSaving ? "Kaydediliyor..." : "Kaydet ✓"}</button>
-                  <button onClick={() => setShowVehicleForm(false)} style={{ background: "transparent", color: "#888", border: "1px solid #1a2a45", padding: "8px 16px", fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>İptal</button>
+                  <button onClick={() => setShowVehicleForm(false)} style={{ background: "transparent", color: "#888", border: "1px solid #2a2f36", padding: "8px 16px", fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>İptal</button>
                 </div>
               </div>
             )}
@@ -778,14 +779,14 @@ export default function FuelTracker() {
             {entries.length >= 2 && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "8px", marginBottom: "12px", alignItems: "end" }}>
                 <div>
-                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Başlangıç</div>
+                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Başlangıç</div>
                   <input type="date" value={panelFrom} onChange={e => setPanelFrom(e.target.value)} style={{ ...inp, colorScheme: "dark" }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Bitiş</div>
+                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Bitiş</div>
                   <input type="date" value={panelTo} onChange={e => setPanelTo(e.target.value)} style={{ ...inp, colorScheme: "dark" }} />
                 </div>
-                <button onClick={() => { setPanelFrom(""); setPanelTo(""); }} style={{ background: "none", border: "1px solid #1a2a45", color: panelFrom || panelTo ? "#64d2ff" : "#1a2a45", fontSize: "13px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", width: "38px", height: "38px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                <button onClick={() => { setPanelFrom(""); setPanelTo(""); }} style={{ background: "none", border: "1px solid #2a2f36", color: panelFrom || panelTo ? "#64d2ff" : "#2a2f36", fontSize: "13px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", width: "38px", height: "38px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
               </div>
             )}
 
@@ -796,8 +797,8 @@ export default function FuelTracker() {
                   { label: "₺ / km", val: formatNumber(avgPerKm) },
                   { label: "₺ / litre (WAC)", val: currentWAC ? formatNumber(currentWAC) : formatNumber(avgLiterPrice) },
                 ].map(s => (
-                  <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #64d2ff" }}>
-                    <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
+                  <div key={s.label} className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #64d2ff" }}>
+                    <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
                     <div style={{ fontSize: "14px", fontWeight: "800", color: "#64d2ff", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{s.val}</div>
                   </div>
                 ))}
@@ -808,8 +809,8 @@ export default function FuelTracker() {
                   { label: "Toplam litre", val: formatNumber(totalLiters), border: "#8aa4c8" },
                   { label: "Yakıt Maliyeti", val: `${formatNumber(totalSpent)} ₺`, border: "#8aa4c8" },
                 ].map(s => (
-                  <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.border}` }}>
-                    <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
+                  <div key={s.label} className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.border}` }}>
+                    <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
                     <div style={{ fontSize: "14px", fontWeight: "700", color: "#e8eef8", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{s.val}</div>
                   </div>
                 ))}
@@ -817,21 +818,21 @@ export default function FuelTracker() {
               {tankState && (
                 <>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "8px" }}>
-                    <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #44cc88" }}>
-                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Tahmini Depo</div>
+                    <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #44cc88" }}>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Tahmini Depo</div>
                       <div style={{ fontSize: "14px", fontWeight: "700", color: "#44cc88", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(tankState.remainingLiters)} L</div>
                     </div>
-                    <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #cc88ff" }}>
-                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Tahmini Menzil</div>
+                    <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #cc88ff" }}>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Tahmini Menzil</div>
                       <div style={{ fontSize: "14px", fontWeight: "700", color: "#cc88ff", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{tankState.estRangeKm ? formatNumber(tankState.estRangeKm, 0) : "—"} km</div>
                     </div>
                   </div>
-                  <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #64d2ff", marginBottom: "20px" }}>
+                  <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #64d2ff", marginBottom: "20px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px" }}>Depo Doluluğu</div>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px" }}>Depo Doluluğu</div>
                       <div style={{ fontSize: "12px", color: "#64d2ff", fontFamily: MONO, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(tankState.remainingLiters)} / {formatNumber(TANK_SIZE)} L</div>
                     </div>
-                    <div style={{ height: "10px", width: "100%", background: "#111e30", border: "1px solid #1a2a45", borderRadius: "999px", overflow: "hidden", marginBottom: "8px" }}>
+                    <div style={{ height: "10px", width: "100%", background: "#1b1f25", border: "1px solid #2a2f36", borderRadius: "999px", overflow: "hidden", marginBottom: "8px" }}>
                       <div style={{ width: `${tankState.remainingPct}%`, height: "100%", background: getTankFillBackground(tankState.remainingPct), borderRadius: "999px", transition: "width 0.3s ease" }} />
                     </div>
                     <div style={{ fontSize: "12px", color: "#8aa4c8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>%{formatNumber(tankState.remainingPct)}</div>
@@ -839,21 +840,21 @@ export default function FuelTracker() {
                 </>
               )}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "20px" }}>
-                <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
-                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bakım Maliyeti</div>
+                <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
+                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bakım Maliyeti</div>
                   <div style={{ fontSize: "14px", fontWeight: "700", color: "#ffdd00", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(totalMaintCost)} ₺</div>
                 </div>
-                <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ff6655" }}>
-                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Toplam Maliyet</div>
+                <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ff6655" }}>
+                  <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Toplam Maliyet</div>
                   <div style={{ fontSize: "14px", fontWeight: "700", color: "#ff6655", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(totalSpent + totalMaintCost)} ₺</div>
                 </div>
               </div>
             </>)}
 
             {entries.length < 2 && (
-              <div style={{ background: "#0f1829", border: "1px dashed #1a2a45", borderRadius: "10px", padding: "32px", textAlign: "center", marginBottom: "20px" }}>
+              <div style={{ background: "#1a1d21", border: "1px dashed #2a2f36", borderRadius: "10px", padding: "32px", textAlign: "center", marginBottom: "20px" }}>
                 <div style={{ fontSize: "32px", marginBottom: "8px" }}>⛽</div>
-                <div style={{ color: "#4a6080", fontSize: "13px" }}>İstatistikler için en az 2 yakıt kaydı gereklidir.</div>
+                <div style={{ color: "#7a8088", fontSize: "13px" }}>İstatistikler için en az 2 yakıt kaydı gereklidir.</div>
               </div>
             )}
           </div>
@@ -865,7 +866,7 @@ export default function FuelTracker() {
             {/* Sub tabs */}
             <div style={{ display: "flex", gap: "6px", marginBottom: "16px" }}>
               {[{ id: "records", label: "Kayıtlar" }, { id: "monthly", label: "Aylık" }, { id: "prices", label: "Fiyatlar" }].map(t => (
-                <button key={t.id} onClick={() => setFuelSubTab(t.id)} style={{ background: fuelSubTab === t.id ? "#64d2ff" : "transparent", color: fuelSubTab === t.id ? "#000" : "#4a6080", border: "1px solid " + (fuelSubTab === t.id ? "#64d2ff" : "#1a2a45"), padding: "6px 16px", fontSize: "12px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "20px" }}>{t.label}</button>
+                <button key={t.id} onClick={() => setFuelSubTab(t.id)} style={{ background: fuelSubTab === t.id ? "#64d2ff" : "transparent", color: fuelSubTab === t.id ? "#000" : "#7a8088", border: "1px solid " + (fuelSubTab === t.id ? "#64d2ff" : "#2a2f36"), padding: "6px 16px", fontSize: "12px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "20px" }}>{t.label}</button>
               ))}
             </div>
 
@@ -878,7 +879,7 @@ export default function FuelTracker() {
 
 
                   {showForm && (
-                    <div id="kayit-form" style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
+                    <div id="kayit-form" style={{ background: "#171a1f", padding: "20px", border: "1px solid #2a2f36", borderRadius: "12px", marginBottom: "12px" }}>
                       <div style={{ marginBottom: "18px" }}>
                         <div style={{ ...lbl, color: "#64d2ff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <span>📷 Fiş Fotoğrafı (Opsiyonel)</span>
@@ -888,7 +889,7 @@ export default function FuelTracker() {
                           {geminiLoading && <span style={{ fontSize: "10px", color: "#6644ff" }}>⏳ Okunuyor...</span>}
                         </div>
                         {showGeminiKey && !geminiKey && (
-                          <div style={{ background: "#0d1524", border: "1px solid #6644ff", borderRadius: "8px", padding: "10px", marginBottom: "8px", marginTop: "6px" }}>
+                          <div style={{ background: "#171a1f", border: "1px solid #6644ff", borderRadius: "8px", padding: "10px", marginBottom: "8px", marginTop: "6px" }}>
                             <div style={{ fontSize: "11px", color: "#8aa4c8", marginBottom: "6px" }}>Gemini API anahtarı gir (bir kez kaydedilir)</div>
                             <div style={{ display: "flex", gap: "6px" }}>
                               <input type="password" placeholder="AIza..." value={geminiKeyInput} onChange={e => setGeminiKeyInput(e.target.value)} style={{ ...inp, flex: 1, minWidth: 0 }} />
@@ -896,17 +897,17 @@ export default function FuelTracker() {
                             </div>
                           </div>
                         )}
-                        <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#080c14", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", background: "#111315", border: "1px dashed #333", padding: "14px 16px", borderRadius: "8px" }}>
                           <input type="file" accept="image/*" onChange={e => { const f = e.target.files[0]; if (!f) return; setReceiptFile(f); setReceiptImage(URL.createObjectURL(f)); }} style={{ display: "none" }} />
                           {receiptImage ? (
                             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                               <img src={receiptImage} alt="fiş" style={{ width: "40px", height: "54px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "4px" }} />
                               <div>
                                 <div style={{ color: "#44ff88", fontSize: "13px" }}>✓ Fotoğraf eklendi</div>
-                                <div style={{ color: "#4a6080", fontSize: "10px", marginTop: "2px" }}>Fişi Oku butonu ile formu otomatik doldur</div>
+                                <div style={{ color: "#7a8088", fontSize: "10px", marginTop: "2px" }}>Fişi Oku butonu ile formu otomatik doldur</div>
                               </div>
                             </div>
-                          ) : <span style={{ color: "#4a6080", fontSize: "13px" }}>+ Fiş fotoğrafı ekle</span>}
+                          ) : <span style={{ color: "#7a8088", fontSize: "13px" }}>+ Fiş fotoğrafı ekle</span>}
                         </label>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
@@ -918,27 +919,27 @@ export default function FuelTracker() {
                             </button>
                           </div>
                           {dateMode === "picker"
-                            ? <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, borderColor: form.date ? "#64d2ff" : "#1a2a45", colorScheme: "dark" }} />
-                            : <input type="text" placeholder="GG.AA.YYYY" value={form.date} onChange={e => { const raw = e.target.value; setForm(p => { const parts = raw.split("."); const iso = parts.length === 3 && parts[2].length === 4 ? `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}` : raw; return { ...p, date: iso }; }); }} style={{ ...inp, borderColor: form.date ? "#64d2ff" : "#1a2a45" }} />}
+                            ? <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, borderColor: form.date ? "#64d2ff" : "#2a2f36", colorScheme: "dark" }} />
+                            : <input type="text" placeholder="GG.AA.YYYY" value={form.date} onChange={e => { const raw = e.target.value; setForm(p => { const parts = raw.split("."); const iso = parts.length === 3 && parts[2].length === 4 ? `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}` : raw; return { ...p, date: iso }; }); }} style={{ ...inp, borderColor: form.date ? "#64d2ff" : "#2a2f36" }} />}
                         </div>
-                        <div><label style={lbl}>Güncel Km</label><NumericInput placeholder="45.230" value={form.km} onChange={v => setForm(p => ({ ...p, km: v }))} style={{ ...inp, borderColor: form.km ? "#64d2ff" : "#1a2a45" }} /></div>
+                        <div><label style={lbl}>Güncel Km</label><NumericInput placeholder="45.230" value={form.km} onChange={v => setForm(p => ({ ...p, km: v }))} style={{ ...inp, borderColor: form.km ? "#64d2ff" : "#2a2f36" }} /></div>
                         <div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                             <label style={lbl}>Ödenen Toplam ₺</label>
                             {shellPrice.benzin && <span style={{ fontSize: "10px", color: "#64d2ff", fontWeight: "600" }}>Benzin 95: {formatNumber(parseTR(shellPrice.benzin))} ₺/L</span>}
                           </div>
-                          <NumericInput placeholder="1.250,00" value={form.totalPrice} onChange={v => setForm(p => ({ ...p, totalPrice: v }))} style={{ ...inp, borderColor: form.totalPrice ? "#64d2ff" : "#1a2a45" }} />
+                          <NumericInput placeholder="1.250,00" value={form.totalPrice} onChange={v => setForm(p => ({ ...p, totalPrice: v }))} style={{ ...inp, borderColor: form.totalPrice ? "#64d2ff" : "#2a2f36" }} />
                           {form.totalPrice && shellPrice.benzin && (() => { const litre = parseTR(form.totalPrice) / parseTR(shellPrice.benzin); return litre > 0 ? (<div style={{ marginTop: "6px", fontSize: "12px", color: "#64d2ff", fontWeight: "600" }}>≈ {formatNumber(litre)} litre<button onClick={() => setForm(p => ({ ...p, liters: toTR(litre) }))} style={{ marginLeft: "10px", background: "transparent", border: "1px solid #64d2ff", color: "#64d2ff", padding: "2px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>Kullan</button></div>) : null; })()}
                         </div>
                         <div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                             <label style={lbl}>Alınan Litre</label>
-                            {form.liters && <span style={{ fontSize: "10px", color: "#4a6080" }}>{formatNumber(parseTR(form.liters))} L</span>}
+                            {form.liters && <span style={{ fontSize: "10px", color: "#7a8088" }}>{formatNumber(parseTR(form.liters))} L</span>}
                           </div>
-                          <NumericInput placeholder="35,5" value={form.liters} onChange={v => setForm(p => ({ ...p, liters: v }))} style={{ ...inp, borderColor: form.liters ? "#64d2ff" : "#1a2a45" }} />
+                          <NumericInput placeholder="35,5" value={form.liters} onChange={v => setForm(p => ({ ...p, liters: v }))} style={{ ...inp, borderColor: form.liters ? "#64d2ff" : "#2a2f36" }} />
                         </div>
                       </div>
-                      <button onClick={handleAdd} disabled={saving || !form.date || !form.km || !form.liters || !form.totalPrice} style={{ background: (saving || !form.date || !form.km || !form.liters || !form.totalPrice) ? "#1a2a45" : "#64d2ff", color: (saving || !form.date || !form.km || !form.liters || !form.totalPrice) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
+                      <button onClick={handleAdd} disabled={saving || !form.date || !form.km || !form.liters || !form.totalPrice} style={{ background: (saving || !form.date || !form.km || !form.liters || !form.totalPrice) ? "#2a2f36" : "#64d2ff", color: (saving || !form.date || !form.km || !form.liters || !form.totalPrice) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
                         {saving ? "Kaydediliyor..." : "Kaydet →"}
                       </button>
                       {saveError && <div style={{ color: "#ff4444", fontSize: "12px", marginTop: "8px" }}>⚠ {saveError}</div>}
@@ -948,20 +949,20 @@ export default function FuelTracker() {
                   {/* CSV İndir */}
                   <div style={{ marginBottom: "12px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px" }}>Kayıtlar ({filteredEnriched.length})</div>
-                      <button onClick={() => setShowCsvOptions(p => !p)} style={{ background: "transparent", border: "1px solid #1a2a45", color: "#64d2ff", padding: "4px 10px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>⬇ CSV İndir</button>
+                      <div style={{ fontSize: "10px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px" }}>Kayıtlar ({filteredEnriched.length})</div>
+                      <button onClick={() => setShowCsvOptions(p => !p)} style={{ background: "transparent", border: "1px solid #2a2f36", color: "#64d2ff", padding: "4px 10px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>⬇ CSV İndir</button>
                     </div>
                     {showCsvOptions && (
-                      <div style={{ background: "#0d1524", border: "1px solid #1a2a45", borderRadius: "8px", padding: "12px", marginTop: "8px" }}>
+                      <div style={{ background: "#171a1f", border: "1px solid #2a2f36", borderRadius: "8px", padding: "12px", marginTop: "8px" }}>
                         <div style={{ display: "flex", gap: "6px", marginBottom: "10px" }}>
-                          <button onClick={() => setCsvMode("range")} style={{ flex: 1, background: csvMode === "range" ? "#64d2ff" : "transparent", color: csvMode === "range" ? "#000" : "#4a6080", border: "1px solid " + (csvMode === "range" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Tarih Aralığı</button>
-                          <button onClick={() => setCsvMode("month")} style={{ flex: 1, background: csvMode === "month" ? "#64d2ff" : "transparent", color: csvMode === "month" ? "#000" : "#4a6080", border: "1px solid " + (csvMode === "month" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Aylık</button>
+                          <button onClick={() => setCsvMode("range")} style={{ flex: 1, background: csvMode === "range" ? "#64d2ff" : "transparent", color: csvMode === "range" ? "#000" : "#7a8088", border: "1px solid " + (csvMode === "range" ? "#64d2ff" : "#2a2f36"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Tarih Aralığı</button>
+                          <button onClick={() => setCsvMode("month")} style={{ flex: 1, background: csvMode === "month" ? "#64d2ff" : "transparent", color: csvMode === "month" ? "#000" : "#7a8088", border: "1px solid " + (csvMode === "month" ? "#64d2ff" : "#2a2f36"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Aylık</button>
                         </div>
                         {csvMode === "range" ? (
                           <>
                             <div style={{ display: "flex", gap: "6px", alignItems: "center", marginBottom: "10px" }}>
                               <input type="date" value={csvFrom} onChange={e => setCsvFrom(e.target.value)} style={{ ...inp, colorScheme: "dark" }} />
-                              <span style={{ color: "#4a6080", fontSize: "11px" }}>—</span>
+                              <span style={{ color: "#7a8088", fontSize: "11px" }}>—</span>
                               <input type="date" value={csvTo} onChange={e => setCsvTo(e.target.value)} style={{ ...inp, colorScheme: "dark" }} />
                             </div>
                             <button onClick={() => {
@@ -982,7 +983,7 @@ export default function FuelTracker() {
                               if (!csvMonth) return;
                               const rows = enriched.filter(e => e.date.startsWith(csvMonth));
                               downloadCSV(rows, `yakit-${csvMonth}.csv`);
-                            }} disabled={!csvMonth} style={{ width: "100%", background: csvMonth ? "#64d2ff" : "#1a2a45", border: "none", color: csvMonth ? "#000" : "#3d5270", padding: "9px", fontSize: "11px", fontWeight: "700", cursor: csvMonth ? "pointer" : "default", fontFamily: FONT, borderRadius: "6px" }}>⬇ İndir</button>
+                            }} disabled={!csvMonth} style={{ width: "100%", background: csvMonth ? "#64d2ff" : "#2a2f36", border: "none", color: csvMonth ? "#000" : "#3d5270", padding: "9px", fontSize: "11px", fontWeight: "700", cursor: csvMonth ? "pointer" : "default", fontFamily: FONT, borderRadius: "6px" }}>⬇ İndir</button>
                           </>
                         )}
                       </div>
@@ -991,18 +992,18 @@ export default function FuelTracker() {
 
                   {months.length > 1 && (
                     <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
-                      <button onClick={() => setFilterMonth("all")} style={{ background: filterMonth === "all" ? "#64d2ff" : "transparent", color: filterMonth === "all" ? "#000" : "#4a6080", border: "1px solid " + (filterMonth === "all" ? "#64d2ff" : "#1a2a45"), padding: "5px 12px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "20px" }}>Tümü</button>
+                      <button onClick={() => setFilterMonth("all")} style={{ background: filterMonth === "all" ? "#64d2ff" : "transparent", color: filterMonth === "all" ? "#000" : "#7a8088", border: "1px solid " + (filterMonth === "all" ? "#64d2ff" : "#2a2f36"), padding: "5px 12px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "20px" }}>Tümü</button>
                       {months.map(m => (
-                        <button key={m} onClick={() => setFilterMonth(m)} style={{ background: filterMonth === m ? "#64d2ff" : "transparent", color: filterMonth === m ? "#000" : "#4a6080", border: "1px solid " + (filterMonth === m ? "#64d2ff" : "#1a2a45"), padding: "5px 12px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "20px" }}>{monthName(m)}</button>
+                        <button key={m} onClick={() => setFilterMonth(m)} style={{ background: filterMonth === m ? "#64d2ff" : "transparent", color: filterMonth === m ? "#000" : "#7a8088", border: "1px solid " + (filterMonth === m ? "#64d2ff" : "#2a2f36"), padding: "5px 12px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "20px" }}>{monthName(m)}</button>
                       ))}
                     </div>
                   )}
 
                   {filteredEnriched.length === 0
-                    ? <div style={{ color: "#4a6080", textAlign: "center", padding: "48px", fontSize: "14px" }}>Kayıt yok.</div>
+                    ? <div style={{ color: "#7a8088", textAlign: "center", padding: "48px", fontSize: "14px" }}>Kayıt yok.</div>
                     : <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {filteredEnriched.map((e, i) => (
-                          <div key={e.id} className="card" style={{ background: "#0f1829", borderRadius: "12px", borderLeft: i === 0 ? "3px solid #1a2a45" : "3px solid #64d2ff", overflow: "hidden" }}>
+                          <div key={e.id} className="card" style={{ background: "#1a1d21", borderRadius: "12px", borderLeft: i === 0 ? "3px solid #2a2f36" : "3px solid #64d2ff", overflow: "hidden" }}>
                             {editingId === e.id ? (
                               <div style={{ padding: "14px" }}>
                                 <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
@@ -1012,15 +1013,15 @@ export default function FuelTracker() {
                                   <div><div style={{ ...lbl, marginBottom: "4px" }}>Tutar ₺</div><NumericInput value={editForm.totalPrice} onChange={v => setEditForm(p => ({ ...p, totalPrice: v }))} placeholder="1.250,00" style={editInp} /></div>
                                   <div>
                                     <div style={{ ...lbl, marginBottom: "4px" }}>📷 Fiş Fotoğrafı</div>
-                                    <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#080c14", border: "1px dashed #1a2a45", padding: "10px 12px", borderRadius: "8px" }}>
+                                    <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#111315", border: "1px dashed #2a2f36", padding: "10px 12px", borderRadius: "8px" }}>
                                       <input type="file" accept="image/*" onChange={ev => { const f = ev.target.files[0]; if (!f) return; setEditReceiptFile(f); setEditReceiptPreview(URL.createObjectURL(f)); }} style={{ display: "none" }} />
-                                      {editReceiptPreview ? <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><img src={editReceiptPreview} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px" }} /><span style={{ color: "#44cc88", fontSize: "12px" }}>✓ Fotoğraf seçildi</span></div> : <span style={{ color: "#4a6080", fontSize: "12px" }}>+ Fotoğraf ekle</span>}
+                                      {editReceiptPreview ? <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><img src={editReceiptPreview} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px" }} /><span style={{ color: "#44cc88", fontSize: "12px" }}>✓ Fotoğraf seçildi</span></div> : <span style={{ color: "#7a8088", fontSize: "12px" }}>+ Fotoğraf ekle</span>}
                                     </label>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", gap: "8px" }}>
                                   <button onClick={handleEditSave} disabled={editSaving} style={{ background: "#64d2ff", color: "#000", border: "none", padding: "8px 20px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>{editSaving ? "Kaydediliyor..." : "Kaydet ✓"}</button>
-                                  <button onClick={() => { setEditingId(null); setEditError(null); }} style={{ background: "transparent", color: "#888", border: "1px solid #1a2a45", padding: "8px 16px", fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>İptal</button>
+                                  <button onClick={() => { setEditingId(null); setEditError(null); }} style={{ background: "transparent", color: "#888", border: "1px solid #2a2f36", padding: "8px 16px", fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>İptal</button>
                                 </div>
                                 {editError && <div style={{ color: "#ff4444", fontSize: "12px", marginTop: "8px" }}>⚠ {editError}</div>}
                               </div>
@@ -1028,16 +1029,16 @@ export default function FuelTracker() {
                               <>
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
                                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    <span style={{ fontSize: "15px", fontWeight: "800", color: i === 0 ? "#4a6080" : "#e8eef8", fontFamily: MONO, letterSpacing: "-0.3px" }}>{fmtDate(e.date)}</span>
+                                    <span style={{ fontSize: "15px", fontWeight: "800", color: i === 0 ? "#7a8088" : "#e8eef8", fontFamily: MONO, letterSpacing: "-0.3px" }}>{fmtDate(e.date)}</span>
                                     {e.consumption && i > 0 && (() => { const prev = enriched[i - 1]; if (!prev?.consumption) return null; const diff = e.consumption - prev.consumption; if (Math.abs(diff) < 0.1) return null; return <span style={{ fontSize: "11px", fontWeight: "700", color: diff < 0 ? "#44cc88" : "#ff6655" }}>{diff < 0 ? "↓" : "↑"} {formatNumber(Math.abs(diff))} L/100km</span>; })()}
                                   </div>
                                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                     {e.receipt && <a href={e.receipt} target="_blank" rel="noopener noreferrer"><img src={e.receipt} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} /></a>}
-                                    <button onClick={() => startEdit(e)} style={{ background: "none", border: "1px solid #1a2a45", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#666"; }}>✎</button>
-                                    <button onClick={() => handleDelete(e.id, e.receipt)} style={{ background: "none", border: "1px solid #1a2a45", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#3d5270"; }}>✕</button>
+                                    <button onClick={() => startEdit(e)} style={{ background: "none", border: "1px solid #2a2f36", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#2a2f36"; ev.target.style.color = "#666"; }}>✎</button>
+                                    <button onClick={() => handleDelete(e.id, e.receipt)} style={{ background: "none", border: "1px solid #2a2f36", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#2a2f36"; ev.target.style.color = "#3d5270"; }}>✕</button>
                                   </div>
                                 </div>
-                                <div style={{ display: "grid", gridTemplateColumns: "18% 18% 16% 26% 22%", borderTop: "1px solid #1a2a45" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "18% 18% 16% 26% 22%", borderTop: "1px solid #2a2f36" }}>
                                   {[
                                     { label: "Km", val: formatNumber(e.km, 0) },
                                     { label: "Miktar", val: `${formatNumber(e.liters)} L` },
@@ -1045,7 +1046,7 @@ export default function FuelTracker() {
                                     { label: "Harcama", val: `${formatNumber(e.totalPrice)} ₺` },
                                     { label: "₺/Km", val: e.consumption && (e.km - (enriched[enriched.findIndex(x => x.id === e.id) - 1]?.km || e.km)) > 0 ? `${formatNumber(e.totalPrice / (e.km - (enriched[enriched.findIndex(x => x.id === e.id) - 1]?.km || e.km)))}` : "—" },
                                   ].map((col, ci) => (
-                                    <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #1a2a45" : "none" }}>
+                                    <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #2a2f36" : "none" }}>
                                       <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                       <div style={{ fontSize: "12px", fontWeight: "700", color: col.highlight ? "#64d2ff" : "#8aa4c8", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
                                     </div>
@@ -1074,7 +1075,7 @@ export default function FuelTracker() {
               return (
                 <div>
                   {months.length === 0
-                    ? <div style={{ color: "#4a6080", textAlign: "center", padding: "48px" }}>Kayıt yok.</div>
+                    ? <div style={{ color: "#7a8088", textAlign: "center", padding: "48px" }}>Kayıt yok.</div>
                     : <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {months.map(key => {
                           const m = byMonth[key];
@@ -1082,12 +1083,12 @@ export default function FuelTracker() {
                           const monthKm = sortedE.length >= 2 ? sortedE[sortedE.length - 1].km - sortedE[0].km : null;
                           const cons = monthKm > 0 ? (m.liters / monthKm) * 100 : null;
                           return (
-                            <div key={key} className="card" style={{ background: "#0f1829", borderRadius: "12px", borderLeft: "3px solid #64d2ff", overflow: "hidden" }}>
+                            <div key={key} className="card" style={{ background: "#1a1d21", borderRadius: "12px", borderLeft: "3px solid #64d2ff", overflow: "hidden" }}>
                               <div style={{ padding: "12px 14px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                 <span style={{ fontSize: "15px", fontWeight: "800", color: "#e8eef8", fontFamily: MONO }}>{monthName(key)}</span>
-                                <span style={{ fontSize: "11px", color: "#4a6080", fontWeight: "500" }}>{m.count} dolum</span>
+                                <span style={{ fontSize: "11px", color: "#7a8088", fontWeight: "500" }}>{m.count} dolum</span>
                               </div>
-                              <div style={{ display: "grid", gridTemplateColumns: "18% 18% 16% 26% 22%", borderTop: "1px solid #1a2a45" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "18% 18% 16% 26% 22%", borderTop: "1px solid #2a2f36" }}>
                                 {[
                                   { label: "Top. Km", val: monthKm ? `${formatNumber(monthKm, 0)}` : "—" },
                                   { label: "Miktar", val: `${formatNumber(m.liters)} L` },
@@ -1095,7 +1096,7 @@ export default function FuelTracker() {
                                   { label: "Harcama", val: `${formatNumber(m.spent)} ₺` },
                                   { label: "₺/Km", val: monthKm > 0 ? `${formatNumber(m.spent / monthKm)}` : "—" },
                                 ].map((col, ci) => (
-                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #1a2a45" : "none" }}>
+                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #2a2f36" : "none" }}>
                                     <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                     <div style={{ fontSize: "12px", fontWeight: "700", color: col.highlight ? "#64d2ff" : "#8aa4c8", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
                                   </div>
@@ -1113,12 +1114,12 @@ export default function FuelTracker() {
             {/* Prices sub-tab */}
             {fuelSubTab === "prices" && (
               <div>
-                <div style={{ background: "#0f1829", border: "1px solid #1a2a45", borderRadius: "10px", padding: "16px", marginBottom: "16px", borderLeft: "3px solid #64d2ff" }}>
+                <div style={{ background: "#1a1d21", border: "1px solid #2a2f36", borderRadius: "10px", padding: "16px", marginBottom: "16px", borderLeft: "3px solid #64d2ff" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
                     <div style={{ fontSize: "11px", fontWeight: "700", color: "#64d2ff", textTransform: "uppercase", letterSpacing: "1px" }}>📡 EPDK Güncel Fiyatlar</div>
-                    <button onClick={() => fetchEpdk(true)} disabled={epdkLoading} style={{ background: "transparent", border: "1px solid #1a2a45", color: "#666", padding: "5px 12px", fontSize: "11px", fontWeight: "600", cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px", opacity: epdkLoading ? 0.4 : 1 }}>↻ Güncelle</button>
+                    <button onClick={() => fetchEpdk(true)} disabled={epdkLoading} style={{ background: "transparent", border: "1px solid #2a2f36", color: "#666", padding: "5px 12px", fontSize: "11px", fontWeight: "600", cursor: epdkLoading ? "not-allowed" : "pointer", fontFamily: FONT, borderRadius: "20px", opacity: epdkLoading ? 0.4 : 1 }}>↻ Güncelle</button>
                   </div>
-                  <div style={{ textAlign: "center", fontSize: "12px", color: "#4a6080", marginBottom: "10px" }}>
+                  <div style={{ textAlign: "center", fontSize: "12px", color: "#7a8088", marginBottom: "10px" }}>
                     {epdkLoading ? <span style={{ color: "#64d2ff", animation: "pulse 1s infinite" }}>⏳ Fiyatlar alınıyor...</span> : <>📍 {(userIl || "").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}{userIlce ? ` / ${userIlce.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}` : ""}</>}
                   </div>
                   {epdkError && <div style={{ fontSize: "12px", color: "#ff4444", marginBottom: "8px" }}>⚠ {epdkError}</div>}
@@ -1126,24 +1127,24 @@ export default function FuelTracker() {
                     <div>
                       <div style={{ fontSize: "10px", color: "#3d5270", marginBottom: "10px" }}>Tarih: {epdkData.tarih}</div>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                        {epdkData.benzin95 && <div style={{ background: "#080c14", padding: "12px", borderRadius: "8px" }}><div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div><div style={{ fontSize: "18px", fontWeight: "800", color: "#e8eef8", fontFamily: MONO }}>{formatNumber(epdkData.benzin95.fiyat)} ₺</div></div>}
-                        {epdkData.motorin && <div style={{ background: "#080c14", padding: "12px", borderRadius: "8px" }}><div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>⚫ Motorin</div><div style={{ fontSize: "18px", fontWeight: "800", color: "#e8eef8", fontFamily: MONO }}>{formatNumber(epdkData.motorin.fiyat)} ₺</div></div>}
+                        {epdkData.benzin95 && <div style={{ background: "#111315", padding: "12px", borderRadius: "8px" }}><div style={{ fontSize: "10px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>🟢 Benzin 95</div><div style={{ fontSize: "18px", fontWeight: "800", color: "#e8eef8", fontFamily: MONO }}>{formatNumber(epdkData.benzin95.fiyat)} ₺</div></div>}
+                        {epdkData.motorin && <div style={{ background: "#111315", padding: "12px", borderRadius: "8px" }}><div style={{ fontSize: "10px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>⚫ Motorin</div><div style={{ fontSize: "18px", fontWeight: "800", color: "#e8eef8", fontFamily: MONO }}>{formatNumber(epdkData.motorin.fiyat)} ₺</div></div>}
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginTop: "10px" }}>
-                        {epdkData.benzin95 && <button onClick={() => setShellPrice(p => ({ ...p, benzin: toTR(epdkData.benzin95.fiyat) }))} style={{ background: "transparent", border: "1px solid #1a2a45", color: "#4a6080", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>↓ Benzin fiyatını forma aktar</button>}
-                        {epdkData.motorin && <button onClick={() => setShellPrice(p => ({ ...p, motorin: toTR(epdkData.motorin.fiyat) }))} style={{ background: "transparent", border: "1px solid #1a2a45", color: "#4a6080", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>↓ Motorin fiyatını forma aktar</button>}
+                        {epdkData.benzin95 && <button onClick={() => setShellPrice(p => ({ ...p, benzin: toTR(epdkData.benzin95.fiyat) }))} style={{ background: "transparent", border: "1px solid #2a2f36", color: "#7a8088", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>↓ Benzin fiyatını forma aktar</button>}
+                        {epdkData.motorin && <button onClick={() => setShellPrice(p => ({ ...p, motorin: toTR(epdkData.motorin.fiyat) }))} style={{ background: "transparent", border: "1px solid #2a2f36", color: "#7a8088", padding: "7px 8px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>↓ Motorin fiyatını forma aktar</button>}
                         {(epdkData.benzin95 || epdkData.motorin) && <button onClick={() => setShellPrice({ benzin: epdkData.benzin95 ? toTR(epdkData.benzin95.fiyat) : "", motorin: epdkData.motorin ? toTR(epdkData.motorin.fiyat) : "" })} style={{ background: "#64d2ff", border: "none", color: "#000", padding: "8px 14px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px", gridColumn: "1 / -1" }}>↓ Tümünü forma aktar</button>}
                       </div>
                     </div>
-                  ) : <div style={{ fontSize: "13px", color: "#4a6080", textAlign: "center", padding: "12px 0" }}>EPDK'dan güncel fiyatı çekmek için "↻ Güncelle" butonuna bas.</div>}
+                  ) : <div style={{ fontSize: "13px", color: "#7a8088", textAlign: "center", padding: "12px 0" }}>EPDK'dan güncel fiyatı çekmek için "↻ Güncelle" butonuna bas.</div>}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                   {[{ key: "benzin", label: "Benzin (95)", emoji: "🟢" }, { key: "motorin", label: "Motorin", emoji: "⚫" }].map(f => (
-                    <div key={f.key} style={{ background: "#0f1829", padding: "12px 10px", borderRadius: "10px", textAlign: "center" }}>
-                      <div style={{ fontSize: "11px", fontWeight: "600", color: "#4a6080", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>
+                    <div key={f.key} style={{ background: "#1a1d21", padding: "12px 10px", borderRadius: "10px", textAlign: "center" }}>
+                      <div style={{ fontSize: "11px", fontWeight: "600", color: "#7a8088", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.emoji} {f.label}</div>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-                        <NumericInput placeholder="0,00" value={shellPrice[f.key]} onChange={v => setShellPrice(p => ({ ...p, [f.key]: v }))} style={{ background: "#111e30", border: "1px solid #1a2a45", color: "#e8eef8", padding: "0 12px", fontSize: "13px", width: "100%", fontFamily: FONT, outline: "none", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", boxSizing: "border-box" }} />
-                        <span style={{ color: "#4a6080", fontWeight: "600", flexShrink: 0 }}>₺</span>
+                        <NumericInput placeholder="0,00" value={shellPrice[f.key]} onChange={v => setShellPrice(p => ({ ...p, [f.key]: v }))} style={{ background: "#1b1f25", border: "1px solid #2a2f36", color: "#e8eef8", padding: "0 12px", fontSize: "13px", width: "100%", fontFamily: FONT, outline: "none", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", boxSizing: "border-box" }} />
+                        <span style={{ color: "#7a8088", fontWeight: "600", flexShrink: 0 }}>₺</span>
                       </div>
                       {shellPrice[f.key] && <div style={{ marginTop: "8px", fontSize: "12px", color: "#64d2ff", fontWeight: "600" }}>✓ {formatNumber(parseTR(shellPrice[f.key]))} ₺/L</div>}
                     </div>
@@ -1159,8 +1160,8 @@ export default function FuelTracker() {
           <div>
             {/* Summary */}
             <div style={{ marginBottom: "12px" }}>
-              <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
-                <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Top. Bakım Maliyeti</div>
+              <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #ffdd00" }}>
+                <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Top. Bakım Maliyeti</div>
                 <div style={{ fontSize: "16px", fontWeight: "800", color: "#ffdd00", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{formatNumber(totalMaintCost)} ₺</div>
               </div>
 
@@ -1169,7 +1170,7 @@ export default function FuelTracker() {
 
 
             {showMaintForm && (
-              <div id="maint-form" style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
+              <div id="maint-form" style={{ background: "#171a1f", padding: "20px", border: "1px solid #2a2f36", borderRadius: "12px", marginBottom: "12px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
                   <div><div style={lbl}>Tarih</div><input type="date" value={maintForm.date} onChange={e => setMaintForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, colorScheme: "dark" }} /></div>
                   <div><div style={lbl}>Güncel Km</div><NumericInput value={maintForm.km} onChange={v => setMaintForm(p => ({ ...p, km: v }))} placeholder="15.000" style={inp} /></div>
@@ -1183,28 +1184,28 @@ export default function FuelTracker() {
                   <div><div style={lbl}>Ücret ₺</div><NumericInput value={maintForm.cost} onChange={v => setMaintForm(p => ({ ...p, cost: v }))} placeholder="1.500,00" style={inp} /></div>
                   <div>
                     <div style={{ ...lbl, color: "#64d2ff" }}>📷 Fotoğraf (opsiyonel)</div>
-                    <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#080c14", border: "1px dashed #333", padding: "12px 14px", borderRadius: "8px", marginBottom: maintReceiptPreviews.length > 0 ? "8px" : 0 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#111315", border: "1px dashed #333", padding: "12px 14px", borderRadius: "8px", marginBottom: maintReceiptPreviews.length > 0 ? "8px" : 0 }}>
                       <input type="file" accept="image/*" multiple onChange={e => { const newFiles = Array.from(e.target.files); setMaintReceiptFiles(f => [...f, ...newFiles]); setMaintReceiptPreviews(p => [...p, ...newFiles.map(f => URL.createObjectURL(f))]); }} style={{ display: "none" }} />
-                      <span style={{ color: "#4a6080", fontSize: "13px" }}>+ Fotoğraf ekle</span>
+                      <span style={{ color: "#7a8088", fontSize: "13px" }}>+ Fotoğraf ekle</span>
                     </label>
                     {maintReceiptPreviews.length > 0 && <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{maintReceiptPreviews.map((src, i) => (<div key={i} style={{ position: "relative" }}><img src={src} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "6px" }} /><button onClick={() => { setMaintReceiptFiles(f => f.filter((_,fi) => fi !== i)); setMaintReceiptPreviews(p => p.filter((_,pi) => pi !== i)); }} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: 0, padding: 0 }}>✕</button></div>))}</div>}
                   </div>
                 </div>
-                <button onClick={handleAddMaint} disabled={maintSaving || !maintForm.date || !maintForm.km || !maintForm.cost} style={{ background: (!maintForm.date || !maintForm.km || !maintForm.cost) ? "#1a2a45" : "#64d2ff", color: (!maintForm.date || !maintForm.km || !maintForm.cost) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
+                <button onClick={handleAddMaint} disabled={maintSaving || !maintForm.date || !maintForm.km || !maintForm.cost} style={{ background: (!maintForm.date || !maintForm.km || !maintForm.cost) ? "#2a2f36" : "#64d2ff", color: (!maintForm.date || !maintForm.km || !maintForm.cost) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
                   {maintSaving ? "Kaydediliyor..." : "Kaydet →"}
                 </button>
               </div>
             )}
 
             {maintLoading
-              ? <div style={{ textAlign: "center", padding: "32px", color: "#4a6080" }}>Yükleniyor...</div>
+              ? <div style={{ textAlign: "center", padding: "32px", color: "#7a8088" }}>Yükleniyor...</div>
               : maintEntries.length === 0
-                ? <div style={{ color: "#4a6080", textAlign: "center", padding: "48px", fontSize: "14px" }}>Henüz bakım kaydı yok.</div>
+                ? <div style={{ color: "#7a8088", textAlign: "center", padding: "48px", fontSize: "14px" }}>Henüz bakım kaydı yok.</div>
                 : <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                     {maintEntries.map(e => {
                       const cat = MAINT_CATEGORIES.find(c => c.id === e.category) || MAINT_CATEGORIES[0];
                       return (
-                        <div key={e.id} className="card" style={{ background: "#0f1829", borderRadius: "12px", borderLeft: `3px solid ${cat.color}`, overflow: "hidden" }}>
+                        <div key={e.id} className="card" style={{ background: "#1a1d21", borderRadius: "12px", borderLeft: `3px solid ${cat.color}`, overflow: "hidden" }}>
                           {editingMaintId === e.id ? (
                             <div style={{ padding: "14px" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
@@ -1221,7 +1222,7 @@ export default function FuelTracker() {
                               </div>
                               <div style={{ display: "flex", gap: "8px" }}>
                                 <button onClick={handleEditMaintSave} disabled={editMaintSaving} style={{ background: "#64d2ff", color: "#000", border: "none", padding: "8px 20px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>{editMaintSaving ? "Kaydediliyor..." : "Kaydet ✓"}</button>
-                                <button onClick={() => setEditingMaintId(null)} style={{ background: "transparent", color: "#888", border: "1px solid #1a2a45", padding: "8px 16px", fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>İptal</button>
+                                <button onClick={() => setEditingMaintId(null)} style={{ background: "transparent", color: "#888", border: "1px solid #2a2f36", padding: "8px 16px", fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>İptal</button>
                               </div>
                             </div>
                           ) : (
@@ -1232,23 +1233,23 @@ export default function FuelTracker() {
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                   {(e.receipts && e.receipts.length > 0 ? e.receipts : e.receipt ? [e.receipt] : []).map((url, i) => (<a key={i} href={url} target="_blank" rel="noopener noreferrer"><img src={url} alt="foto" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} /></a>))}
-                                  <button onClick={() => startEditMaint(e)} style={{ background: "none", border: "1px solid #1a2a45", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#666"; }}>✎</button>
-                                  <button onClick={() => handleDeleteMaint(e.id)} style={{ background: "none", border: "1px solid #1a2a45", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#3d5270"; }}>✕</button>
+                                  <button onClick={() => startEditMaint(e)} style={{ background: "none", border: "1px solid #2a2f36", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#2a2f36"; ev.target.style.color = "#666"; }}>✎</button>
+                                  <button onClick={() => handleDeleteMaint(e.id)} style={{ background: "none", border: "1px solid #2a2f36", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#2a2f36"; ev.target.style.color = "#3d5270"; }}>✕</button>
                                 </div>
                               </div>
-                              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderTop: "1px solid #1a2a45" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderTop: "1px solid #2a2f36" }}>
                                 {[
                                   { label: "Tarih", val: fmtDate(e.date) },
                                   { label: "Km", val: formatNumber(e.km, 0) },
                                   { label: "Ücret", val: `${formatNumber(e.cost)} ₺`, highlight: true },
                                 ].map((col, ci) => (
-                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 2 ? "1px solid #1a2a45" : "none" }}>
+                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 2 ? "1px solid #2a2f36" : "none" }}>
                                     <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                     <div style={{ fontSize: "12px", fontWeight: "700", color: col.highlight ? cat.color : "#8aa4c8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
                                   </div>
                                 ))}
                               </div>
-                              {e.description && <div style={{ padding: "8px 14px", fontSize: "12px", color: "#4a6080", borderTop: "1px solid #1a2a45" }}>{e.description}</div>}
+                              {e.description && <div style={{ padding: "8px 14px", fontSize: "12px", color: "#7a8088", borderTop: "1px solid #2a2f36" }}>{e.description}</div>}
                             </>
                           )}
                         </div>
@@ -1274,8 +1275,8 @@ export default function FuelTracker() {
                     { label: "Otoyol", val: `${formatNumber(totalTollCost)} ₺`, color: "#ffdd00" },
                     { label: "Top. Harcama", val: `${formatNumber(totalTripCost)} ₺`, color: "#ff6655" },
                   ].map(s => (
-                    <div key={s.label} className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.color}` }}>
-                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
+                    <div key={s.label} className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: `2px solid ${s.color}` }}>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>{s.label}</div>
                       <div style={{ fontSize: "13px", fontWeight: "800", color: s.color, fontFamily: MONO, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{s.val}</div>
                     </div>
                   ))}
@@ -1286,7 +1287,7 @@ export default function FuelTracker() {
 
 
             {showTripForm && (
-              <div id="trip-form" style={{ background: "#0d1524", padding: "20px", border: "1px solid #1a2a45", borderRadius: "12px", marginBottom: "12px" }}>
+              <div id="trip-form" style={{ background: "#171a1f", padding: "20px", border: "1px solid #2a2f36", borderRadius: "12px", marginBottom: "12px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
                   <div><div style={lbl}>Yolculuk Adı (opsiyonel)</div><input type="text" value={tripForm.title} onChange={e => setTripForm(p => ({ ...p, title: e.target.value }))} placeholder="Bursa → İstanbul" style={inp} /></div>
                   <div><div style={lbl}>Tarih</div><input type="date" value={tripForm.date} onChange={e => setTripForm(p => ({ ...p, date: e.target.value }))} style={{ ...inp, colorScheme: "dark" }} /></div>
@@ -1295,15 +1296,15 @@ export default function FuelTracker() {
                     <div><div style={lbl}>Bitiş Km</div><NumericInput value={tripForm.endKm} onChange={v => setTripForm(p => ({ ...p, endKm: v }))} placeholder="15.280" style={inp} /></div>
                   </div>
                   {tripForm.startKm && tripForm.endKm && parseTR(tripForm.endKm) > parseTR(tripForm.startKm) && (
-                    <div style={{ background: "#080c14", border: "1px solid #1a2a45", borderRadius: "8px", padding: "10px 12px", fontSize: "12px", color: "#64d2ff", fontWeight: "600" }}>
+                    <div style={{ background: "#111315", border: "1px solid #2a2f36", borderRadius: "8px", padding: "10px 12px", fontSize: "12px", color: "#64d2ff", fontWeight: "600" }}>
                       📍 {formatNumber(parseTR(tripForm.endKm) - parseTR(tripForm.startKm), 0)} km
                     </div>
                   )}
                   <div>
                     <div style={{ ...lbl, marginBottom: "6px" }}>Yakıt Tüketimi (L/100 km)</div>
                     <div style={{ display: "flex", gap: "6px", marginBottom: "8px" }}>
-                      <button onClick={() => setTripForm(p => ({ ...p, consumptionMode: "manual" }))} style={{ flex: 1, background: tripForm.consumptionMode === "manual" ? "#64d2ff" : "transparent", color: tripForm.consumptionMode === "manual" ? "#000" : "#4a6080", border: "1px solid " + (tripForm.consumptionMode === "manual" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Manuel Giriş</button>
-                      <button onClick={() => setTripForm(p => ({ ...p, consumptionMode: "auto" }))} style={{ flex: 1, background: tripForm.consumptionMode === "auto" ? "#64d2ff" : "transparent", color: tripForm.consumptionMode === "auto" ? "#000" : "#4a6080", border: "1px solid " + (tripForm.consumptionMode === "auto" ? "#64d2ff" : "#1a2a45"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Dolumlardan Hesapla</button>
+                      <button onClick={() => setTripForm(p => ({ ...p, consumptionMode: "manual" }))} style={{ flex: 1, background: tripForm.consumptionMode === "manual" ? "#64d2ff" : "transparent", color: tripForm.consumptionMode === "manual" ? "#000" : "#7a8088", border: "1px solid " + (tripForm.consumptionMode === "manual" ? "#64d2ff" : "#2a2f36"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Manuel Giriş</button>
+                      <button onClick={() => setTripForm(p => ({ ...p, consumptionMode: "auto" }))} style={{ flex: 1, background: tripForm.consumptionMode === "auto" ? "#64d2ff" : "transparent", color: tripForm.consumptionMode === "auto" ? "#000" : "#7a8088", border: "1px solid " + (tripForm.consumptionMode === "auto" ? "#64d2ff" : "#2a2f36"), padding: "6px", fontSize: "11px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Dolumlardan Hesapla</button>
                     </div>
                     {tripForm.consumptionMode === "manual" ? (
                       <>
@@ -1315,7 +1316,7 @@ export default function FuelTracker() {
                     ) : (() => {
                       const startKm = parseTR(tripForm.startKm);
                       const endKm = parseTR(tripForm.endKm);
-                      if (!startKm || !endKm || endKm <= startKm) return <div style={{ fontSize: "12px", color: "#4a6080", padding: "10px 0" }}>Önce başlangıç ve bitiş km gir.</div>;
+                      if (!startKm || !endKm || endKm <= startKm) return <div style={{ fontSize: "12px", color: "#7a8088", padding: "10px 0" }}>Önce başlangıç ve bitiş km gir.</div>;
                       const km = endKm - startKm;
                       const fuelsInRange = entries.filter(e => e.km > startKm && e.km <= endKm && e.liters > 0).sort((a,b) => a.km - b.km);
                       const tankLiters = 40;
@@ -1325,20 +1326,20 @@ export default function FuelTracker() {
                       const totalUsed = startFuel + refueled; // bitişteki kalan yakıt bilinmiyor = 0 varsayımı
                       const calcL100 = km > 0 ? (totalUsed / km) * 100 : 0;
                       if (fuelsInRange.length === 0 && tankPct === 100) return (
-                        <div style={{ fontSize: "12px", color: "#4a6080", padding: "6px 0" }}>Bu km aralığında dolum kaydı yok.</div>
+                        <div style={{ fontSize: "12px", color: "#7a8088", padding: "6px 0" }}>Bu km aralığında dolum kaydı yok.</div>
                       );
                       return (
                         <div>
-                          <div style={{ background: "#080c14", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
-                            <div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Yolculuk Başındaki Depo Durumu</div>
+                          <div style={{ background: "#111315", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
+                            <div style={{ fontSize: "10px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Yolculuk Başındaki Depo Durumu</div>
                             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                               <NumericInput value={tripForm.tankPercent} onChange={v => setTripForm(p => ({ ...p, tankPercent: v }))} placeholder="100" style={{ ...inp, width: "70px", flex: "none" }} />
                               <span style={{ fontSize: "12px", color: "#8aa4c8" }}>%  = {formatNumber(startFuel)} L</span>
                             </div>
                           </div>
                           {fuelsInRange.length > 0 && (
-                            <div style={{ background: "#080c14", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
-                              <div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bu Km Aralığındaki Dolumlar</div>
+                            <div style={{ background: "#111315", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
+                              <div style={{ fontSize: "10px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Bu Km Aralığındaki Dolumlar</div>
                               {fuelsInRange.map((e,i) => (
                                 <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#8aa4c8", padding: "2px 0" }}>
                                   <span>{fmtDate(e.date)} — {formatNumber(e.km,0)} km</span>
@@ -1347,16 +1348,16 @@ export default function FuelTracker() {
                               ))}
                             </div>
                           )}
-                          <div style={{ background: "#080c14", border: "1px solid #64d2ff", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
+                          <div style={{ background: "#111315", border: "1px solid #64d2ff", borderRadius: "8px", padding: "10px 12px", marginBottom: "8px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <div>
-                                <div style={{ fontSize: "10px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px" }}>Hesaplanan L/100km</div>
-                                <div style={{ fontSize: "11px", color: "#4a6080", marginTop: "2px" }}>{formatNumber(startFuel)} L başlangıç + {formatNumber(refueled)} L dolum = {formatNumber(totalUsed)} L / {formatNumber(km,0)} km</div>
+                                <div style={{ fontSize: "10px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px" }}>Hesaplanan L/100km</div>
+                                <div style={{ fontSize: "11px", color: "#7a8088", marginTop: "2px" }}>{formatNumber(startFuel)} L başlangıç + {formatNumber(refueled)} L dolum = {formatNumber(totalUsed)} L / {formatNumber(km,0)} km</div>
                               </div>
                               <span style={{ fontSize: "20px", fontWeight: "800", color: "#64d2ff", fontFamily: MONO }}>{formatNumber(calcL100)}</span>
                             </div>
                           </div>
-                          <button onClick={() => setTripForm(p => ({ ...p, consumption: toTR(calcL100) }))} style={{ width: "100%", background: "#1a2a45", border: "1px solid #64d2ff", color: "#64d2ff", padding: "8px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Kullan → {formatNumber(calcL100)} L/100km</button>
+                          <button onClick={() => setTripForm(p => ({ ...p, consumption: toTR(calcL100) }))} style={{ width: "100%", background: "#2a2f36", border: "1px solid #64d2ff", color: "#64d2ff", padding: "8px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>Kullan → {formatNumber(calcL100)} L/100km</button>
                         </div>
                       );
                     })()}
@@ -1380,7 +1381,7 @@ export default function FuelTracker() {
                           const avgPrice = relevant.reduce((s, e) => s + e.totalPrice / e.liters, 0) / relevant.length;
                           return <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: toTR(avgPrice) }))} style={{ background: "none", border: "1px solid #44cc88", color: "#44cc88", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>⌀ Ort. al ({relevant.length} dolum)</button>;
                         })()}
-                        {shellPrice.benzin && <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: shellPrice.benzin }))} style={{ background: "none", border: "1px solid #1a2a45", color: "#64d2ff", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>EPDK'dan al</button>}
+                        {shellPrice.benzin && <button onClick={() => setTripForm(p => ({ ...p, fuelPrice: shellPrice.benzin }))} style={{ background: "none", border: "1px solid #2a2f36", color: "#64d2ff", padding: "3px 8px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "4px" }}>EPDK'dan al</button>}
                       </div>
                     </div>
                     <div style={{ ...inp, display: "flex", alignItems: "center" }}>
@@ -1394,18 +1395,18 @@ export default function FuelTracker() {
                       <div style={{ marginBottom: "8px" }}>
                         <div style={{ marginBottom: "6px" }}>
                           <div style={lbl}>Toplam Otoyol Harcaması</div>
-                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(animatedTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
+                          <div style={{ background: "#1b1f25", border: "1px solid #2a2f36", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(animatedTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                         </div>
-                        <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
+                        <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#2a2f36", border: "1px solid #3a4048", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
                           <div style={{ display: "flex", gap: "6px", marginBottom: "8px", alignItems: "center" }}>
                             <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5, minWidth: 0 }} />
                             <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1, minWidth: 0, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }} />
-                            <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                            <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #3a4048", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
                           </div>
                         )}
                         {tripForm.tollItems.map((item, i) => (
-                          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 12px", background: "#080c14", borderRadius: "6px", marginBottom: "4px" }}>
+                          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 12px", background: "#111315", borderRadius: "6px", marginBottom: "4px" }}>
                             <span style={{ fontSize: "12px", color: "#e8eef8", fontFamily: FONT }}>{item.label}</span>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                               <span style={{ fontSize: "12px", color: "#e8eef8", fontFamily: MONO }}>{formatNumber(item.amount)} ₺</span>
@@ -1417,12 +1418,12 @@ export default function FuelTracker() {
                     )}
                     {(tripForm.tollItems||[]).length === 0 && (
                       <>
-                        <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: showTollAdder ? "8px" : 0 }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
+                        <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#2a2f36", border: "1px solid #3a4048", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: showTollAdder ? "8px" : 0 }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
                           <div style={{ display: "flex", gap: "6px", marginTop: "8px", alignItems: "center" }}>
                             <input type="text" value={tollAddLabel} onChange={e => setTollAddLabel(e.target.value)} placeholder="Geçiş adı (opsiyonel)" style={{ ...inp, flex: 1.5, minWidth: 0 }} />
                             <NumericInput value={tollAddValue} onChange={v => setTollAddValue(v)} placeholder="0,00 ₺" style={{ ...inp, flex: 1, minWidth: 0, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }} />
-                            <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                            <button onClick={() => { const add = parseTR(tollAddValue); if (add > 0) { setTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: tollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowTollAdder(false); setTollAddValue(""); setTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #3a4048", color: "#000", borderRadius: "8px", width: "46px", height: "46px", fontSize: "18px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
                           </div>
                         )}
                       </>
@@ -1431,9 +1432,9 @@ export default function FuelTracker() {
                   <div><div style={lbl}>Not (opsiyonel)</div><input type="text" value={tripForm.notes} onChange={e => setTripForm(p => ({ ...p, notes: e.target.value }))} placeholder="Tatil, iş, vb." style={inp} /></div>
                   <div>
                     <div style={{ ...lbl, color: "#64d2ff" }}>📷 Fotoğraf (opsiyonel)</div>
-                    <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#080c14", border: "1px dashed #333", padding: "12px 14px", borderRadius: "8px", marginBottom: tripReceiptPreviews.length > 0 ? "8px" : 0 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#111315", border: "1px dashed #333", padding: "12px 14px", borderRadius: "8px", marginBottom: tripReceiptPreviews.length > 0 ? "8px" : 0 }}>
                       <input type="file" accept="image/*" multiple onChange={e => { const newFiles = Array.from(e.target.files); setTripReceiptFiles(f => [...f, ...newFiles]); setTripReceiptPreviews(p => [...p, ...newFiles.map(f => URL.createObjectURL(f))]); }} style={{ display: "none" }} />
-                      <span style={{ color: "#4a6080", fontSize: "13px" }}>+ Fotoğraf ekle</span>
+                      <span style={{ color: "#7a8088", fontSize: "13px" }}>+ Fotoğraf ekle</span>
                     </label>
                     {tripReceiptPreviews.length > 0 && <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{tripReceiptPreviews.map((src, i) => (<div key={i} style={{ position: "relative" }}><img src={src} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "6px" }} /><button onClick={() => { setTripReceiptFiles(f => f.filter((_,fi) => fi !== i)); setTripReceiptPreviews(p => p.filter((_,pi) => pi !== i)); }} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>✕</button></div>))}</div>}
                   </div>
@@ -1447,22 +1448,22 @@ export default function FuelTracker() {
                   const fuelCost = liters * parseTR(tripForm.fuelPrice);
                   const toll = parseTR(tripForm.tollCost) || 0;
                   return (
-                    <div style={{ background: "#080c14", border: "1px solid #64d2ff", borderRadius: "10px", padding: "14px", marginBottom: "12px" }}>
+                    <div style={{ background: "#111315", border: "1px solid #64d2ff", borderRadius: "10px", padding: "14px", marginBottom: "12px" }}>
                       <div style={{ fontSize: "10px", fontWeight: "700", color: "#64d2ff", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>Yolculuk Hesabı</div>
                       {(() => {
                         const wac = calcTripFuelCost(weightedHistory, parseTR(tripForm.startKm), parseTR(tripForm.endKm), parseTR(tripForm.consumption));
                         const wacCost = wac ? wac.cost : fuelCost;
                         const wacAvg = wac ? wac.avgPrice : parseTR(tripForm.fuelPrice);
                         return wac && wac.segments.length > 1 ? (
-                          <div style={{ marginBottom: "10px", padding: "8px", background: "#0d1524", borderRadius: "6px" }}>
-                            <div style={{ fontSize: "9px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>WAC Segment Analizi</div>
+                          <div style={{ marginBottom: "10px", padding: "8px", background: "#171a1f", borderRadius: "6px" }}>
+                            <div style={{ fontSize: "9px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>WAC Segment Analizi</div>
                             {wac.segments.map((s, i) => (
                               <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#8aa4c8", padding: "2px 0" }}>
                                 <span>{formatNumber(s.km, 0)} km × {formatNumber(s.price)} ₺/L</span>
                                 <span style={{ color: "#ffdd00", fontFamily: MONO }}>{formatNumber(s.cost)} ₺</span>
                               </div>
                             ))}
-                            <div style={{ borderTop: "1px solid #1a2a45", marginTop: "4px", paddingTop: "4px", display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
+                            <div style={{ borderTop: "1px solid #2a2f36", marginTop: "4px", paddingTop: "4px", display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
                               <span style={{ color: "#64d2ff" }}>Ort. WAC</span>
                               <span style={{ color: "#64d2ff", fontFamily: MONO, fontWeight: "700" }}>{formatNumber(wacAvg)} ₺/L</span>
                             </div>
@@ -1481,7 +1482,7 @@ export default function FuelTracker() {
                           ];
                         })().map(r => (
                           <div key={r.label}>
-                            <div style={{ fontSize: "9px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px" }}>{r.label}</div>
+                            <div style={{ fontSize: "9px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px" }}>{r.label}</div>
                             <div style={{ fontSize: "14px", fontWeight: "800", color: r.accent ? "#ff6655" : "#e8eef8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{r.val}</div>
                           </div>
                         ))}
@@ -1490,21 +1491,21 @@ export default function FuelTracker() {
                   );
                 })()}
 
-                <button onClick={handleAddTrip} disabled={tripSaving || !tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption} style={{ background: (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption) ? "#1a2a45" : "#64d2ff", color: (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption || !tripForm.fuelPrice) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
+                <button onClick={handleAddTrip} disabled={tripSaving || !tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption} style={{ background: (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption) ? "#2a2f36" : "#64d2ff", color: (!tripForm.date || !tripForm.startKm || !tripForm.endKm || !tripForm.consumption || !tripForm.fuelPrice) ? "#3d5270" : "#000", border: "none", padding: "12px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "8px" }}>
                   {tripSaving ? "Kaydediliyor..." : "Kaydet →"}
                 </button>
               </div>
             )}
 
             {tripLoading
-              ? <div style={{ textAlign: "center", padding: "32px", color: "#4a6080" }}>Yükleniyor...</div>
+              ? <div style={{ textAlign: "center", padding: "32px", color: "#7a8088" }}>Yükleniyor...</div>
               : tripEntries.length === 0
-                ? <div style={{ color: "#4a6080", textAlign: "center", padding: "48px", fontSize: "14px" }}>Henüz yolculuk kaydı yok.</div>
+                ? <div style={{ color: "#7a8088", textAlign: "center", padding: "48px", fontSize: "14px" }}>Henüz yolculuk kaydı yok.</div>
                 : <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                     {tripEntries.map(t => {
                       const calc = calcTrip(t);
                       return (
-                        <div key={t.id} className="card" style={{ background: "#0f1829", borderRadius: "12px", borderLeft: "3px solid #cc88ff", overflow: "hidden" }}>
+                        <div key={t.id} className="card" style={{ background: "#1a1d21", borderRadius: "12px", borderLeft: "3px solid #cc88ff", overflow: "hidden" }}>
                           {editingTripId === t.id ? (
                             <div style={{ padding: "14px" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
@@ -1517,15 +1518,15 @@ export default function FuelTracker() {
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "6px" }}>L/100 km</div>
                                   <div style={{ display: "flex", gap: "5px", marginBottom: "6px" }}>
-                                    <button onClick={() => setEditTripForm(p => ({ ...p, consumptionMode: "manual" }))} style={{ flex: 1, background: editTripForm.consumptionMode === "manual" ? "#64d2ff" : "transparent", color: editTripForm.consumptionMode === "manual" ? "#000" : "#4a6080", border: "1px solid " + (editTripForm.consumptionMode === "manual" ? "#64d2ff" : "#1a2a45"), padding: "5px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Manuel</button>
-                                    <button onClick={() => setEditTripForm(p => ({ ...p, consumptionMode: "auto" }))} style={{ flex: 1, background: editTripForm.consumptionMode === "auto" ? "#64d2ff" : "transparent", color: editTripForm.consumptionMode === "auto" ? "#000" : "#4a6080", border: "1px solid " + (editTripForm.consumptionMode === "auto" ? "#64d2ff" : "#1a2a45"), padding: "5px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Dolumlardan</button>
+                                    <button onClick={() => setEditTripForm(p => ({ ...p, consumptionMode: "manual" }))} style={{ flex: 1, background: editTripForm.consumptionMode === "manual" ? "#64d2ff" : "transparent", color: editTripForm.consumptionMode === "manual" ? "#000" : "#7a8088", border: "1px solid " + (editTripForm.consumptionMode === "manual" ? "#64d2ff" : "#2a2f36"), padding: "5px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Manuel</button>
+                                    <button onClick={() => setEditTripForm(p => ({ ...p, consumptionMode: "auto" }))} style={{ flex: 1, background: editTripForm.consumptionMode === "auto" ? "#64d2ff" : "transparent", color: editTripForm.consumptionMode === "auto" ? "#000" : "#7a8088", border: "1px solid " + (editTripForm.consumptionMode === "auto" ? "#64d2ff" : "#2a2f36"), padding: "5px", fontSize: "10px", fontWeight: "600", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Dolumlardan</button>
                                   </div>
                                   {editTripForm.consumptionMode === "manual" ? (
                                     <NumericInput value={editTripForm.consumption} onChange={v => setEditTripForm(p => ({ ...p, consumption: v }))} style={editInp} />
                                   ) : (() => {
                                     const startKm = parseTR(editTripForm.startKm);
                                     const endKm = parseTR(editTripForm.endKm);
-                                    if (!startKm || !endKm || endKm <= startKm) return <div style={{ fontSize: "11px", color: "#4a6080" }}>Km aralığı gerekli.</div>;
+                                    if (!startKm || !endKm || endKm <= startKm) return <div style={{ fontSize: "11px", color: "#7a8088" }}>Km aralığı gerekli.</div>;
                                     const km = endKm - startKm;
                                     const fuelsInRange = entries.filter(e => e.km > startKm && e.km <= endKm && e.liters > 0).sort((a,b) => a.km - b.km);
                                     const tankPct = parseTR(editTripForm.tankPercent) || 100;
@@ -1538,8 +1539,8 @@ export default function FuelTracker() {
                                           <NumericInput value={editTripForm.tankPercent} onChange={v => setEditTripForm(p => ({ ...p, tankPercent: v }))} placeholder="100" style={{ ...editInp, width: "60px", flex: "none" }} />
                                           <span style={{ fontSize: "11px", color: "#8aa4c8" }}>% depo = {formatNumber(startFuel)} L</span>
                                         </div>
-                                        <div style={{ fontSize: "11px", color: "#4a6080", marginBottom: "4px" }}>{fuelsInRange.length} dolum, +{formatNumber(refueled)} L → <span style={{ color: "#64d2ff", fontWeight: "700" }}>{formatNumber(calcL100)} L/100km</span></div>
-                                        <button onClick={() => setEditTripForm(p => ({ ...p, consumption: toTR(calcL100) }))} style={{ width: "100%", background: "#1a2a45", border: "1px solid #64d2ff", color: "#64d2ff", padding: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Kullan ✓</button>
+                                        <div style={{ fontSize: "11px", color: "#7a8088", marginBottom: "4px" }}>{fuelsInRange.length} dolum, +{formatNumber(refueled)} L → <span style={{ color: "#64d2ff", fontWeight: "700" }}>{formatNumber(calcL100)} L/100km</span></div>
+                                        <button onClick={() => setEditTripForm(p => ({ ...p, consumption: toTR(calcL100) }))} style={{ width: "100%", background: "#2a2f36", border: "1px solid #64d2ff", color: "#64d2ff", padding: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "5px" }}>Kullan ✓</button>
                                       </div>
                                     );
                                   })()}
@@ -1553,22 +1554,22 @@ export default function FuelTracker() {
                                 </div>
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "6px" }}>Otoyol Geçişleri</div>
-                                  <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); setEditTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showEditTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "6px" }}>{showEditTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
+                                  <button onClick={() => { setShowEditTollAdder(p => !p); setEditTollAddValue(""); setEditTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showEditTollAdder ? "#64d2ff" : "#2a2f36", border: "1px solid #3a4048", color: showEditTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "6px" }}>{showEditTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                                   {showEditTollAdder && (
                                     <div style={{ display: "flex", gap: "5px", marginBottom: "6px", alignItems: "center" }}>
                                       <input type="text" value={editTollAddLabel} onChange={ev => setEditTollAddLabel(ev.target.value)} placeholder="Geçiş adı" style={{ ...editInp, flex: 1.5, minWidth: 0 }} />
                                       <NumericInput value={editTollAddValue} onChange={v => setEditTollAddValue(v)} placeholder="0,00 ₺" style={{ ...editInp, flex: 1, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }} />
-                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { setEditTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: editTollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowEditTollAdder(false); setEditTollAddValue(""); setEditTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #2a3a55", color: "#000", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
+                                      <button onClick={() => { const add = parseTR(editTollAddValue); if (add > 0) { setEditTripForm(p => ({ ...p, tollItems: [...(p.tollItems||[]), { label: editTollAddLabel || `Geçiş ${(p.tollItems||[]).length+1}`, amount: add }] })); setShowEditTollAdder(false); setEditTollAddValue(""); setEditTollAddLabel(""); } }} style={{ background: "#44cc88", border: "1px solid #3a4048", color: "#000", borderRadius: "6px", width: "36px", height: "36px", fontSize: "16px", fontWeight: "700", cursor: "pointer", flexShrink: 0, padding: 0 }}>✓</button>
                                     </div>
                                   )}
                                   {(editTripForm.tollItems||[]).length > 0 && (
                                     <div style={{ marginTop: "4px" }}>
                                       <div style={{ marginBottom: "4px" }}>
                                         <div style={{ ...lbl, marginBottom: "4px" }}>Toplam Otoyol Harcaması</div>
-                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(animatedEditTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
+                                        <div style={{ background: "#1b1f25", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(animatedEditTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                                       </div>
                                       {(editTripForm.tollItems||[]).map((item, i) => (
-                                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#080c14", borderRadius: "5px", marginBottom: "3px" }}>
+                                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#111315", borderRadius: "5px", marginBottom: "3px" }}>
                                           <span style={{ fontSize: "12px", color: "#e8eef8", fontFamily: FONT }}>{item.label}</span>
                                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                             <span style={{ fontSize: "12px", color: "#e8eef8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{formatNumber(item.amount)} ₺</span>
@@ -1584,20 +1585,20 @@ export default function FuelTracker() {
                                   <div style={{ ...lbl, marginBottom: "6px" }}>📷 Fotoğraf</div>
                                   {editTripForm.existingReceipts && editTripForm.existingReceipts.length > 0 && (
                                     <div style={{ marginBottom: "8px" }}>
-                                      <div style={{ fontSize: "9px", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Mevcut</div>
-                                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{editTripForm.existingReceipts.map((url, i) => (<div key={i} style={{ position: "relative" }}><a href={url} target="_blank" rel="noopener noreferrer"><img src={url} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #1a2a45", borderRadius: "6px" }} /></a><button onClick={() => setEditTripForm(p => ({ ...p, existingReceipts: p.existingReceipts.filter((_,fi) => fi !== i) }))} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>✕</button></div>))}</div>
+                                      <div style={{ fontSize: "9px", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Mevcut</div>
+                                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{editTripForm.existingReceipts.map((url, i) => (<div key={i} style={{ position: "relative" }}><a href={url} target="_blank" rel="noopener noreferrer"><img src={url} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #2a2f36", borderRadius: "6px" }} /></a><button onClick={() => setEditTripForm(p => ({ ...p, existingReceipts: p.existingReceipts.filter((_,fi) => fi !== i) }))} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>✕</button></div>))}</div>
                                     </div>
                                   )}
-                                  <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#080c14", border: "1px dashed #1a2a45", padding: "10px 12px", borderRadius: "8px", marginBottom: editTripReceiptPreviews.length > 0 ? "8px" : 0 }}>
+                                  <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#111315", border: "1px dashed #2a2f36", padding: "10px 12px", borderRadius: "8px", marginBottom: editTripReceiptPreviews.length > 0 ? "8px" : 0 }}>
                                     <input type="file" accept="image/*" multiple onChange={ev => { const newFiles = Array.from(ev.target.files); setEditTripReceiptFiles(f => [...f, ...newFiles]); setEditTripReceiptPreviews(p => [...p, ...newFiles.map(f => URL.createObjectURL(f))]); }} style={{ display: "none" }} />
-                                    <span style={{ color: "#4a6080", fontSize: "12px" }}>+ Yeni fotoğraf ekle</span>
+                                    <span style={{ color: "#7a8088", fontSize: "12px" }}>+ Yeni fotoğraf ekle</span>
                                   </label>
                                   {editTripReceiptPreviews.length > 0 && <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>{editTripReceiptPreviews.map((src, i) => (<div key={i} style={{ position: "relative" }}><img src={src} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "6px" }} /><button onClick={() => { setEditTripReceiptFiles(f => f.filter((_,fi) => fi !== i)); setEditTripReceiptPreviews(p => p.filter((_,pi) => pi !== i)); }} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ff4444", border: "none", borderRadius: "50%", width: "16px", height: "16px", color: "#fff", fontSize: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>✕</button></div>))}</div>}
                                 </div>
                               </div>
                               <div style={{ display: "flex", gap: "8px" }}>
                                 <button onClick={handleEditTripSave} disabled={editTripSaving} style={{ background: "#64d2ff", color: "#000", border: "none", padding: "8px 20px", fontSize: "12px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>{editTripSaving ? "Kaydediliyor..." : "Kaydet ✓"}</button>
-                                <button onClick={() => setEditingTripId(null)} style={{ background: "transparent", color: "#888", border: "1px solid #1a2a45", padding: "8px 16px", fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>İptal</button>
+                                <button onClick={() => setEditingTripId(null)} style={{ background: "transparent", color: "#888", border: "1px solid #2a2f36", padding: "8px 16px", fontSize: "12px", cursor: "pointer", fontFamily: FONT, borderRadius: "6px" }}>İptal</button>
                               </div>
                             </div>
                           ) : (
@@ -1605,15 +1606,15 @@ export default function FuelTracker() {
                               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
                                 <div>
                                   <div style={{ fontSize: "14px", fontWeight: "800", color: "#e8eef8" }}>{t.title || "Yolculuk"}</div>
-                                  <div style={{ fontSize: "11px", color: "#4a6080", marginTop: "2px" }}>{fmtDate(t.date)}</div>
+                                  <div style={{ fontSize: "11px", color: "#7a8088", marginTop: "2px" }}>{fmtDate(t.date)}</div>
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                   {(t.receipts && t.receipts.length > 0 ? t.receipts : []).map((url, i) => (<a key={i} href={url} target="_blank" rel="noopener noreferrer"><img src={url} alt="foto" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} /></a>))}
-                                  <button onClick={() => startEditTrip(t)} style={{ background: "none", border: "1px solid #1a2a45", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#666"; }}>✎</button>
-                                  <button onClick={() => handleDeleteTrip(t.id)} style={{ background: "none", border: "1px solid #1a2a45", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#1a2a45"; ev.target.style.color = "#3d5270"; }}>✕</button>
+                                  <button onClick={() => startEditTrip(t)} style={{ background: "none", border: "1px solid #2a2f36", color: "#666", cursor: "pointer", padding: "5px 9px", fontSize: "11px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#64d2ff"; ev.target.style.color = "#64d2ff"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#2a2f36"; ev.target.style.color = "#666"; }}>✎</button>
+                                  <button onClick={() => handleDeleteTrip(t.id)} style={{ background: "none", border: "1px solid #2a2f36", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#2a2f36"; ev.target.style.color = "#3d5270"; }}>✕</button>
                                 </div>
                               </div>
-                              <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #1a2a45" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #2a2f36" }}>
                                 {[
                                   { label: "Mesafe", val: `${formatNumber(calc.km, 0)} km` },
                                   { label: "Yakıt L", val: `${formatNumber(calc.liters)} L` },
@@ -1621,13 +1622,13 @@ export default function FuelTracker() {
                                   { label: "Otoyol", val: `${formatNumber(t.tollCost)} ₺` },
                                   { label: "Toplam", val: `${formatNumber(calc.total)} ₺`, highlight: true },
                                 ].map((col, ci) => (
-                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #1a2a45" : "none" }}>
+                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #2a2f36" : "none" }}>
                                     <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
                                     <div style={{ fontSize: "12px", fontWeight: "700", color: col.highlight ? "#ff6655" : "#8aa4c8", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
                                   </div>
                                 ))}
                               </div>
-                              {t.notes && <div style={{ padding: "8px 14px", fontSize: "12px", color: "#4a6080", borderTop: "1px solid #1a2a45" }}>{t.notes}</div>}
+                              {t.notes && <div style={{ padding: "8px 14px", fontSize: "12px", color: "#7a8088", borderTop: "1px solid #2a2f36" }}>{t.notes}</div>}
                             </>
                           )}
                         </div>
@@ -1669,17 +1670,17 @@ export default function FuelTracker() {
           return (
             <div>
               {chartData.length < 2
-                ? <div style={{ color: "#4a6080", textAlign: "center", padding: "48px", fontSize: "14px" }}>Grafik için en az 2 aylık kayıt gereklidir.</div>
+                ? <div style={{ color: "#7a8088", textAlign: "center", padding: "48px", fontSize: "14px" }}>Grafik için en az 2 aylık kayıt gereklidir.</div>
                 : <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                     {charts.map(c => (
-                      <div key={c.key} style={{ background: "#0f1829", borderRadius: "12px", padding: "16px", borderLeft: `3px solid ${c.color}` }}>
+                      <div key={c.key} style={{ background: "#1a1d21", borderRadius: "12px", padding: "16px", borderLeft: `3px solid ${c.color}` }}>
                         <div style={{ fontSize: "10px", fontWeight: "700", color: c.color, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>{c.label}</div>
                         <ResponsiveContainer width="100%" height={140}>
                           <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1a2a45" />
-                            <XAxis dataKey="label" tick={{ fill: "#4a6080", fontSize: 10 }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fill: "#4a6080", fontSize: 10 }} axisLine={false} tickLine={false} />
-                            <Tooltip contentStyle={{ background: "#080c14", border: "1px solid #1a2a45", borderRadius: "6px", fontSize: "12px" }} labelStyle={{ color: "#888" }} itemStyle={{ color: c.color }} formatter={v => v != null ? [`${v} ${c.unit}`, c.label] : ["—", c.label]} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#2a2f36" />
+                            <XAxis dataKey="label" tick={{ fill: "#7a8088", fontSize: 10 }} axisLine={false} tickLine={false} />
+                            <YAxis tick={{ fill: "#7a8088", fontSize: 10 }} axisLine={false} tickLine={false} />
+                            <Tooltip contentStyle={{ background: "#111315", border: "1px solid #2a2f36", borderRadius: "6px", fontSize: "12px" }} labelStyle={{ color: "#888" }} itemStyle={{ color: c.color }} formatter={v => v != null ? [`${v} ${c.unit}`, c.label] : ["—", c.label]} />
                             <Line type="monotone" dataKey={c.key} stroke={c.color} strokeWidth={2} dot={{ fill: c.color, r: 3 }} activeDot={{ r: 5 }} connectNulls={false} />
                           </LineChart>
                         </ResponsiveContainer>
@@ -1691,7 +1692,7 @@ export default function FuelTracker() {
           );
         })()}
 
-        <div style={{ marginTop: "40px", paddingTop: "16px", borderTop: "1px solid #1a2a45", fontSize: "11px", color: "#1a2a45", textAlign: "center", fontWeight: "500" }}>
+        <div style={{ marginTop: "40px", paddingTop: "16px", borderTop: "1px solid #2a2f36", fontSize: "11px", color: "#2a2f36", textAlign: "center", fontWeight: "500" }}>
           Fuel Tracker — {entries.length} yakıt · {maintEntries.length} bakım · {tripEntries.length} yolculuk
         </div>
       </div>
@@ -1712,7 +1713,7 @@ export default function FuelTracker() {
             zIndex: 101,
             width: "52px", height: "52px",
             borderRadius: "50%",
-            background: (activeTab === "fuel" && showForm) || (activeTab === "maintenance" && showMaintForm) || (activeTab === "trips" && showTripForm) ? "#1a2a45" : "#64d2ff",
+            background: (activeTab === "fuel" && showForm) || (activeTab === "maintenance" && showMaintForm) || (activeTab === "trips" && showTripForm) ? "#2a2f36" : "#64d2ff",
             color: (activeTab === "fuel" && showForm) || (activeTab === "maintenance" && showMaintForm) || (activeTab === "trips" && showTripForm) ? "#64d2ff" : "#000",
             border: "none",
             fontSize: "26px",
@@ -1729,7 +1730,7 @@ export default function FuelTracker() {
       )}
 
       {/* BOTTOM TAB BAR */}
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, background: "rgba(8,12,20,0.92)", borderTop: "1px solid #1a2a45", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", display: "flex", alignItems: "stretch", justifyContent: "center", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, background: "rgba(8,12,20,0.92)", borderTop: "1px solid #2a2f36", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", display: "flex", alignItems: "stretch", justifyContent: "center", paddingBottom: "env(safe-area-inset-bottom)" }}>
         {[
           { id: "dashboard", emoji: "📊", label: "Panel" },
           { id: "fuel", emoji: "⛽", label: "Yakıt" },
@@ -1737,7 +1738,7 @@ export default function FuelTracker() {
           { id: "trips", emoji: "🛣️", label: "Yolculuk" },
           { id: "graphs", emoji: "📈", label: "Grafik" },
         ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: "0 1 20%", background: "none", border: "none", minWidth: 0, maxWidth: "20%", color: activeTab === tab.id ? "#64d2ff" : "#4a6080", fontFamily: FONT, cursor: "pointer", borderTop: activeTab === tab.id ? "2px solid #64d2ff" : "2px solid transparent", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "8px 0 20px", gap: "3px" }}>
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: "0 1 20%", background: "none", border: "none", minWidth: 0, maxWidth: "20%", color: activeTab === tab.id ? "#64d2ff" : "#7a8088", fontFamily: FONT, cursor: "pointer", borderTop: activeTab === tab.id ? "2px solid #64d2ff" : "2px solid transparent", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "8px 0 20px", gap: "3px" }}>
             <span style={{ fontSize: "16px", lineHeight: 1 }}>{tab.emoji}</span>
             <span style={{ fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.2px", whiteSpace: "nowrap", overflow: "hidden", maxWidth: "100%", textAlign: "center" }}>{tab.label}</span>
           </button>

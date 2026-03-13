@@ -165,7 +165,19 @@ function NumericInput({ value, onChange, onBlur, autoFocus, placeholder, style }
     const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + decPart;
     onChange(formatted);
   };
-  return <input type="text" inputMode="decimal" pattern="[0-9.,]*" placeholder={placeholder} value={value} onChange={handleChange} onBlur={onBlur} autoFocus={autoFocus} style={style} />;
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      pattern="[0-9.,]*"
+      placeholder={placeholder}
+      value={value}
+      onChange={handleChange}
+      onBlur={onBlur}
+      autoFocus={autoFocus}
+      style={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", ...style }}
+    />
+  );
 }
 
 const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
@@ -745,7 +757,7 @@ export default function FuelTracker() {
               </div>
               {tankState && (
                 <>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "20px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "8px" }}>
                     <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #44cc88" }}>
                       <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Tahmini Depo</div>
                       <div style={{ fontSize: "14px", fontWeight: "700", color: "#44cc88", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(tankState.remainingLiters)} L</div>
@@ -754,6 +766,16 @@ export default function FuelTracker() {
                       <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Tahmini Menzil</div>
                       <div style={{ fontSize: "14px", fontWeight: "700", color: "#cc88ff", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{tankState.estRangeKm ? formatNumber(tankState.estRangeKm, 0) : "—"} km</div>
                     </div>
+                  </div>
+                  <div className="card" style={{ background: "#0f1829", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #64d2ff", marginBottom: "20px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.5px" }}>Depo Doluluğu</div>
+                      <div style={{ fontSize: "12px", color: "#64d2ff", fontFamily: MONO, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(tankState.remainingLiters)} / {formatNumber(TANK_SIZE)} L</div>
+                    </div>
+                    <div style={{ height: "10px", width: "100%", background: "#111e30", border: "1px solid #1a2a45", borderRadius: "999px", overflow: "hidden", marginBottom: "8px" }}>
+                      <div style={{ width: `${tankState.remainingPct}%`, height: "100%", background: "linear-gradient(90deg, #44cc88 0%, #64d2ff 100%)", borderRadius: "999px", transition: "width 0.3s ease" }} />
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#8aa4c8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>%{formatNumber(tankState.remainingPct)}</div>
                   </div>
                 </>
               )}
@@ -1313,7 +1335,7 @@ export default function FuelTracker() {
                       <div style={{ marginBottom: "8px" }}>
                         <div style={{ marginBottom: "6px" }}>
                           <div style={lbl}>Toplam Otoyol Harcaması</div>
-                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "12px", color: "#e8eef8", cursor: "default", fontFamily: FONT }}><span>{formatNumber(tripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
+                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "12px", color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(tripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                         </div>
                         <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
@@ -1484,7 +1506,7 @@ export default function FuelTracker() {
                                     <div style={{ marginTop: "4px" }}>
                                       <div style={{ marginBottom: "4px" }}>
                                         <div style={{ ...lbl, marginBottom: "4px" }}>Toplam Otoyol Harcaması</div>
-                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "12px", color: "#e8eef8", cursor: "default", fontFamily: FONT }}><span>{formatNumber(editTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
+                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "12px", color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(editTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                                       </div>
                                       {(editTripForm.tollItems||[]).map((item, i) => (
                                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#080c14", borderRadius: "5px", marginBottom: "3px" }}>

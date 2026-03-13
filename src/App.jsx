@@ -141,17 +141,6 @@ function getTankFillBackground(pct) {
   return "#ff3b30";
 }
 
-function animateNumber(from, to, setValue, duration = 240) {
-  const start = performance.now();
-  const step = (now) => {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    setValue(from + (to - from) * eased);
-    if (progress < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
 function downloadCSV(rows, filename) {
   const header = ["Tarih","Km","Litre","Toplam ₺","₺/Litre","L/100km","₺/Km"];
   const lines = [header.join(";"), ...rows.map(e => [
@@ -296,6 +285,8 @@ export default function FuelTracker() {
   const [editingTripId, setEditingTripId] = useState(null);
   const [editTripForm, setEditTripForm] = useState({});
   const [editTripSaving, setEditTripSaving] = useState(false);
+  const [animatedTripTollTotal, setAnimatedTripTollTotal] = useState(0);
+  const [animatedEditTripTollTotal, setAnimatedEditTripTollTotal] = useState(0);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -312,14 +303,6 @@ export default function FuelTracker() {
       fetchEpdk(false);
     }
   }, []);
-
-  useEffect(() => {
-    animateNumber(animatedTripTollTotal, tripTollTotal, setAnimatedTripTollTotal);
-  }, [tripTollTotal]);
-
-  useEffect(() => {
-    animateNumber(animatedEditTripTollTotal, editTripTollTotal, setAnimatedEditTripTollTotal);
-  }, [editTripTollTotal]);
 
   // --- EPDK ---
   const getLocationInfo = async (lat, lon) => {
@@ -437,8 +420,6 @@ export default function FuelTracker() {
   const [editTollAddLabel, setEditTollAddLabel] = useState("");
   const [showEditTollAdder, setShowEditTollAdder] = useState(false);
   const [editTollAddValue, setEditTollAddValue] = useState("");
-  const [animatedTripTollTotal, setAnimatedTripTollTotal] = useState(0);
-  const [animatedEditTripTollTotal, setAnimatedEditTripTollTotal] = useState(0);
   const [tripReceiptPreviews, setTripReceiptPreviews] = useState([]);
   const [editTripReceiptFiles, setEditTripReceiptFiles] = useState([]);
   const [editTripReceiptPreviews, setEditTripReceiptPreviews] = useState([]);
@@ -607,6 +588,54 @@ export default function FuelTracker() {
   const currentWAC = weightedHistory.length > 0 ? weightedHistory[weightedHistory.length - 1].avgPrice : null;
   const tripTollTotal = (tripForm.tollItems || []).reduce((acc, x) => acc + x.amount, 0);
   const editTripTollTotal = (editTripForm.tollItems || []).reduce((acc, x) => acc + x.amount, 0);
+
+  useEffect(() => {
+    const startValue = Number.isFinite(animatedTripTollTotal) ? animatedTripTollTotal : 0;
+    const endValue = tripTollTotal || 0;
+    const diff = endValue - startValue;
+    if (Math.abs(diff) < 0.01) {
+      setAnimatedTripTollTotal(endValue);
+      return;
+    }
+    let frameId = 0;
+    let startTime;
+    const duration = 260;
+
+    const animate = (time) => {
+      if (!startTime) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setAnimatedTripTollTotal(startValue + diff * eased);
+      if (progress < 1) frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [tripTollTotal]);
+
+  useEffect(() => {
+    const startValue = Number.isFinite(animatedEditTripTollTotal) ? animatedEditTripTollTotal : 0;
+    const endValue = editTripTollTotal || 0;
+    const diff = endValue - startValue;
+    if (Math.abs(diff) < 0.01) {
+      setAnimatedEditTripTollTotal(endValue);
+      return;
+    }
+    let frameId = 0;
+    let startTime;
+    const duration = 260;
+
+    const animate = (time) => {
+      if (!startTime) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setAnimatedEditTripTollTotal(startValue + diff * eased);
+      if (progress < 1) frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [editTripTollTotal]);
 
   const enriched = entries.map((e, i) => {
     const wh = weightedHistory.find(w => w.id === e.id);
@@ -1542,7 +1571,7 @@ export default function FuelTracker() {
                                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#080c14", borderRadius: "5px", marginBottom: "3px" }}>
                                           <span style={{ fontSize: "12px", color: "#e8eef8", fontFamily: FONT }}>{item.label}</span>
                                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                            <span style={{ fontSize: "12px", color: "#e8eef8", fontFamily: FONT }}>{formatNumber(item.amount)} ₺</span>
+                                            <span style={{ fontSize: "12px", color: "#e8eef8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{formatNumber(item.amount)} ₺</span>
                                             <button onClick={() => setEditTripForm(p => ({ ...p, tollItems: p.tollItems.filter((_,fi) => fi !== i) }))} style={{ background: "none", border: "none", color: "#ff4444", cursor: "pointer", fontSize: "13px", padding: "0 2px", lineHeight: 1 }}>✕</button>
                                           </div>
                                         </div>

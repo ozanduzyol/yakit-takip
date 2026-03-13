@@ -1261,7 +1261,7 @@ export default function FuelTracker() {
                       <div style={{ marginBottom: "8px" }}>
                         <div style={{ marginBottom: "6px" }}>
                           <div style={lbl}>Toplam Otoyol Harcaması</div>
-                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", padding: "0 12px", fontSize: "12px", color: "#e8eef8", cursor: "default" }}>{formatNumber(tripTollTotal)} ₺</div>
+                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "24px", fontWeight: "700", color: "#e8eef8", cursor: "default", fontFamily: FONT }}><span>{formatNumber(tripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                         </div>
                         <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
@@ -1432,7 +1432,7 @@ export default function FuelTracker() {
                                     <div style={{ marginTop: "4px" }}>
                                       <div style={{ marginBottom: "4px" }}>
                                         <div style={{ ...lbl, marginBottom: "4px" }}>Toplam Otoyol Harcaması</div>
-                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", padding: "0 12px", fontSize: "12px", color: "#e8eef8", cursor: "default" }}>{formatNumber(editTripTollTotal)} ₺</div>
+                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "24px", fontWeight: "700", color: "#e8eef8", cursor: "default", fontFamily: FONT }}><span>{formatNumber(editTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                                       </div>
                                       {(editTripForm.tollItems||[]).map((item, i) => (
                                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#080c14", borderRadius: "5px", marginBottom: "3px" }}>

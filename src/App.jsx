@@ -773,7 +773,7 @@ export default function FuelTracker() {
                       <div style={{ fontSize: "12px", color: "#64d2ff", fontFamily: MONO, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(tankState.remainingLiters)} / {formatNumber(TANK_SIZE)} L</div>
                     </div>
                     <div style={{ height: "10px", width: "100%", background: "#111e30", border: "1px solid #1a2a45", borderRadius: "999px", overflow: "hidden", marginBottom: "8px" }}>
-                      <div style={{ width: `${tankState.remainingPct}%`, height: "100%", background: "linear-gradient(90deg, #44cc88 0%, #64d2ff 100%)", borderRadius: "999px", transition: "width 0.3s ease" }} />
+                      <div style={{ width: `${tankState.remainingPct}%`, height: "100%", background: "linear-gradient(90deg, #ff3b30 0%, #ff9500 25%, #ffd60a 50%, #34c759 75%, #0a84ff 100%)", borderRadius: "999px", transition: "width 0.3s ease" }} />
                     </div>
                     <div style={{ fontSize: "12px", color: "#8aa4c8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>%{formatNumber(tankState.remainingPct)}</div>
                   </div>
@@ -1325,7 +1325,7 @@ export default function FuelTracker() {
                       </div>
                     </div>
                     <div style={{ ...inp, display: "flex", alignItems: "center" }}>
-                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "12px", fontFamily: FONT, outline: "none" }} />
+                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "12px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", outline: "none" }} />
                       <span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span>
                     </div>
                   </div>
@@ -1488,7 +1488,7 @@ export default function FuelTracker() {
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı</div>
                                     <div style={{ ...editInp, display: "flex", alignItems: "center" }}>
-                                      <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "12px", fontFamily: FONT, outline: "none" }} />
+                                      <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "12px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", outline: "none" }} />
                                       <span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span>
                                     </div>
                                 </div>

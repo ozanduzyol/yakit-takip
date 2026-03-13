@@ -132,6 +132,15 @@ function estimateTankState(fuelEntries, tripEntries, avg100km) {
   };
 }
 
+
+function getTankFillBackground(pct) {
+  if (pct >= 80) return "linear-gradient(90deg, #ff3b30 0%, #ff9500 25%, #ffd60a 50%, #34c759 75%, #0a84ff 100%)";
+  if (pct >= 60) return "linear-gradient(90deg, #ff3b30 0%, #ff9500 33%, #ffd60a 66%, #34c759 100%)";
+  if (pct >= 40) return "linear-gradient(90deg, #ff3b30 0%, #ff9500 50%, #ffd60a 100%)";
+  if (pct >= 20) return "linear-gradient(90deg, #ff3b30 0%, #ff9500 100%)";
+  return "#ff3b30";
+}
+
 function downloadCSV(rows, filename) {
   const header = ["Tarih","Km","Litre","Toplam ₺","₺/Litre","L/100km","₺/Km"];
   const lines = [header.join(";"), ...rows.map(e => [
@@ -773,7 +782,7 @@ export default function FuelTracker() {
                       <div style={{ fontSize: "12px", color: "#64d2ff", fontFamily: MONO, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(tankState.remainingLiters)} / {formatNumber(TANK_SIZE)} L</div>
                     </div>
                     <div style={{ height: "10px", width: "100%", background: "#111e30", border: "1px solid #1a2a45", borderRadius: "999px", overflow: "hidden", marginBottom: "8px" }}>
-                      <div style={{ width: `${tankState.remainingPct}%`, height: "100%", background: "linear-gradient(90deg, #ff3b30 0%, #ff9500 25%, #ffd60a 50%, #34c759 75%, #0a84ff 100%)", borderRadius: "999px", transition: "width 0.3s ease" }} />
+                      <div style={{ width: `${tankState.remainingPct}%`, height: "100%", background: getTankFillBackground(tankState.remainingPct), borderRadius: "999px", transition: "width 0.3s ease" }} />
                     </div>
                     <div style={{ fontSize: "12px", color: "#8aa4c8", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>%{formatNumber(tankState.remainingPct)}</div>
                   </div>
@@ -1325,8 +1334,8 @@ export default function FuelTracker() {
                       </div>
                     </div>
                     <div style={{ ...inp, display: "flex", alignItems: "center" }}>
-                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "12px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", outline: "none" }} />
-                      <span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span>
+                      <NumericInput value={tripForm.fuelPrice} onChange={v => setTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "16px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: "400", lineHeight: 1, outline: "none" }} />
+                      <span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span>
                     </div>
                   </div>
                   <div>
@@ -1335,7 +1344,7 @@ export default function FuelTracker() {
                       <div style={{ marginBottom: "8px" }}>
                         <div style={{ marginBottom: "6px" }}>
                           <div style={lbl}>Toplam Otoyol Harcaması</div>
-                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "12px", color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(tripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
+                          <div style={{ background: "#111e30", border: "1px solid #1a2a45", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(tripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                         </div>
                         <button onClick={() => { setShowTollAdder(p => !p); setTollAddValue(""); setTollAddLabel(""); }} style={{ width: "100%", height: "44px", background: showTollAdder ? "#64d2ff" : "#1a2a45", border: "1px solid #2a3a55", color: showTollAdder ? "#000" : "#64d2ff", borderRadius: "6px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: FONT, marginBottom: "8px" }}>{showTollAdder ? "✕ İptal" : "+ Geçiş Ekle"}</button>
                         {showTollAdder && (
@@ -1488,8 +1497,8 @@ export default function FuelTracker() {
                                 <div>
                                   <div style={{ ...lbl, marginBottom: "4px" }}>Litre Fiyatı</div>
                                     <div style={{ ...editInp, display: "flex", alignItems: "center" }}>
-                                      <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "12px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", outline: "none" }} />
-                                      <span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span>
+                                      <NumericInput value={editTripForm.fuelPrice} onChange={v => setEditTripForm(p => ({ ...p, fuelPrice: v }))} placeholder="44,50" style={{ background: "transparent", border: "none", color: "#e8eef8", padding: 0, flex: 1, minWidth: 0, fontSize: "16px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: "400", lineHeight: 1, outline: "none" }} />
+                                      <span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span>
                                     </div>
                                 </div>
                                 <div>
@@ -1506,7 +1515,7 @@ export default function FuelTracker() {
                                     <div style={{ marginTop: "4px" }}>
                                       <div style={{ marginBottom: "4px" }}>
                                         <div style={{ ...lbl, marginBottom: "4px" }}>Toplam Otoyol Harcaması</div>
-                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "12px", color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(editTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "12px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
+                                        <div style={{ background: "#111e30", border: "1px solid #64d2ff", borderRadius: "6px", height: "44px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: "16px", fontWeight: "400", lineHeight: 1, color: "#e8eef8", cursor: "default", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}><span>{formatNumber(editTripTollTotal)}</span><span style={{ color: "#8aa4c8", fontSize: "16px", marginLeft: "8px", flexShrink: 0 }}>₺</span></div>
                                       </div>
                                       {(editTripForm.tollItems||[]).map((item, i) => (
                                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#080c14", borderRadius: "5px", marginBottom: "3px" }}>

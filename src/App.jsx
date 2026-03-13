@@ -101,6 +101,14 @@ function estimateTankState(fuelEntries, tripEntries, avg100km) {
   const latestFill = sortedFuel[sortedFuel.length - 1];
   if (!latestFill) return null;
 
+  const prevFill = sortedFuel.length >= 2 ? sortedFuel[sortedFuel.length - 2] : null;
+  const actualRecent100km =
+    prevFill && latestFill.km > prevFill.km && latestFill.liters > 0
+      ? (latestFill.liters / (latestFill.km - prevFill.km)) * 100
+      : null;
+
+  const consumptionBasis = actualRecent100km && actualRecent100km > 0 ? actualRecent100km : avg100km;
+
   const sortedTrips = [...(tripEntries || [])].sort((a, b) => a.date.localeCompare(b.date) || a.startKm - b.startKm);
   const tripsAfterFill = sortedTrips.filter(t => (t.endKm || 0) > latestFill.km);
 
@@ -110,25 +118,33 @@ function estimateTankState(fuelEntries, tripEntries, avg100km) {
   for (const trip of tripsAfterFill) {
     const tripStart = Math.max(trip.startKm || 0, latestFill.km);
     const tripEnd = trip.endKm || 0;
-    if (tripEnd <= tripStart || !trip.consumption) continue;
+    if (tripEnd <= tripStart) continue;
+
     const overlapKm = tripEnd - tripStart;
-    usedLiters += (overlapKm * trip.consumption) / 100;
+    const tripConsumption = trip.consumption && trip.consumption > 0 ? trip.consumption : consumptionBasis;
+
+    if (!tripConsumption || tripConsumption <= 0) continue;
+
+    usedLiters += (overlapKm * tripConsumption) / 100;
     latestKnownKm = Math.max(latestKnownKm, tripEnd);
   }
 
   const remainingLiters = Math.max(0, Math.min(TANK_SIZE, TANK_SIZE - usedLiters));
   const remainingPct = (remainingLiters / TANK_SIZE) * 100;
   const kmSinceFill = Math.max(0, latestKnownKm - latestFill.km);
-  const estRangeKm = avg100km > 0 ? (remainingLiters / avg100km) * 100 : null;
+  const estRangeKm = consumptionBasis > 0 ? (remainingLiters / consumptionBasis) * 100 : null;
 
   return {
     latestFill,
+    prevFill,
     tripsAfterFillCount: tripsAfterFill.length,
     usedLiters,
     remainingLiters,
     remainingPct,
     kmSinceFill,
     estRangeKm,
+    actualRecent100km,
+    consumptionBasis,
   };
 }
 
@@ -819,12 +835,26 @@ export default function FuelTracker() {
                 <>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "8px" }}>
                     <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #44cc88" }}>
-                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Tahmini Depo</div>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Gerçek Depo Tahmini</div>
                       <div style={{ fontSize: "14px", fontWeight: "700", color: "#44cc88", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatNumber(tankState.remainingLiters)} L</div>
                     </div>
                     <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #cc88ff" }}>
-                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Tahmini Menzil</div>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Gerçek Menzil Tahmini</div>
                       <div style={{ fontSize: "14px", fontWeight: "700", color: "#cc88ff", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{tankState.estRangeKm ? formatNumber(tankState.estRangeKm, 0) : "—"} km</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "8px" }}>
+                    <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "12px", border: "1px solid #2a2f36" }}>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Son Gerçek Tüketim</div>
+                      <div style={{ fontSize: "13px", fontWeight: "700", color: "#64d2ff", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+                        {tankState.actualRecent100km ? formatNumber(tankState.actualRecent100km) : "—"} {tankState.actualRecent100km ? "L/100 km" : ""}
+                      </div>
+                    </div>
+                    <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "12px", border: "1px solid #2a2f36" }}>
+                      <div style={{ fontSize: "9px", fontWeight: "600", color: "#7a8088", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>Son Dolumdan Sonra</div>
+                      <div style={{ fontSize: "13px", fontWeight: "700", color: "#e8eef8", fontFamily: MONO, lineHeight: 1, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+                        {formatNumber(tankState.kmSinceFill, 0)} km
+                      </div>
                     </div>
                   </div>
                   <div className="card" style={{ background: "#1a1d21", borderRadius: "12px", padding: "14px 12px", borderTop: "2px solid #64d2ff", marginBottom: "20px" }}>

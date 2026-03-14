@@ -1,17 +1,14 @@
 /*
 APP NAME: Fuel Tracker
-VERSION: 1.0.0
+VERSION: 1.0.1
 BUILD: 20260314
 RELEASE DATE: 14 Mar 2026
 
 RELEASE NOTES
-- First stable release
-- Monospace numeric system across the app
-- Monospace charts (axes + tooltip)
-- Weighted fuel price calculation
-- Tank estimation system
-- Rounded active tab indicator
-- Dashboard footer shows version, build and record counts
+- Trip cards updated with L/100 km and new metric layout
+- Rounded active tab indicator with glow
+- Dashboard footer version synced to 1.0.1
+- Monospace numeric system preserved across the app
 */
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -24,7 +21,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const FONT = "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif";
 const MONO = "'JetBrains Mono', 'Fira Code', 'Courier New', monospace";
 
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.0.1";
 const BUILD_NUMBER = "20260314";
 
 const MAINT_CATEGORIES = [
@@ -1670,19 +1667,36 @@ export default function FuelTracker() {
                                   <button onClick={() => handleDeleteTrip(t.id)} style={{ background: "none", border: "1px solid #2a2f36", color: "#3d5270", cursor: "pointer", padding: "5px 9px", fontSize: "12px", fontFamily: MONO, fontFamily: FONT, borderRadius: "5px" }} onMouseEnter={ev => { ev.target.style.borderColor = "#ff4444"; ev.target.style.color = "#ff4444"; }} onMouseLeave={ev => { ev.target.style.borderColor = "#2a2f36"; ev.target.style.color = "#3d5270"; }}>✕</button>
                                 </div>
                               </div>
-                              <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", borderTop: "1px solid #2a2f36" }}>
-                                {[
-                                  { label: "Mesafe", val: `${formatNumber(calc.km, 0)} km` },
-                                  { label: "Yakıt L", val: `${formatNumber(calc.liters)} L` },
-                                  { label: "Yakıt ₺", val: `${formatNumber(calc.fuelCost)} ₺` },
-                                  { label: "Otoyol", val: `${formatNumber(t.tollCost)} ₺` },
-                                  { label: "Toplam", val: `${formatNumber(calc.total)} ₺`, highlight: true },
-                                ].map((col, ci) => (
-                                  <div key={col.label} style={{ padding: "8px 4px", borderRight: ci < 4 ? "1px solid #2a2f36" : "none" }}>
-                                    <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
-                                    <div style={{ fontSize: "12px", fontFamily: MONO, fontWeight: "700", color: col.highlight ? "#ff6655" : "#8aa4c8", fontFamily: MONO, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
-                                  </div>
-                                ))}
+                              <div style={{ borderTop: "1px solid #2a2f36", padding: "10px" }}>
+                                <div style={{ background: "#111315", borderRadius: "10px", padding: "12px", marginBottom: "8px", border: "1px solid #2a2f36" }}>
+                                  <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Toplam Harcama</div>
+                                  <div style={{ fontSize: "16px", fontFamily: MONO, fontWeight: "800", color: "#ff6655", fontVariantNumeric: "tabular-nums" }}>{formatNumber(calc.total)} ₺</div>
+                                </div>
+
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px", marginBottom: "8px" }}>
+                                  {[
+                                    { label: "Mesafe", val: `${formatNumber(calc.km, 0)} km` },
+                                    { label: "Yakıt L", val: `${formatNumber(calc.liters)} L` },
+                                    { label: "L/100 km", val: `${formatNumber(t.consumption)}` },
+                                  ].map((col) => (
+                                    <div key={col.label} style={{ background: "#111315", borderRadius: "8px", padding: "10px" }}>
+                                      <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
+                                      <div style={{ fontSize: "12px", fontFamily: MONO, fontWeight: "700", color: "#8aa4c8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px" }}>
+                                  {[
+                                    { label: "Yakıt ₺", val: `${formatNumber(calc.fuelCost)} ₺` },
+                                    { label: "Otoyol", val: `${formatNumber(t.tollCost)} ₺` },
+                                  ].map((col) => (
+                                    <div key={col.label} style={{ background: "#111315", borderRadius: "8px", padding: "10px" }}>
+                                      <div style={{ fontSize: "8px", fontWeight: "600", color: "#3d5270", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{col.label}</div>
+                                      <div style={{ fontSize: "12px", fontFamily: MONO, fontWeight: "700", color: "#8aa4c8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums" }}>{col.val}</div>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                               {t.notes && <div style={{ padding: "8px 14px", fontSize: "12px", fontFamily: MONO, color: "#7a8088", borderTop: "1px solid #2a2f36" }}>{t.notes}</div>}
                             </>

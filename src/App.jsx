@@ -1782,7 +1782,7 @@ export default function FuelTracker() {
       )}
 
       {/* BOTTOM TAB BAR */}
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, background: "rgba(8,12,20,0.92)", borderTop: "1px solid #2a2f36", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", display: "flex", alignItems: "stretch", justifyContent: "center", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100, background: "#14171b", boxShadow: "0 -4px 20px rgba(0,0,0,0.35)", borderTop: "1px solid #2a2f36", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", display: "flex", alignItems: "stretch", justifyContent: "center", paddingBottom: "env(safe-area-inset-bottom)" }}>
         {[
           { id: "dashboard", emoji: "📊", label: "Panel" },
           { id: "fuel", emoji: "⛽", label: "Yakıt" },

@@ -10,12 +10,9 @@ RELEASE NOTES
 - Monospace charts (axes + tooltip)
 - Weighted fuel price calculation
 - Tank estimation system
-- Versioning system added
-- Softer active tab indicator
-- Footer summary updated with version, build, fuel, maintenance and trip counts
-- Light haptic feedback added after successful fuel save
+- Rounded active tab indicator
+- Dashboard footer shows version, build and record counts
 */
-
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -256,17 +253,6 @@ const emptyForm = () => ({ date: new Date().toISOString().split("T")[0], km: "",
 const emptyMaint = () => ({ date: new Date().toISOString().split("T")[0], km: "", category: "lastik", description: "", cost: "" });
 const emptyTrip = () => ({ date: new Date().toISOString().split("T")[0], tripDateFrom: "", tripDateTo: "", title: "", startKm: "", endKm: "", consumption: "", fuelPrice: "", tollItems: [], tollCost: "", notes: "", consumptionMode: "manual", tankPercent: "100" });
 
-function triggerHapticFeedback() {
-  try {
-    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
-      navigator.vibrate(12);
-    }
-  } catch (e) {
-    // no-op
-  }
-}
-
-
 export default function FuelTracker() {
   // Fuel
   const [entries, setEntries] = useState([]);
@@ -415,7 +401,7 @@ export default function FuelTracker() {
       }
       const { error } = await supabase.from("fuel_entries").insert({ date: form.date, km: parseTR(form.km), liters: parseTR(form.liters), total_price: parseTR(form.totalPrice), receipt_url: receiptUrl });
       if (error) { setSaveError("Kayıt eklenemedi."); }
-      else { await fetchEntries(); setForm(emptyForm()); setReceiptImage(null); setReceiptFile(null); setShowForm(false); triggerHapticFeedback(); }
+      else { await fetchEntries(); setForm(emptyForm()); setReceiptImage(null); setReceiptFile(null); setShowForm(false); }
     } catch (e) { setSaveError("Beklenmeyen bir hata oluştu."); }
     finally { setSaving(false); }
   };
@@ -720,6 +706,9 @@ export default function FuelTracker() {
   };
   const serviceStatus = getServiceStatus();
   const tankState = estimateTankState(entries, tripEntries, avg100km);
+  const fuelCount = entries.length;
+  const maintCount = maintEntries.length;
+  const tripCount = tripEntries.length;
 
   // Trip calc helper - weighted avg cost kullanır
   const calcTrip = (t) => {
@@ -924,6 +913,10 @@ export default function FuelTracker() {
                 <div style={{ color: "#7a8088", fontSize: "13px" }}>İstatistikler için en az 2 yakıt kaydı gereklidir.</div>
               </div>
             )}
+
+            <div style={{ color: "#7a8088", fontSize: "12px", fontFamily: MONO, textAlign: "center", marginTop: "6px", marginBottom: "12px", opacity: 0.9 }}>
+              Fuel Tracker v{APP_VERSION} - {BUILD_NUMBER} - {fuelCount} yakıt • {maintCount} bakım • {tripCount} yolculuk
+            </div>
           </div>
         )}
 
@@ -1805,7 +1798,13 @@ export default function FuelTracker() {
           { id: "trips", emoji: "🛣️", label: "Yolculuk" },
           { id: "graphs", emoji: "📈", label: "Grafik" },
         ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: "0 1 20%", background: "none", border: "none", minWidth: 0, maxWidth: "20%", color: activeTab === tab.id ? "#64d2ff" : "#7a8088", fontFamily: FONT, cursor: "pointer", borderTop: activeTab === tab.id ? "2px solid #64d2ff" : "2px solid transparent", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "8px 0 20px", gap: "3px" }}>
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ position: "relative", flex: "0 1 20%", background: "none", border: "none", minWidth: 0, maxWidth: "20%", color: activeTab === tab.id ? "#64d2ff" : "#7a8088", fontFamily: FONT, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "10px 0 20px", gap: "3px" }}>
+            <div style={{ position: "absolute", top: "0px", left: "50%", transform: "translateX(-50%)", width: activeTab === tab.id ? "36px" : "0px",
+    height: "3px",
+    borderRadius: "999px",
+    background: "#64d2ff",
+    boxShadow: activeTab === tab.id ? "0 0 6px rgba(100,210,255,0.6)" : "none",
+    transition: "all 0.18s ease" }} />
             <span style={{ fontSize: "16px", lineHeight: 1 }}>{tab.emoji}</span>
             <span style={{ fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.2px", whiteSpace: "nowrap", overflow: "hidden", maxWidth: "100%", textAlign: "center" }}>{tab.label}</span>
           </button>

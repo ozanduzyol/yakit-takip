@@ -11,7 +11,11 @@ RELEASE NOTES
 - Weighted fuel price calculation
 - Tank estimation system
 - Versioning system added
+- Softer active tab indicator
+- Footer summary updated with version, build, fuel, maintenance and trip counts
+- Light haptic feedback added after successful fuel save
 */
+
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -252,6 +256,17 @@ const emptyForm = () => ({ date: new Date().toISOString().split("T")[0], km: "",
 const emptyMaint = () => ({ date: new Date().toISOString().split("T")[0], km: "", category: "lastik", description: "", cost: "" });
 const emptyTrip = () => ({ date: new Date().toISOString().split("T")[0], tripDateFrom: "", tripDateTo: "", title: "", startKm: "", endKm: "", consumption: "", fuelPrice: "", tollItems: [], tollCost: "", notes: "", consumptionMode: "manual", tankPercent: "100" });
 
+function triggerHapticFeedback() {
+  try {
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(12);
+    }
+  } catch (e) {
+    // no-op
+  }
+}
+
+
 export default function FuelTracker() {
   // Fuel
   const [entries, setEntries] = useState([]);
@@ -400,7 +415,7 @@ export default function FuelTracker() {
       }
       const { error } = await supabase.from("fuel_entries").insert({ date: form.date, km: parseTR(form.km), liters: parseTR(form.liters), total_price: parseTR(form.totalPrice), receipt_url: receiptUrl });
       if (error) { setSaveError("Kayıt eklenemedi."); }
-      else { await fetchEntries(); setForm(emptyForm()); setReceiptImage(null); setReceiptFile(null); setShowForm(false); }
+      else { await fetchEntries(); setForm(emptyForm()); setReceiptImage(null); setReceiptFile(null); setShowForm(false); triggerHapticFeedback(); }
     } catch (e) { setSaveError("Beklenmeyen bir hata oluştu."); }
     finally { setSaving(false); }
   };

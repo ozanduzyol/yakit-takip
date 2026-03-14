@@ -206,7 +206,12 @@ function NumericInput({ value, onChange, onBlur, autoFocus, placeholder, style }
 }
 
 const parseTR = (str) => parseFloat((str || "").replace(/\./g, "").replace(",", "."));
-const fmtDate = (iso) => { if (!iso) return ""; const [y,m,d] = iso.split("-"); return `${d}.${m}.${y}`; };
+const fmtDate = (iso) => {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${d} ${months[parseInt(m, 10) - 1]} ${y}`;
+};
 const parseDateInput = (val) => {
   // DD.MM.YYYY → YYYY-MM-DD
   const parts = val.replace(/[^0-9]/g, "");
@@ -1059,8 +1064,8 @@ export default function FuelTracker() {
                               <>
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 8px", flexWrap: "wrap", gap: "6px" }}>
                                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    <span style={{ fontSize: "15px", fontWeight: "800", color: i === 0 ? "#7a8088" : "#e8eef8", fontFamily: MONO, letterSpacing: "-0.3px" }}>{fmtDate(e.date)}</span>
-                                    {e.consumption && i > 0 && (() => { const prev = enriched[i - 1]; if (!prev?.consumption) return null; const diff = e.consumption - prev.consumption; if (Math.abs(diff) < 0.1) return null; return <span style={{ fontSize: "11px", fontWeight: "700", color: diff < 0 ? "#44cc88" : "#ff6655" }}>{diff < 0 ? "↓" : "↑"} {formatNumber(Math.abs(diff))} L/100km</span>; })()}
+                                    <span style={{ fontSize: "15px", fontWeight: "800", color: i === 0 ? "#7a8088" : "#e8eef8", fontFamily: FONT, letterSpacing: "-0.3px" }}>{fmtDate(e.date)}</span>
+                                    {e.consumption && i > 0 && (() => { const prev = enriched[i - 1]; if (!prev?.consumption) return null; const diff = e.consumption - prev.consumption; if (Math.abs(diff) < 0.1) return null; return <span style={{ fontSize: "11px", fontWeight: "700", color: diff < 0 ? "#44cc88" : "#ff6655", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{diff < 0 ? "↓" : "↑"} {formatNumber(Math.abs(diff))} L/100km</span>; })()}
                                   </div>
                                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                     {e.receipt && <a href={e.receipt} target="_blank" rel="noopener noreferrer"><img src={e.receipt} alt="fiş" style={{ width: "30px", height: "30px", objectFit: "cover", border: "1px solid #64d2ff", borderRadius: "5px", display: "block" }} /></a>}

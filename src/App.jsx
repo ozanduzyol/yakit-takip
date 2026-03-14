@@ -913,11 +913,7 @@ export default function FuelTracker() {
                 <div style={{ color: "#7a8088", fontSize: "13px" }}>İstatistikler için en az 2 yakıt kaydı gereklidir.</div>
               </div>
             )}
-
-            <div style={{ color: "#7a8088", fontSize: "12px", fontFamily: MONO, textAlign: "center", marginTop: "6px", marginBottom: "12px", opacity: 0.9 }}>
-              Fuel Tracker v{APP_VERSION} - {BUILD_NUMBER} - {fuelCount} yakıt • {maintCount} bakım • {tripCount} yolculuk
-            </div>
-          </div>
+</div>
         )}
 
         {/* ===== YAKIT ===== */}
@@ -1753,7 +1749,7 @@ export default function FuelTracker() {
         })()}
 
         <div style={{ marginTop: "40px", paddingTop: "16px", borderTop: "1px solid #2a2f36", fontSize: "11px", color: "#2a2f36", textAlign: "center", fontWeight: "500" }}>
-          Fuel Tracker — {entries.length} yakıt · {maintEntries.length} bakım · {tripEntries.length} yolculuk
+          Fuel Tracker v{APP_VERSION} - {BUILD_NUMBER} - {fuelCount} yakıt • {maintCount} bakım • {tripCount} yolculuk
         </div>
       </div>
 
